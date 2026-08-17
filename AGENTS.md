@@ -316,7 +316,7 @@ pnpm -r check
 | Tính năng | Free | Standard | Premium | Enterprise |
 | --- | --- | --- | --- | --- |
 | Sử dụng ứng dụng | Có | Có | Có | Có |
-| Giới hạn sản phẩm trong kho | 80 | 500 (tạm — chờ chốt) | Không giới hạn | Không giới hạn |
+| Giới hạn sản phẩm trong kho | 80 | 800 | Không giới hạn | Không giới hạn |
 | Số nhà kho | 1 | 1 | Không giới hạn | Không giới hạn |
 | AI agent (chat) | Không | Không | Có | Có |
 | AI agent (giọng nói) | Không | Không | Có | Có |
@@ -328,14 +328,14 @@ pnpm -r check
 
 - **Phạm vi gói:** gắn theo **tenant/công ty** (nhiều user trong cùng công ty chung một gói), không gắn theo từng user.
 - **Đổi gói:** cho phép **nâng và hạ gói bất kỳ lúc nào** sau onboarding. Khi hạ gói mà dữ liệu hiện có vượt hạn mức mới → **chặn tạo mới**, **giữ nguyên dữ liệu hiện có** (không xoá), hiển thị cảnh báo cho tới khi về dưới hạn mức.
-- **Giới hạn sản phẩm:** chỉ **Free (80)** và **Standard** bị giới hạn; **Premium/Enterprise không giới hạn**. Con số cho Standard tạm để **500**, chờ xác nhận cuối.
+- **Giới hạn sản phẩm:** chỉ **Free (80)** và **Standard (800)** bị giới hạn; **Premium/Enterprise không giới hạn**.
 - **Enterprise — DB riêng biệt:** **admin cấu hình thủ công** (chưa auto-provision Supabase project riêng).
 - **AI giọng nói (Premium/Enterprise):** lưu **cả file audio và transcript**.
 - **OCR hóa đơn viết tay (Premium/Enterprise):** **tự lưu, cho sửa sau** — không bắt buộc human review trước khi lưu.
 
 ### Enforcement (bắt buộc ở backend)
 
-- Tạo sản phẩm: **Free** đủ 80 và **Standard** đủ hạn mức (tạm 500) → chặn tạo thêm; **Premium/Enterprise** không giới hạn.
+- Tạo sản phẩm: **Free** đủ 80 và **Standard** đủ 800 → chặn tạo thêm; **Premium/Enterprise** không giới hạn.
 - Tạo nhà kho: **Free/Standard** giới hạn 1 nhà kho → chặn tạo nhà kho thứ 2; **Premium/Enterprise** không giới hạn.
 - AI chat / AI giọng nói: chỉ **Premium** và **Enterprise**.
 - OCR hóa đơn viết tay → hóa đơn online: chỉ **Premium** và **Enterprise**.
@@ -350,7 +350,7 @@ type Plan = 'free' | 'standard' | 'premium' | 'enterprise'
 
 const PLAN_CONFIG = {
   free:       { productLimit: 80,   warehouseLimit: 1,    hasAIAgent: false, hasVoice: false, hasInvoiceOCR: false, databaseMode: 'shared' },
-  standard:   { productLimit: 500,  warehouseLimit: 1,    hasAIAgent: false, hasVoice: false, hasInvoiceOCR: false, databaseMode: 'shared' }, // productLimit tạm 500, chờ chốt
+  standard:   { productLimit: 800,  warehouseLimit: 1,    hasAIAgent: false, hasVoice: false, hasInvoiceOCR: false, databaseMode: 'shared' },
   premium:    { productLimit: null, warehouseLimit: null, hasAIAgent: true,  hasVoice: true,  hasInvoiceOCR: true,  databaseMode: 'shared' },
   enterprise: { productLimit: null, warehouseLimit: null, hasAIAgent: true,  hasVoice: true,  hasInvoiceOCR: true,  databaseMode: 'dedicated' },
 } as const
@@ -382,7 +382,7 @@ const PLAN_POLICY = {
 ### Đã xong
 - [x] Chốt chuẩn vận hành AGENTS cho vlxd (trang này)
 - [x] Chốt stack (mục 2.5) và yêu cầu gói dịch vụ
-- [x] Chốt quyết định nghiệp vụ gói dịch vụ (tenant scope, nâng/hạ gói, DB thủ công, voice audio+transcript, OCR tự lưu)
+- [x] Chốt quyết định nghiệp vụ gói dịch vụ (tenant scope, nâng/hạ gói, DB thủ công, voice audio+transcript, OCR tự lưu, Standard = 800 sản phẩm)
 
 ### Đang làm dở
 - [ ] Monorepo skeleton (pnpm workspace + turbo)
@@ -401,7 +401,6 @@ const PLAN_POLICY = {
 
 ### Ghi chú / lỗi đang gặp
 - `requirements_extracted/` ở root sẽ được chuẩn hoá dần vào `docs/requirements/`.
-- **CHỜ CHỐT:** con số giới hạn sản phẩm cho gói Standard (đang tạm 500).
 
 ---
 
