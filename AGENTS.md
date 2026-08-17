@@ -44,7 +44,7 @@
 
 ---
 
-## 1.5 Nhận diện cấu trúc repo — QUYừT ĐẮNH ĐÃ CHỐT
+## 1.5 Nhận diện cấu trúc repo — QUYẾT ĐỊNH ĐÃ CHỐT
 
 > 🧭 Đã quét repo `HomyHubs/vlxd` (branch `dev`). Root chỉ có `AGENTS.md`, `README.md` (gần như trống) và `requirements_extracted/`. **Chưa có code chia theo chức năng.**
 
@@ -294,7 +294,7 @@ pnpm -r check
 | Truy cập Supabase DB trực tiếp từ frontend | Mọi truy cập DB qua backend `apps/api` |
 | Commit khóa Supabase / connection string | Secret manager, nạp lúc runtime |
 | Đập đi tái cấu trúc repo đã có quy ước | Bổ sung dần theo task (mục 1.5) |
-| Import thắng vào file bên trong module khác | Chỉ import qua `index.ts` |
+| Import thẳng vào file bên trong module khác | Chỉ import qua `index.ts` |
 | Đổi contract giữa chừng | Chốt trước, đổi thì làm ADR |
 | Tắt rule lint hoặc bỏ test để làm xanh cổng gác | Sửa nguyên nhân |
 | Sửa tay code sinh tự động | Sửa spec rồi sinh lại |
@@ -309,14 +309,14 @@ pnpm -r check
 
 ## Gói dịch vụ (yêu cầu nghiệp vụ vlxd — đã chốt)
 
-> 🧾 Web app cung cấp dịch vụ theo gói. Mỗi user chọn một gói để bắt đầu. Gói quyết định: giới hạn sản phẩm, số nhà kho, AI agent, OCR hóa đơn viết tay, và chế độ cơ sở dữ liệu. Chi tiết đầy đủ ở `docs/requirements/service-plans.md`.
+> 🧾 Web app cung cấp dịch vụ theo gói. Mỗi tenant/công ty chọn một gói để bắt đầu. Gói quyết định: giới hạn sản phẩm, số nhà kho, AI agent, OCR hóa đơn viết tay, và chế độ cơ sở dữ liệu. Chi tiết đầy đủ ở `docs/requirements/service-plans.md`.
 
 ### Bảng năng lực theo gói (quyết định cuối)
 
 | Tính năng | Free | Standard | Premium | Enterprise |
 | --- | --- | --- | --- | --- |
 | Sử dụng ứng dụng | Có | Có | Có | Có |
-| Giới hạn sản phẩm trong kho | 80 | Không giới hạn | Không giới hạn | Không giới hạn |
+| Giới hạn sản phẩm trong kho | 80 | 500 (tạm — chờ chốt) | Không giới hạn | Không giới hạn |
 | Số nhà kho | 1 | 1 | Không giới hạn | Không giới hạn |
 | AI agent (chat) | Không | Không | Có | Có |
 | AI agent (giọng nói) | Không | Không | Có | Có |
@@ -324,13 +324,24 @@ pnpm -r check
 | DB dùng chung | Có | Có | Có | Không |
 | DB riêng biệt / cài đặt riêng | Không | Không | Không | Có |
 
+### Quyết định nghiệp vụ đã chốt
+
+- **Phạm vi gói:** gắn theo **tenant/công ty** (nhiều user trong cùng công ty chung một gói), không gắn theo từng user.
+- **Đổi gói:** cho phép **nâng và hạ gói bất kỳ lúc nào** sau onboarding. Khi hạ gói mà dữ liệu hiện có vượt hạn mức mới → **chặn tạo mới**, **giữ nguyên dữ liệu hiện có** (không xoá), hiển thị cảnh báo cho tới khi về dưới hạn mức.
+- **Giới hạn sản phẩm:** chỉ **Free (80)** và **Standard** bị giới hạn; **Premium/Enterprise không giới hạn**. Con số cho Standard tạm để **500**, chờ xác nhận cuối.
+- **Enterprise — DB riêng biệt:** **admin cấu hình thủ công** (chưa auto-provision Supabase project riêng).
+- **AI giọng nói (Premium/Enterprise):** lưu **cả file audio và transcript**.
+- **OCR hóa đơn viết tay (Premium/Enterprise):** **tự lưu, cho sửa sau** — không bắt buộc human review trước khi lưu.
+
 ### Enforcement (bắt buộc ở backend)
 
-- Tạo sản phẩm: gói **Free** đủ 80 sản phẩm → chặn tạo thêm.
-- Tạo nhà kho: gói **Free/Standard** giới hạn 1 nhà kho → chặn tạo nhà kho thứ 2.
+- Tạo sản phẩm: **Free** đủ 80 và **Standard** đủ hạn mức (tạm 500) → chặn tạo thêm; **Premium/Enterprise** không giới hạn.
+- Tạo nhà kho: **Free/Standard** giới hạn 1 nhà kho → chặn tạo nhà kho thứ 2; **Premium/Enterprise** không giới hạn.
 - AI chat / AI giọng nói: chỉ **Premium** và **Enterprise**.
 - OCR hóa đơn viết tay → hóa đơn online: chỉ **Premium** và **Enterprise**.
-- Định tuyến DB: **Free/Standard/Premium** dùng DB chung; **Enterprise** dùng DB riêng biệt.
+- Định tuyến DB: **Free/Standard/Premium** dùng DB chung; **Enterprise** dùng DB riêng biệt (admin cấu hình).
+- Hạ gói: kiểm tra hạn mức mới ở backend; nếu vượt thì chặn tạo mới nhưng không xoá dữ liệu.
+- Mọi kiểm tra hạn mức/quyền theo gói thực hiện theo **tenant** đang đăng nhập.
 
 ### Cấu hình gói (chuẩn cho backend)
 
@@ -339,9 +350,19 @@ type Plan = 'free' | 'standard' | 'premium' | 'enterprise'
 
 const PLAN_CONFIG = {
   free:       { productLimit: 80,   warehouseLimit: 1,    hasAIAgent: false, hasVoice: false, hasInvoiceOCR: false, databaseMode: 'shared' },
-  standard:   { productLimit: null, warehouseLimit: 1,    hasAIAgent: false, hasVoice: false, hasInvoiceOCR: false, databaseMode: 'shared' },
+  standard:   { productLimit: 500,  warehouseLimit: 1,    hasAIAgent: false, hasVoice: false, hasInvoiceOCR: false, databaseMode: 'shared' }, // productLimit tạm 500, chờ chốt
   premium:    { productLimit: null, warehouseLimit: null, hasAIAgent: true,  hasVoice: true,  hasInvoiceOCR: true,  databaseMode: 'shared' },
   enterprise: { productLimit: null, warehouseLimit: null, hasAIAgent: true,  hasVoice: true,  hasInvoiceOCR: true,  databaseMode: 'dedicated' },
+} as const
+
+// Quyết định nghiệp vụ chung (đã chốt)
+const PLAN_POLICY = {
+  scope: 'tenant',                          // gói gắn theo tenant/công ty
+  allowChange: 'up_and_down',               // nâng/hạ gói bất kỳ lúc nào
+  onDowngradeOverLimit: 'block_create_keep_data', // giữ dữ liệu, chặn tạo mới
+  enterpriseDbProvisioning: 'manual',       // admin cấu hình thủ công
+  voiceStorage: 'audio_and_transcript',     // lưu cả audio và transcript
+  invoiceOcrReview: 'auto_save_editable',   // tự lưu, cho sửa sau
 } as const
 ```
 
@@ -361,6 +382,7 @@ const PLAN_CONFIG = {
 ### Đã xong
 - [x] Chốt chuẩn vận hành AGENTS cho vlxd (trang này)
 - [x] Chốt stack (mục 2.5) và yêu cầu gói dịch vụ
+- [x] Chốt quyết định nghiệp vụ gói dịch vụ (tenant scope, nâng/hạ gói, DB thủ công, voice audio+transcript, OCR tự lưu)
 
 ### Đang làm dở
 - [ ] Monorepo skeleton (pnpm workspace + turbo)
@@ -375,10 +397,11 @@ const PLAN_CONFIG = {
 - [ ] Gói dịch vụ: model + enforcement backend + màn chọn gói
 - [ ] AI agent (chat + giọng nói) cho Premium/Enterprise
 - [ ] OCR hóa đơn viết tay → hóa đơn online
-- [ ] Enterprise: định tuyến DB riêng biệt
+- [ ] Enterprise: định tuyến DB riêng biệt (admin cấu hình)
 
 ### Ghi chú / lỗi đang gặp
 - `requirements_extracted/` ở root sẽ được chuẩn hoá dần vào `docs/requirements/`.
+- **CHỜ CHỐT:** con số giới hạn sản phẩm cho gói Standard (đang tạm 500).
 
 ---
 
