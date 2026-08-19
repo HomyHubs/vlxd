@@ -6,6 +6,7 @@ Repo hiện ở giai đoạn plan/hướng dẫn. Chỉ giữ tài liệu có gi
 
 - `requirements/role-management.md` — role, title, user, permission matrix định hướng.
 - `requirements/service-plans.md` — gói dịch vụ Free/Standard/Premium/Enterprise.
+- `requirements/i18n.md` — song ngữ Việt / Anh, ưu tiên tiếng Việt.
 
 ## Tài liệu sẽ bổ sung sau
 
