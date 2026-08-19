@@ -22,6 +22,7 @@
 - **Kiến trúc:** Backend và frontend tách biệt, giao tiếp qua REST theo OpenAPI.
 - **Database:** Supabase Postgres.
 - **Mô hình kinh doanh:** dịch vụ theo gói Free, Standard, Premium, Enterprise.
+- **Ngôn ngữ sản phẩm:** song ngữ **Việt / Anh**, ưu tiên tiếng Việt trước.
 - **Trạng thái repo:** plan/hướng dẫn, chưa có code sản phẩm.
 
 ---
@@ -46,7 +47,8 @@ repo/
 │   ├── architecture/
 │   └── requirements/
 │       ├── service-plans.md
-│       └── role-management.md
+│       ├── role-management.md
+│       └── i18n.md
 ├── standards/
 ├── contracts/
 │   └── http/
@@ -236,7 +238,88 @@ Chi tiết đầy đủ đặt tại `docs/requirements/role-management.md`.
 
 ---
 
-## 5. Gói dịch vụ
+## 5. Song ngữ Việt / Anh
+
+> Quyết định sản phẩm: Web app `vlxd` hỗ trợ song ngữ **Tiếng Việt / English**, trong đó **Tiếng Việt là ngôn ngữ mặc định và ưu tiên trước**.
+
+Chi tiết đầy đủ đặt tại `docs/requirements/i18n.md`.
+
+### 5.1 Quyết định đã chốt
+
+| Hạng mục | Quyết định |
+| --- | --- |
+| Ngôn ngữ mặc định | `vi` |
+| Ngôn ngữ hỗ trợ thêm | `en` |
+| Ưu tiên nội dung | Viết tiếng Việt trước, dịch tiếng Anh sau |
+| Fallback | Nếu thiếu bản dịch `en`, fallback sang `vi` |
+| UI copy source of truth | i18next resource files trong `apps/web/src/i18n/` |
+| Backend error code | Trả error code ổn định; frontend dịch message |
+| Dữ liệu người dùng nhập | Giữ nguyên theo người dùng nhập, không tự dịch |
+
+### 5.2 Quy tắc frontend
+
+- Dùng `i18next + react-i18next`.
+- Mặc định locale là `vi`.
+- Mọi text hiển thị trong UI phải đi qua translation key.
+- Không viết trực tiếp text tiếng Việt/Anh trong JSX trừ dữ liệu động từ backend/user.
+- Key đặt theo module/feature để dễ quản lý.
+
+Ví dụ cấu trúc:
+
+```text
+apps/web/src/i18n/
+├── index.ts
+├── locales/
+│   ├── vi/
+│   │   ├── common.json
+│   │   ├── auth.json
+│   │   ├── product.json
+│   │   ├── warehouse.json
+│   │   ├── inventory.json
+│   │   ├── order.json
+│   │   ├── invoice.json
+│   │   ├── role-management.json
+│   │   └── service-plan.json
+│   └── en/
+│       ├── common.json
+│       ├── auth.json
+│       ├── product.json
+│       ├── warehouse.json
+│       ├── inventory.json
+│       ├── order.json
+│       ├── invoice.json
+│       ├── role-management.json
+│       └── service-plan.json
+```
+
+### 5.3 Quy tắc backend/API
+
+Backend không trả message UI cố định theo ngôn ngữ nếu không cần. Backend nên trả error code ổn định:
+
+```json
+{
+  "errorCode": "PRODUCT_LIMIT_REACHED",
+  "details": {
+    "limit": 80
+  }
+}
+```
+
+Frontend chịu trách nhiệm dịch:
+
+- `vi`: `Bạn đã đạt giới hạn 80 sản phẩm của gói hiện tại.`
+- `en`: `You have reached the 80-product limit for your current plan.`
+
+### 5.4 Format theo locale
+
+- Tiền tệ mặc định: VND.
+- Ngày giờ mặc định: Việt Nam, timezone `Asia/Ho_Chi_Minh`.
+- Số lượng vật liệu có thể cần đơn vị tính: viên, bao, tấn, kg, m³, cây, tấm, thùng.
+- Format số/ngày/tiền phải dùng `Intl` hoặc utility tập trung, không tự format thủ công rải rác.
+
+---
+
+## 6. Gói dịch vụ
 
 | Tính năng | Free | Standard | Premium | Enterprise |
 | --- | --- | --- | --- | --- |
@@ -253,7 +336,7 @@ Chi tiết đầy đủ đặt tại `docs/requirements/role-management.md`.
 
 ---
 
-## 6. Workflow bắt buộc cho AI Agent
+## 7. Workflow bắt buộc cho AI Agent
 
 ### Trước khi code
 
@@ -282,7 +365,7 @@ Gate gồm format, lint, typecheck, test, build, OpenAPI drift, bundle budget, s
 
 ---
 
-## 7. Definition of Done
+## 8. Definition of Done
 
 - [ ] Contract/API cập nhật trước khi code.
 - [ ] Unit/integration test phù hợp.
@@ -293,9 +376,20 @@ Gate gồm format, lint, typecheck, test, build, OpenAPI drift, bundle budget, s
 - [ ] Tài liệu/ADR cập nhật.
 - [ ] Mục Trạng thái tiến độ cập nhật.
 
+### 8.1 Definition of Done cho UI feature
+
+Một UI feature chỉ được coi là xong khi:
+
+- [ ] Có translation key tiếng Việt.
+- [ ] Có translation key tiếng Anh hoặc fallback rõ ràng sang tiếng Việt.
+- [ ] Không hard-code UI copy trong component.
+- [ ] Error/empty/loading/success state đều có bản dịch.
+- [ ] Button, menu, dialog, table header, form label, validation message đều đi qua i18n.
+- [ ] Test hoặc review kiểm tra được locale `vi` mặc định.
+
 ---
 
-## 8. Anti-pattern cấm
+## 9. Anti-pattern cấm
 
 | Anti-pattern | Thay bằng |
 | --- | --- |
@@ -307,11 +401,13 @@ Gate gồm format, lint, typecheck, test, build, OpenAPI drift, bundle budget, s
 | Hard-code quyền theo title | Kiểm tra capability/permission |
 | Xóa cứng dữ liệu nghiệp vụ | Archive/cancel/reverse + audit log |
 | Sửa code generated | Sửa OpenAPI rồi regenerate |
+| Hard-code UI text trong component | Dùng i18next translation key |
+| Backend trả message UI theo ngôn ngữ cố định | Backend trả error code, frontend dịch |
 | Giữ docs/html/csv xuất tạm không còn giá trị | Xóa hoặc chuẩn hóa vào `docs/requirements` |
 
 ---
 
-## 9. Trạng thái tiến độ
+## 10. Trạng thái tiến độ
 
 ### Đã xong
 
@@ -319,6 +415,7 @@ Gate gồm format, lint, typecheck, test, build, OpenAPI drift, bundle budget, s
 - [x] Làm rõ cấu trúc repo tách `apps/web` và `apps/api`, mỗi bên chia `features/<feature>`.
 - [x] Thêm định hướng Role Management cho cửa hàng vật liệu xây dựng.
 - [x] Chuẩn hóa yêu cầu gói dịch vụ ở mức root AGENTS.
+- [x] Thêm yêu cầu song ngữ Việt / Anh, mặc định tiếng Việt.
 
 ### Đang làm
 
@@ -328,5 +425,6 @@ Gate gồm format, lint, typecheck, test, build, OpenAPI drift, bundle budget, s
 ### Bước tiếp theo
 
 - [ ] Tạo/sửa `docs/requirements/role-management.md`.
-- [ ] Tạo/sửa `docs/requirements/service-plans.md` nếu cần chi tiết hơn.
+- [ ] Tạo/sửa `docs/requirements/service-plans.md`.
+- [ ] Tạo/sửa `docs/requirements/i18n.md`.
 - [ ] Khi bắt đầu scaffold: tạo monorepo skeleton theo mục 2.
