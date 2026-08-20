@@ -145,7 +145,7 @@ function seedUsers() {
   const count = db.prepare('SELECT COUNT(*) c FROM users').get().c;
   if (count === 0) {
     if (isProd && !process.env.ADMIN_INITIAL_PASSWORD) {
-      console.error('FATAL: Biến môi trường ADMIN_INITIAL_PASSWORD là bắt buộc khi chạy trong môi trường production.');
+      console.error('FATAL: Biến môi trường ADMIN_INITIAL_PASSWORD là bắt buộc khi khởi tạo hệ thống lần đầu trong môi trường production.');
       process.exit(1);
     }
     const adminPass = process.env.ADMIN_INITIAL_PASSWORD || 'admin123';
@@ -155,17 +155,25 @@ function seedUsers() {
       createUser('khach', 'xem123', 'viewer', 'Tài khoản chỉ xem');
     }
   } else if (isProd) {
-    // Production hardening:
-    // 1. Purge default sample accounts if promoted from dev
-    db.prepare("DELETE FROM users WHERE username IN ('banhang', 'khach') AND name IN ('Nhân viên bán hàng', 'Tài khoản chỉ xem')").run();
-    // 2. Rotate admin password to ADMIN_INITIAL_PASSWORD if provided
-    if (process.env.ADMIN_INITIAL_PASSWORD) {
+    // One-time production promotion hardening inside atomic transaction:
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      // 1. Purge default sample accounts if promoted from dev
+      db.prepare("DELETE FROM users WHERE username IN ('banhang', 'khach') AND name IN ('Nhân viên bán hàng', 'Tài khoản chỉ xem')").run();
+
+      // 2. Only rotate if the admin account is still using the known default 'admin123'
       const adminUser = db.prepare("SELECT * FROM users WHERE username = 'admin' AND role = 'admin'").get();
-      if (adminUser) {
-        const newSalt = crypto.randomBytes(16).toString('hex');
-        const newHash = hashPassword(process.env.ADMIN_INITIAL_PASSWORD, newSalt);
-        db.prepare("UPDATE users SET salt = ?, pass_hash = ? WHERE id = ?").run(newSalt, newHash, adminUser.id);
+      if (adminUser && hashPassword('admin123', adminUser.salt) === adminUser.pass_hash) {
+        if (process.env.ADMIN_INITIAL_PASSWORD) {
+          const newSalt = crypto.randomBytes(16).toString('hex');
+          const newHash = hashPassword(process.env.ADMIN_INITIAL_PASSWORD, newSalt);
+          db.prepare("UPDATE users SET salt = ?, pass_hash = ? WHERE id = ?").run(newSalt, newHash, adminUser.id);
+        }
       }
+      db.exec('COMMIT');
+    } catch (err) {
+      db.exec('ROLLBACK');
+      console.error('Lỗi khi thực hiện production hardening:', err);
     }
   }
 }

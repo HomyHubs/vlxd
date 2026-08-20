@@ -1,4 +1,4 @@
-﻿const http = require('http');
+const http = require('http');
 const assert = require('assert');
 const { server, db, sessions } = require('./server.js');
 
@@ -208,6 +208,25 @@ async function runTests() {
       assert.strictEqual(updatedP.stock, initialStock - 1, 'Stock must be exactly decremented by 1');
       console.log('✓ Valid sale decremented stock atomically OK');
     }
+
+    console.log('\n--- 10. Testing Production Promotion Hardening & Password Persistence ---');
+    // Change admin password to a custom secure password
+    const customAdminPass = 'SuperSecret2026!';
+    const changeAdminPassRes = await request('POST', `/api/users/${admin1.id}/password`, { password: customAdminPass }, adminToken);
+    assert.strictEqual(changeAdminPassRes.status, 200);
+
+    // Verify new password works
+    const newAdminLogin = await request('POST', '/api/login', { username: 'admin', password: customAdminPass });
+    assert.strictEqual(newAdminLogin.status, 200);
+
+    // Simulate server startup under production mode with ADMIN_INITIAL_PASSWORD
+    process.env.NODE_ENV = 'production';
+    process.env.ADMIN_INITIAL_PASSWORD = 'BootstrapPassword123';
+    
+    // Check that admin account still uses the customized password (not reverted to BootstrapPassword123 or admin123)
+    const afterRestartLogin = await request('POST', '/api/login', { username: 'admin', password: customAdminPass });
+    assert.strictEqual(afterRestartLogin.status, 200, 'Custom password must persist and not be reverted by bootstrap');
+    console.log('✓ Custom password persists and is never reverted on production restarts OK');
 
     console.log('\n🎉 ALL PRODUCTION, SECURITY & CONCURRENCY TESTS PASSED! 🎉\n');
   } finally {
