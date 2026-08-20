@@ -397,15 +397,18 @@ async function handleApi(req, res, url) {
         return json(res, 400, { error: 'Tên đăng nhập chỉ chứa chữ thường, số, dấu gạch dưới, gạch ngang hoặc chấm' });
       if (!name)
         return json(res, 400, { error: 'Vui lòng nhập họ và tên người dùng' });
-      if (!password || password.length < 4)
-        return json(res, 400, { error: 'Mật khẩu phải có ít nhất 4 ký tự' });
+      if (!password || password.length < 6)
+        return json(res, 400, { error: 'Mật khẩu phải có ít nhất 6 ký tự' });
       if (!['admin', 'editor', 'viewer'].includes(role))
         return json(res, 400, { error: 'Quyền hạn không hợp lệ' });
 
       try {
         createUser(username, password, role, name);
       } catch (e) {
-        return json(res, 400, { error: 'Tên đăng nhập đã tồn tại' });
+        if (e.message && (e.message.includes('UNIQUE') || e.message.includes('PRIMARY KEY'))) {
+          return json(res, 400, { error: 'Tên đăng nhập đã tồn tại' });
+        }
+        return json(res, 500, { error: 'Lỗi cơ sở dữ liệu khi tạo người dùng: ' + e.message });
       }
       return json(res, 200, { ok: true });
     }
@@ -415,20 +418,32 @@ async function handleApi(req, res, url) {
   if (roleMatch && req.method === 'POST') {
     if (s.role !== 'admin') return json(res, 403, { error: 'Chỉ quản trị viên mới có quyền quản lý người dùng' });
     const targetId = roleMatch[1];
-    const targetUser = db.prepare('SELECT * FROM users WHERE id = ?').get(targetId);
-    if (!targetUser) return json(res, 404, { error: 'Không tìm thấy người dùng' });
+    if (targetId === s.userId) return json(res, 400, { error: 'Không thể tự đổi quyền của chính mình' });
 
     const b = await readBody(req);
     const newRole = String(b.role || '').trim();
     if (!['admin', 'editor', 'viewer'].includes(newRole)) return json(res, 400, { error: 'Quyền hạn không hợp lệ' });
-    if (targetId === s.userId) return json(res, 400, { error: 'Không thể tự đổi quyền của chính mình' });
 
-    if (targetUser.role === 'admin' && newRole !== 'admin') {
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const targetUser = db.prepare('SELECT * FROM users WHERE id = ?').get(targetId);
+      if (!targetUser) {
+        db.exec('ROLLBACK');
+        return json(res, 404, { error: 'Không tìm thấy người dùng' });
+      }
+
+      db.prepare('UPDATE users SET role = ? WHERE id = ?').run(newRole, targetId);
       const adminCount = db.prepare("SELECT COUNT(*) c FROM users WHERE role = 'admin'").get().c;
-      if (adminCount <= 1) return json(res, 400, { error: 'Không thể hạ quyền của quản trị viên duy nhất trong hệ thống' });
+      if (adminCount < 1) {
+        db.exec('ROLLBACK');
+        return json(res, 400, { error: 'Không thể hạ quyền của quản trị viên duy nhất trong hệ thống' });
+      }
+      db.exec('COMMIT');
+    } catch (err) {
+      db.exec('ROLLBACK');
+      return json(res, 500, { error: 'Lỗi khi cập nhật quyền hạn: ' + err.message });
     }
 
-    db.prepare('UPDATE users SET role = ? WHERE id = ?').run(newRole, targetId);
     for (const [t, sess] of sessions.entries()) {
       if (sess.userId === targetId) sess.role = newRole;
     }
@@ -444,11 +459,17 @@ async function handleApi(req, res, url) {
 
     const b = await readBody(req);
     const newPass = String(b.password || '');
-    if (!newPass || newPass.length < 4) return json(res, 400, { error: 'Mật khẩu mới phải có ít nhất 4 ký tự' });
+    if (!newPass || newPass.length < 6) return json(res, 400, { error: 'Mật khẩu mới phải có ít nhất 6 ký tự' });
 
     const newSalt = crypto.randomBytes(16).toString('hex');
     const newHash = hashPassword(newPass, newSalt);
     db.prepare('UPDATE users SET salt = ?, pass_hash = ? WHERE id = ?').run(newSalt, newHash, targetId);
+
+    // Revoke all active sessions for this target user immediately
+    for (const [t, sess] of sessions.entries()) {
+      if (sess.userId === targetId) sessions.delete(t);
+    }
+
     return json(res, 200, { ok: true });
   }
 
@@ -456,17 +477,28 @@ async function handleApi(req, res, url) {
   if (deleteMatch && req.method === 'DELETE') {
     if (s.role !== 'admin') return json(res, 403, { error: 'Chỉ quản trị viên mới có quyền xóa người dùng' });
     const targetId = deleteMatch[1];
-    const targetUser = db.prepare('SELECT * FROM users WHERE id = ?').get(targetId);
-    if (!targetUser) return json(res, 404, { error: 'Không tìm thấy người dùng' });
-
     if (targetId === s.userId) return json(res, 400, { error: 'Không thể tự xóa tài khoản đang đăng nhập' });
 
-    if (targetUser.role === 'admin') {
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const targetUser = db.prepare('SELECT * FROM users WHERE id = ?').get(targetId);
+      if (!targetUser) {
+        db.exec('ROLLBACK');
+        return json(res, 404, { error: 'Không tìm thấy người dùng' });
+      }
+
+      db.prepare('DELETE FROM users WHERE id = ?').run(targetId);
       const adminCount = db.prepare("SELECT COUNT(*) c FROM users WHERE role = 'admin'").get().c;
-      if (adminCount <= 1) return json(res, 400, { error: 'Không thể xóa quản trị viên duy nhất trong hệ thống' });
+      if (adminCount < 1) {
+        db.exec('ROLLBACK');
+        return json(res, 400, { error: 'Không thể xóa quản trị viên duy nhất trong hệ thống' });
+      }
+      db.exec('COMMIT');
+    } catch (err) {
+      db.exec('ROLLBACK');
+      return json(res, 500, { error: 'Lỗi khi xóa người dùng: ' + err.message });
     }
 
-    db.prepare('DELETE FROM users WHERE id = ?').run(targetId);
     for (const [t, sess] of sessions.entries()) {
       if (sess.userId === targetId) sessions.delete(t);
     }

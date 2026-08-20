@@ -849,8 +849,8 @@ async function saveNewUser() {
     err.classList.add('show');
     return;
   }
-  if (!password || password.length < 4) {
-    err.textContent = 'Mật khẩu phải có ít nhất 4 ký tự';
+  if (!password || password.length < 6) {
+    err.textContent = 'Mật khẩu phải có ít nhất 6 ký tự';
     err.classList.add('show');
     return;
   }
@@ -903,8 +903,8 @@ async function saveNewPassword() {
   err.classList.remove('show');
 
   const password = document.getElementById('newPasswordInput').value;
-  if (!password || password.length < 4) {
-    err.textContent = 'Mật khẩu mới phải có ít nhất 4 ký tự';
+  if (!password || password.length < 6) {
+    err.textContent = 'Mật khẩu mới phải có ít nhất 6 ký tự';
     err.classList.add('show');
     return;
   }

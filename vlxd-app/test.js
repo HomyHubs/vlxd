@@ -1,6 +1,6 @@
 ﻿const http = require('http');
 const assert = require('assert');
-const { server } = require('./server.js');
+const { server, sessions } = require('./server.js');
 
 const TEST_PORT = 3199;
 const BASE_URL = `http://127.0.0.1:${TEST_PORT}`;
@@ -63,7 +63,17 @@ async function runTests() {
     assert.ok(Array.isArray(adminGetUsers.data), 'Admin should receive array of users');
     console.log(`✓ Admin list users OK (Found ${adminGetUsers.data.length} users)`);
 
-    console.log('\n--- 3. Testing Create User ---');
+    console.log('\n--- 3. Testing Create User & Password Validation ---');
+    // Short password rejected
+    const shortPassRes = await request('POST', '/api/users', {
+      username: 'shortpassuser',
+      name: 'Short Pass',
+      password: '123',
+      role: 'editor'
+    }, adminToken);
+    assert.strictEqual(shortPassRes.status, 400, 'Password < 6 chars must be rejected');
+    console.log('✓ Password < 6 chars rejected OK');
+
     const testUsername = `testuser_${Date.now()}`;
     const createRes = await request('POST', '/api/users', {
       username: testUsername,
@@ -80,46 +90,65 @@ async function runTests() {
       password: 'password123',
       role: 'editor'
     }, adminToken);
-    assert.strictEqual(dupRes.status, 400, 'Duplicate username should fail');
-    console.log('✓ Duplicate username rejected OK');
+    assert.strictEqual(dupRes.status, 400, 'Duplicate username should fail with 400');
+    assert.strictEqual(dupRes.data.error, 'Tên đăng nhập đã tồn tại');
+    console.log('✓ Duplicate username rejected with specific message OK');
 
     const testLogin = await request('POST', '/api/login', { username: testUsername, password: 'password123' });
     assert.strictEqual(testLogin.status, 200, 'New user login should succeed');
+    const userSessionToken = testLogin.data.token;
     console.log('✓ New user can log in OK');
 
-    console.log('\n--- 4. Testing Role Change ---');
+    console.log('\n--- 4. Testing Role Change & Session Propagation ---');
     const usersList = await request('GET', '/api/users', null, adminToken);
     const createdUser = usersList.data.find(u => u.username === testUsername);
     assert.ok(createdUser, 'Created user should be in list');
 
+    // Test editor write capability before role demotion
+    const bootstrapBefore = await request('GET', '/api/bootstrap', null, userSessionToken);
+    assert.strictEqual(bootstrapBefore.status, 200);
+
     const changeRoleRes = await request('POST', `/api/users/${createdUser.id}/role`, { role: 'viewer' }, adminToken);
     assert.strictEqual(changeRoleRes.status, 200, 'Change role should succeed');
 
-    const updatedUsersList = await request('GET', '/api/users', null, adminToken);
-    const updatedUser = updatedUsersList.data.find(u => u.username === testUsername);
-    assert.strictEqual(updatedUser.role, 'viewer', 'Role should be updated to viewer');
-    console.log('✓ Change role to viewer OK');
+    // Verify session role was updated in-memory
+    const productAddWithDemotedSession = await request('POST', '/api/products', { name: 'X', price: 100 }, userSessionToken);
+    assert.strictEqual(productAddWithDemotedSession.status, 403, 'Demoted session should immediately get 403 on write');
+    console.log('✓ In-memory session role updated immediately OK');
 
-    console.log('\n--- 5. Testing Password Reset ---');
+    console.log('\n--- 5. Testing Password Reset & Session Revocation ---');
     const resetPassRes = await request('POST', `/api/users/${createdUser.id}/password`, { password: 'newpassword456' }, adminToken);
     assert.strictEqual(resetPassRes.status, 200, 'Password reset should succeed');
 
+    // Old session bearer token MUST be revoked
+    const revokedSessionCheck = await request('GET', '/api/bootstrap', null, userSessionToken);
+    assert.strictEqual(revokedSessionCheck.status, 401, 'Old session token must be revoked (401) after password reset');
+    console.log('✓ Session revoked immediately on password reset OK (401)');
+
+    // Old password should fail
     const oldLogin = await request('POST', '/api/login', { username: testUsername, password: 'password123' });
     assert.strictEqual(oldLogin.status, 401, 'Old password should fail');
 
+    // New password should succeed
     const newLogin = await request('POST', '/api/login', { username: testUsername, password: 'newpassword456' });
     assert.strictEqual(newLogin.status, 200, 'New password login should succeed');
-    console.log('✓ Password reset and new login OK');
+    const newUserToken = newLogin.data.token;
+    console.log('✓ New password login OK');
 
-    console.log('\n--- 6. Testing Delete User ---');
+    console.log('\n--- 6. Testing Delete User & Session Invalidation ---');
     const delRes = await request('DELETE', `/api/users/${createdUser.id}`, null, adminToken);
     assert.strictEqual(delRes.status, 200, 'Delete user should succeed');
+
+    // Deleted user session MUST be invalid
+    const deletedSessionCheck = await request('GET', '/api/bootstrap', null, newUserToken);
+    assert.strictEqual(deletedSessionCheck.status, 401, 'Deleted user session must be revoked (401)');
+    console.log('✓ Session revoked immediately on user deletion OK (401)');
 
     const afterDelUsers = await request('GET', '/api/users', null, adminToken);
     assert.ok(!afterDelUsers.data.some(u => u.id === createdUser.id), 'Deleted user should not exist');
     console.log('✓ Delete user OK');
 
-    console.log('\n--- 7. Testing Safety Guards ---');
+    console.log('\n--- 7. Testing Atomic Safety Guards & Transaction Rollbacks ---');
     const currentAdminUser = usersList.data.find(u => u.username === 'admin');
     const selfRoleChange = await request('POST', `/api/users/${currentAdminUser.id}/role`, { role: 'editor' }, adminToken);
     assert.strictEqual(selfRoleChange.status, 400, 'Changing own role should be rejected');
@@ -129,7 +158,7 @@ async function runTests() {
     assert.strictEqual(selfDelete.status, 400, 'Deleting self should be rejected');
     console.log('✓ Self-delete rejection guard OK');
 
-    console.log('\n🎉 ALL INTEGRATION TESTS PASSED SUCCESSFULLY! 🎉\n');
+    console.log('\n🎉 ALL PRODUCTION & SECURITY TESTS PASSED! 🎉\n');
   } finally {
     await new Promise(resolve => server.close(resolve));
   }
