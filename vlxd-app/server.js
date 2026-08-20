@@ -155,8 +155,18 @@ function seedUsers() {
       createUser('khach', 'xem123', 'viewer', 'Tài khoản chỉ xem');
     }
   } else if (isProd) {
-    // Production hardening: purge default sample accounts if promoted from dev
+    // Production hardening:
+    // 1. Purge default sample accounts if promoted from dev
     db.prepare("DELETE FROM users WHERE username IN ('banhang', 'khach') AND name IN ('Nhân viên bán hàng', 'Tài khoản chỉ xem')").run();
+    // 2. Rotate admin password to ADMIN_INITIAL_PASSWORD if provided
+    if (process.env.ADMIN_INITIAL_PASSWORD) {
+      const adminUser = db.prepare("SELECT * FROM users WHERE username = 'admin' AND role = 'admin'").get();
+      if (adminUser) {
+        const newSalt = crypto.randomBytes(16).toString('hex');
+        const newHash = hashPassword(process.env.ADMIN_INITIAL_PASSWORD, newSalt);
+        db.prepare("UPDATE users SET salt = ?, pass_hash = ? WHERE id = ?").run(newSalt, newHash, adminUser.id);
+      }
+    }
   }
 }
 seed(); seedUsers();
