@@ -141,17 +141,22 @@ function seed() {
   });
 }
 function seedUsers() {
-  const count = db.prepare('SELECT COUNT(*) c FROM users').get().c;
-  if (count > 0) return;
   const isProd = process.env.NODE_ENV === 'production';
-  const adminPass = process.env.ADMIN_INITIAL_PASSWORD || (isProd ? crypto.randomBytes(12).toString('hex') : 'admin123');
-  createUser('admin', adminPass, 'admin', 'Quản trị viên');
-  if (isProd && !process.env.ADMIN_INITIAL_PASSWORD) {
-    console.warn(`[BOOTSTRAP] Khởi tạo mật khẩu admin ngẫu nhiên cho Production: ${adminPass}`);
-  }
-  if (!isProd) {
-    createUser('banhang', 'banhang123', 'editor', 'Nhân viên bán hàng');
-    createUser('khach', 'xem123', 'viewer', 'Tài khoản chỉ xem');
+  const count = db.prepare('SELECT COUNT(*) c FROM users').get().c;
+  if (count === 0) {
+    if (isProd && !process.env.ADMIN_INITIAL_PASSWORD) {
+      console.error('FATAL: Biến môi trường ADMIN_INITIAL_PASSWORD là bắt buộc khi chạy trong môi trường production.');
+      process.exit(1);
+    }
+    const adminPass = process.env.ADMIN_INITIAL_PASSWORD || 'admin123';
+    createUser('admin', adminPass, 'admin', 'Quản trị viên');
+    if (!isProd) {
+      createUser('banhang', 'banhang123', 'editor', 'Nhân viên bán hàng');
+      createUser('khach', 'xem123', 'viewer', 'Tài khoản chỉ xem');
+    }
+  } else if (isProd) {
+    // Production hardening: purge default sample accounts if promoted from dev
+    db.prepare("DELETE FROM users WHERE username IN ('banhang', 'khach') AND name IN ('Nhân viên bán hàng', 'Tài khoản chỉ xem')").run();
   }
 }
 seed(); seedUsers();
@@ -176,11 +181,14 @@ function readBody(req) {
   return new Promise((resolve, reject) => {
     let b = '';
     let bytes = 0;
+    let exceeded = false;
     req.on('data', chunk => {
+      if (exceeded) return;
       bytes += chunk.length;
       if (bytes > MAX_BODY_SIZE) {
-        req.destroy();
-        const err = new Error('Payload Too Large');
+        exceeded = true;
+        req.pause();
+        const err = new Error('Payload Too Large (Dung lượng yêu cầu vượt quá 1MB)');
         err.statusCode = 413;
         reject(err);
         return;
@@ -188,10 +196,14 @@ function readBody(req) {
       b += chunk;
     });
     req.on('end', () => {
+      if (exceeded) return;
+      if (!b.trim()) return resolve({});
       try {
-        resolve(b ? JSON.parse(b) : {});
+        resolve(JSON.parse(b));
       } catch (e) {
-        resolve({});
+        const err = new Error('Định dạng JSON không hợp lệ');
+        err.statusCode = 400;
+        reject(err);
       }
     });
     req.on('error', reject);
@@ -215,6 +227,14 @@ function recordFailedAttempt(ip) {
   record.count += 1;
   loginFailures.set(ip, record);
 }
+
+// Periodic cleanup of rate limiter entries
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, record] of loginFailures.entries()) {
+    if (now > record.resetTime) loginFailures.delete(ip);
+  }
+}, 60000).unref();
 
 /* ---------- API ---------- */
 async function handleApi(req, res, url) {
@@ -619,7 +639,10 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream' });
     fs.createReadStream(file).pipe(res);
   } catch (e) {
-    json(res, 500, { error: 'Lỗi máy chủ: ' + e.message });
+    if (!res.headersSent) {
+      const status = e.statusCode || 500;
+      json(res, status, { error: e.message || 'Lỗi máy chủ' });
+    }
   }
 });
 if (require.main === module) {

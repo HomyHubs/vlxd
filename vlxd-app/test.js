@@ -5,7 +5,7 @@ const { server, db, sessions } = require('./server.js');
 const TEST_PORT = 3199;
 const BASE_URL = `http://127.0.0.1:${TEST_PORT}`;
 
-function request(method, path, body = null, token = null) {
+function request(method, path, body = null, token = null, rawBody = null) {
   return new Promise((resolve, reject) => {
     const url = new URL(path, BASE_URL);
     const headers = { 'Content-Type': 'application/json' };
@@ -21,7 +21,11 @@ function request(method, path, body = null, token = null) {
       });
     });
     req.on('error', reject);
-    if (body) req.write(JSON.stringify(body));
+    if (rawBody !== null) {
+      req.write(rawBody);
+    } else if (body) {
+      req.write(JSON.stringify(body));
+    }
     req.end();
   });
 }
@@ -50,7 +54,19 @@ async function runTests() {
     const viewerToken = viewerLogin.data.token;
     console.log('✓ Viewer login OK');
 
-    console.log('\n--- 2. Testing RBAC for User Management ---');
+    console.log('\n--- 2. Testing Request Limits & Error Handlers ---');
+    // Invalid JSON body -> 400 Bad Request
+    const invalidJsonRes = await request('POST', '/api/login', null, null, '{invalid_json');
+    assert.strictEqual(invalidJsonRes.status, 400, 'Invalid JSON must return 400 Bad Request');
+    console.log('✓ Malformed JSON rejected with 400 Bad Request OK');
+
+    // Oversized body (> 1MB) -> 413 Payload Too Large
+    const largePayload = JSON.stringify({ data: 'A'.repeat(1024 * 1024 + 100) });
+    const largeBodyRes = await request('POST', '/api/login', null, null, largePayload);
+    assert.strictEqual(largeBodyRes.status, 413, 'Payload > 1MB must return 413 Payload Too Large');
+    console.log('✓ Oversized payload (> 1MB) rejected with 413 Payload Too Large OK');
+
+    console.log('\n--- 3. Testing RBAC for User Management ---');
     const viewerGetUsers = await request('GET', '/api/users', null, viewerToken);
     assert.strictEqual(viewerGetUsers.status, 403, 'Viewer should NOT be allowed to list users');
     console.log('✓ Viewer access forbidden OK (403)');
@@ -64,8 +80,7 @@ async function runTests() {
     assert.ok(Array.isArray(adminGetUsers.data), 'Admin should receive array of users');
     console.log(`✓ Admin list users OK (Found ${adminGetUsers.data.length} users)`);
 
-    console.log('\n--- 3. Testing Create User & Password Validation ---');
-    // Short password rejected (< 6 chars)
+    console.log('\n--- 4. Testing Create User & Password Validation ---');
     const shortPassRes = await request('POST', '/api/users', {
       username: 'shortpassuser',
       name: 'Short Pass',
@@ -100,7 +115,7 @@ async function runTests() {
     const userSessionToken = testLogin.data.token;
     console.log('✓ New user can log in OK');
 
-    console.log('\n--- 4. Testing Role Change & Session Propagation ---');
+    console.log('\n--- 5. Testing Role Change & Session Propagation ---');
     const usersList = await request('GET', '/api/users', null, adminToken);
     const createdUser = usersList.data.find(u => u.username === testUsername);
     assert.ok(createdUser, 'Created user should be in list');
@@ -108,37 +123,32 @@ async function runTests() {
     const changeRoleRes = await request('POST', `/api/users/${createdUser.id}/role`, { role: 'viewer' }, adminToken);
     assert.strictEqual(changeRoleRes.status, 200, 'Change role should succeed');
 
-    // Verify session role was updated in-memory
     const productAddWithDemotedSession = await request('POST', '/api/products', { name: 'X', price: 100 }, userSessionToken);
     assert.strictEqual(productAddWithDemotedSession.status, 403, 'Demoted session should immediately get 403 on write');
     console.log('✓ In-memory session role updated immediately OK');
 
-    console.log('\n--- 5. Testing Password Reset & Session Revocation ---');
+    console.log('\n--- 6. Testing Password Reset & Session Revocation ---');
     const resetPassRes = await request('POST', `/api/users/${createdUser.id}/password`, { password: 'newpassword456' }, adminToken);
     assert.strictEqual(resetPassRes.status, 200, 'Password reset should succeed');
 
-    // Old session bearer token MUST be revoked
     const revokedSessionCheck = await request('GET', '/api/bootstrap', null, userSessionToken);
     assert.strictEqual(revokedSessionCheck.status, 401, 'Old session token must be revoked (401) after password reset');
     console.log('✓ Session revoked immediately on password reset OK (401)');
 
-    // New password login should succeed
     const newLogin = await request('POST', '/api/login', { username: testUsername, password: 'newpassword456' });
     assert.strictEqual(newLogin.status, 200, 'New password login should succeed');
     const newUserToken = newLogin.data.token;
     console.log('✓ New password login OK');
 
-    console.log('\n--- 6. Testing Delete User & Session Invalidation ---');
+    console.log('\n--- 7. Testing Delete User & Session Invalidation ---');
     const delRes = await request('DELETE', `/api/users/${createdUser.id}`, null, adminToken);
     assert.strictEqual(delRes.status, 200, 'Delete user should succeed');
 
-    // Deleted user session MUST be invalid
     const deletedSessionCheck = await request('GET', '/api/bootstrap', null, newUserToken);
     assert.strictEqual(deletedSessionCheck.status, 401, 'Deleted user session must be revoked (401)');
     console.log('✓ Session revoked immediately on user deletion OK (401)');
 
-    console.log('\n--- 7. Testing Concurrent Admin Operations & Race Condition Safety ---');
-    // Create a temporary second admin
+    console.log('\n--- 8. Testing Concurrent Admin Operations & Race Condition Safety ---');
     const secondAdminUser = `admin2_${Date.now()}`;
     const createAdmin2 = await request('POST', '/api/users', {
       username: secondAdminUser,
@@ -153,30 +163,25 @@ async function runTests() {
     const admin2 = freshUsers.data.find(u => u.username === secondAdminUser);
     assert.ok(admin1 && admin2);
 
-    // Login as admin2
     const admin2Login = await request('POST', '/api/login', { username: secondAdminUser, password: 'password123' });
     const admin2Token = admin2Login.data.token;
 
-    // Simulate concurrent demotion race: admin1 tries to demote admin2, while admin2 tries to demote admin1
-    const [res1, res2] = await Promise.all([
+    await Promise.all([
       request('POST', `/api/users/${admin2.id}/role`, { role: 'editor' }, adminToken),
       request('POST', `/api/users/${admin1.id}/role`, { role: 'editor' }, admin2Token)
     ]);
 
-    // Exactly one or none can demote the other down to 1 admin; but system MUST never reach 0 admins
     const remainingAdmins = db.prepare("SELECT COUNT(*) c FROM users WHERE role = 'admin'").get().c;
     assert.ok(remainingAdmins >= 1, `System must always retain at least 1 admin, found ${remainingAdmins}`);
     console.log(`✓ Concurrent race condition test passed: remaining admins = ${remainingAdmins} (>= 1)`);
 
-    // Clean up admin2
     await request('DELETE', `/api/users/${admin2.id}`, null, adminToken);
 
-    console.log('\n--- 8. Testing Sales Transaction Safety & Boundary Validations ---');
+    console.log('\n--- 9. Testing Sales Transaction Safety & Boundary Validations ---');
     const bootData = await request('GET', '/api/bootstrap', null, adminToken);
     const testProduct = bootData.data.products[0];
     assert.ok(testProduct);
 
-    // Insufficient stock rejected
     const overSale = await request('POST', '/api/sales', {
       items: [{ productId: testProduct.id, qty: testProduct.stock + 99999, price: testProduct.price }],
       paidAmount: testProduct.price
@@ -184,7 +189,6 @@ async function runTests() {
     assert.strictEqual(overSale.status, 400, 'Overselling beyond available stock must be rejected (400)');
     console.log('✓ Insufficient stock rejected OK');
 
-    // Overpayment rejected
     const overPaid = await request('POST', '/api/sales', {
       items: [{ productId: testProduct.id, qty: 1, price: 1000 }],
       paidAmount: 5000
@@ -192,7 +196,6 @@ async function runTests() {
     assert.strictEqual(overPaid.status, 400, 'Payment > total must be rejected (400)');
     console.log('✓ Overpayment rejected OK');
 
-    // Valid sale with transactional atomic stock update
     const initialStock = testProduct.stock;
     if (initialStock > 0) {
       const validSale = await request('POST', '/api/sales', {
@@ -206,7 +209,7 @@ async function runTests() {
       console.log('✓ Valid sale decremented stock atomically OK');
     }
 
-    console.log('\n🎉 ALL PRODUCTION, CONCURRENCY & SECURITY TESTS PASSED! 🎉\n');
+    console.log('\n🎉 ALL PRODUCTION, SECURITY & CONCURRENCY TESTS PASSED! 🎉\n');
   } finally {
     await new Promise(resolve => server.close(resolve));
   }
