@@ -13,13 +13,10 @@ node server.js
 
 Mở trình duyệt: **http://localhost:3000**
 
-## Tài khoản mẫu
+## Tài khoản & Khởi tạo (Bootstrap)
 
-| Tên đăng nhập | Mật khẩu | Quyền |
-|---|---|---|
-| `admin` | `admin123` | Quản trị (toàn quyền + quản lý người dùng + reset dữ liệu) |
-| `banhang` | `banhang123` | Chỉnh sửa (ghi đơn, đổi giá, thêm mặt hàng) |
-| `khach` | `xem123` | Chỉ xem (dashboard, danh sách, lịch sử — không sửa được gì) |
+- Trong môi trường phát triển (`NODE_ENV !== 'production'`), hệ thống tự tạo các tài khoản mẫu: `admin / admin123`, `banhang / banhang123`, `khach / xem123`.
+- Trong môi trường sản xuất (`NODE_ENV=production`), hệ thống chỉ khởi tạo tài khoản `admin` bằng mật khẩu cung cấp qua biến môi trường `ADMIN_INITIAL_PASSWORD`. Nếu không cung cấp, hệ thống sẽ tự sinh mật khẩu ngẫu nhiên an toàn và ghi log lúc khởi động.
 
 ## Cấu trúc
 

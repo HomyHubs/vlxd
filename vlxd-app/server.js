@@ -143,9 +143,16 @@ function seed() {
 function seedUsers() {
   const count = db.prepare('SELECT COUNT(*) c FROM users').get().c;
   if (count > 0) return;
-  createUser('admin', 'admin123', 'admin', 'Chủ cửa hàng');
-  createUser('banhang', 'banhang123', 'editor', 'Nhân viên bán hàng');
-  createUser('khach', 'xem123', 'viewer', 'Tài khoản chỉ xem');
+  const isProd = process.env.NODE_ENV === 'production';
+  const adminPass = process.env.ADMIN_INITIAL_PASSWORD || (isProd ? crypto.randomBytes(12).toString('hex') : 'admin123');
+  createUser('admin', adminPass, 'admin', 'Quản trị viên');
+  if (isProd && !process.env.ADMIN_INITIAL_PASSWORD) {
+    console.warn(`[BOOTSTRAP] Khởi tạo mật khẩu admin ngẫu nhiên cho Production: ${adminPass}`);
+  }
+  if (!isProd) {
+    createUser('banhang', 'banhang123', 'editor', 'Nhân viên bán hàng');
+    createUser('khach', 'xem123', 'viewer', 'Tài khoản chỉ xem');
+  }
 }
 seed(); seedUsers();
 
@@ -163,22 +170,68 @@ function getSession(req) {
   if (s.exp < Date.now()) { sessions.delete(token); return null; }
   return s;
 }
+
+const MAX_BODY_SIZE = 1024 * 1024; // 1MB limit
 function readBody(req) {
   return new Promise((resolve, reject) => {
-    let b = ''; req.on('data', c => b += c); req.on('end', () => {
-      try { resolve(b ? JSON.parse(b) : {}); } catch (e) { reject(e); }
+    let b = '';
+    let bytes = 0;
+    req.on('data', chunk => {
+      bytes += chunk.length;
+      if (bytes > MAX_BODY_SIZE) {
+        req.destroy();
+        const err = new Error('Payload Too Large');
+        err.statusCode = 413;
+        reject(err);
+        return;
+      }
+      b += chunk;
     });
+    req.on('end', () => {
+      try {
+        resolve(b ? JSON.parse(b) : {});
+      } catch (e) {
+        resolve({});
+      }
+    });
+    req.on('error', reject);
   });
+}
+
+// In-memory rate limiter for login
+const loginFailures = new Map();
+function isRateLimited(ip) {
+  const record = loginFailures.get(ip);
+  if (!record) return false;
+  if (Date.now() > record.resetTime) {
+    loginFailures.delete(ip);
+    return false;
+  }
+  return record.count >= 10;
+}
+function recordFailedAttempt(ip) {
+  const now = Date.now();
+  const record = loginFailures.get(ip) || { count: 0, resetTime: now + 60000 };
+  record.count += 1;
+  loginFailures.set(ip, record);
 }
 
 /* ---------- API ---------- */
 async function handleApi(req, res, url) {
   // Login (public)
   if (url.pathname === '/api/login' && req.method === 'POST') {
+    const clientIp = req.socket.remoteAddress || 'unknown';
+    if (isRateLimited(clientIp)) {
+      return json(res, 429, { error: 'Quá nhiều lần thử đăng nhập thất bại. Vui lòng đợi 1 phút.' });
+    }
+
     const { username, password } = await readBody(req);
     const u = db.prepare('SELECT * FROM users WHERE username = ?').get(String(username || '').trim());
-    if (!u || hashPassword(String(password || ''), u.salt) !== u.pass_hash)
+    if (!u || hashPassword(String(password || ''), u.salt) !== u.pass_hash) {
+      recordFailedAttempt(clientIp);
       return json(res, 401, { error: 'Sai tên đăng nhập hoặc mật khẩu' });
+    }
+    loginFailures.delete(clientIp);
     const token = crypto.randomBytes(24).toString('hex');
     sessions.set(token, { userId: u.id, role: u.role, name: u.name, exp: Date.now() + 30 * 24 * 3600 * 1000 });
     return json(res, 200, { token, user: { id: u.id, name: u.name, username: u.username, role: u.role, roleLabel: ROLE_LABEL[u.role] } });
@@ -329,11 +382,14 @@ async function handleApi(req, res, url) {
         .run(sid, code, new Date().toISOString(), String(b.customerName || 'Khách lẻ').trim(), b.customerPhone ? String(b.customerPhone).trim() : null, total, paidAmount, debtAmount, status, s.name);
 
       const insI = db.prepare('INSERT INTO sale_items (id,sale_id,product_id,name,unit,qty,price,cost_price,total_price) VALUES (?,?,?,?,?,?,?,?,?)');
-      const updStock = db.prepare('UPDATE products SET stock = stock - ? WHERE id = ?');
+      const updStock = db.prepare('UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?');
 
       for (const vi of validatedItems) {
         insI.run(crypto.randomUUID(), sid, vi.product.id, vi.product.name, vi.product.unit, vi.qty, vi.price, vi.costPrice, vi.itemTotal);
-        updStock.run(vi.qty, vi.product.id);
+        const updRes = updStock.run(vi.qty, vi.product.id, vi.qty);
+        if (updRes.changes !== 1) {
+          throw new Error(`Tồn kho của mặt hàng "${vi.product.name}" không đủ để hoàn tất đơn hàng`);
+        }
       }
 
       db.exec('COMMIT');
