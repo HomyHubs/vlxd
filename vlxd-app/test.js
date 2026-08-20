@@ -32,6 +32,14 @@ function request(method, path, body = null, token = null, rawBody = null) {
 
 async function runTests() {
   console.log('🚀 Starting VLXD Manager in-process test server on port', TEST_PORT);
+  
+  // Ensure fresh seed state for testing
+  const { createUser } = require('./server.js');
+  db.exec('DELETE FROM users');
+  createUser('admin', 'admin123', 'admin', 'Quản trị viên');
+  createUser('banhang', 'banhang123', 'editor', 'Nhân viên bán hàng');
+  createUser('khach', 'xem123', 'viewer', 'Tài khoản chỉ xem');
+
   await new Promise((resolve) => server.listen(TEST_PORT, resolve));
   console.log('✓ Server is ready to accept requests');
 

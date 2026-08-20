@@ -161,19 +161,32 @@ function seedUsers() {
       // 1. Purge default sample accounts if promoted from dev
       db.prepare("DELETE FROM users WHERE username IN ('banhang', 'khach') AND name IN ('Nhân viên bán hàng', 'Tài khoản chỉ xem')").run();
 
-      // 2. Only rotate if the admin account is still using the known default 'admin123'
+      // 2. Fail closed if admin is still using known default 'admin123' without ADMIN_INITIAL_PASSWORD
       const adminUser = db.prepare("SELECT * FROM users WHERE username = 'admin' AND role = 'admin'").get();
       if (adminUser && hashPassword('admin123', adminUser.salt) === adminUser.pass_hash) {
-        if (process.env.ADMIN_INITIAL_PASSWORD) {
-          const newSalt = crypto.randomBytes(16).toString('hex');
-          const newHash = hashPassword(process.env.ADMIN_INITIAL_PASSWORD, newSalt);
-          db.prepare("UPDATE users SET salt = ?, pass_hash = ? WHERE id = ?").run(newSalt, newHash, adminUser.id);
+        if (!process.env.ADMIN_INITIAL_PASSWORD) {
+          console.error('FATAL: Tài khoản admin đang sử dụng mật khẩu mặc định (admin123). Cần cung cấp biến môi trường ADMIN_INITIAL_PASSWORD để đổi mật khẩu an toàn trong production.');
+          db.exec('ROLLBACK');
+          process.exit(1);
         }
+        const newSalt = crypto.randomBytes(16).toString('hex');
+        const newHash = hashPassword(process.env.ADMIN_INITIAL_PASSWORD, newSalt);
+        db.prepare("UPDATE users SET salt = ?, pass_hash = ? WHERE id = ?").run(newSalt, newHash, adminUser.id);
       }
+
+      // 3. Ensure at least one admin exists
+      const adminCount = db.prepare("SELECT COUNT(*) c FROM users WHERE role = 'admin'").get().c;
+      if (adminCount < 1) {
+        console.error('FATAL: Hệ thống không có tài khoản quản trị viên (admin) nào.');
+        db.exec('ROLLBACK');
+        process.exit(1);
+      }
+
       db.exec('COMMIT');
     } catch (err) {
       db.exec('ROLLBACK');
-      console.error('Lỗi khi thực hiện production hardening:', err);
+      console.error('FATAL: Lỗi khi thực hiện production hardening:', err);
+      process.exit(1);
     }
   }
 }
