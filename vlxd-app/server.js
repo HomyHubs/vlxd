@@ -181,7 +181,7 @@ async function handleApi(req, res, url) {
       return json(res, 401, { error: 'Sai tên đăng nhập hoặc mật khẩu' });
     const token = crypto.randomBytes(24).toString('hex');
     sessions.set(token, { userId: u.id, role: u.role, name: u.name, exp: Date.now() + 30 * 24 * 3600 * 1000 });
-    return json(res, 200, { token, user: { name: u.name, username: u.username, role: u.role, roleLabel: ROLE_LABEL[u.role] } });
+    return json(res, 200, { token, user: { id: u.id, name: u.name, username: u.username, role: u.role, roleLabel: ROLE_LABEL[u.role] } });
   }
 
   const s = getSession(req);
@@ -205,7 +205,7 @@ async function handleApi(req, res, url) {
     }));
     const customerPayments = db.prepare('SELECT id, customer_name AS customerName, customer_phone AS customerPhone, sale_id AS saleId, amount_paid AS amountPaid, notes, date, created_by AS createdBy FROM customer_payments ORDER BY date DESC').all();
 
-    return json(res, 200, { products, sales, priceHistory, stockIn, customerPayments, user: { name: s.name, role: s.role, roleLabel: ROLE_LABEL[s.role] } });
+    return json(res, 200, { products, sales, priceHistory, stockIn, customerPayments, user: { id: s.userId, name: s.name, role: s.role, roleLabel: ROLE_LABEL[s.role] } });
   }
 
   // Task 5: Database schema info
@@ -290,30 +290,58 @@ async function handleApi(req, res, url) {
     const b = await readBody(req);
     const items = Array.isArray(b.items) ? b.items : [];
     if (!items.length) return json(res, 400, { error: 'Đơn hàng trống' });
-    const sid = crypto.randomUUID();
-    const code = `DH-${Date.now().toString().slice(-6)}`;
-    const custName = String(b.customerName || 'Khách lẻ').trim();
-    const custPhone = b.customerPhone ? String(b.customerPhone).trim() : null;
+
+    // Validate all items first
     let total = 0;
-    const insI = db.prepare('INSERT INTO sale_items (id,sale_id,product_id,name,unit,qty,price,cost_price,total_price) VALUES (?,?,?,?,?,?,?,?,?)');
+    const validatedItems = [];
     for (const i of items) {
       const p = db.prepare('SELECT * FROM products WHERE id = ?').get(i.productId);
       const qty = Number(i.qty), price = Number(i.price);
       if (!p || !(qty > 0) || !(price >= 0)) return json(res, 400, { error: 'Dữ liệu đơn hàng không hợp lệ' });
+      if (p.stock < qty) {
+        return json(res, 400, { error: `Mặt hàng "${p.name}" không đủ tồn kho (còn ${p.stock}, yêu cầu ${qty})` });
+      }
       const itemTotal = qty * price;
       const costPrice = p.cost_price || 0;
       total += itemTotal;
-      insI.run(crypto.randomUUID(), sid, p.id, p.name, p.unit, qty, price, costPrice, itemTotal);
-      db.prepare('UPDATE products SET stock = MAX(0, stock - ?) WHERE id = ?').run(qty, p.id);
+      validatedItems.push({ product: p, qty, price, costPrice, itemTotal });
     }
 
-    const paidAmount = b.paidAmount !== undefined ? Number(b.paidAmount) : total;
-    const debtAmount = Math.max(0, total - paidAmount);
+    const rawPaid = b.paidAmount !== undefined ? Number(b.paidAmount) : total;
+    if (isNaN(rawPaid) || rawPaid < 0) {
+      return json(res, 400, { error: 'Số tiền thanh toán không hợp lệ' });
+    }
+    if (rawPaid > total) {
+      return json(res, 400, { error: `Số tiền thanh toán (${rawPaid}) không được lớn hơn tổng tiền đơn hàng (${total})` });
+    }
+
+    const paidAmount = rawPaid;
+    const debtAmount = total - paidAmount;
     let status = 'paid';
     if (debtAmount > 0) status = paidAmount > 0 ? 'partial' : 'debt';
 
-    db.prepare('INSERT INTO sales (id,code,date,customer_name,customer_phone,total,paid_amount,debt_amount,payment_status,created_by) VALUES (?,?,?,?,?,?,?,?,?,?)')
-      .run(sid, code, new Date().toISOString(), custName, custPhone, total, paidAmount, debtAmount, status, s.name);
+    const sid = crypto.randomUUID();
+    const code = `DH-${Date.now().toString().slice(-6)}`;
+
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      db.prepare('INSERT INTO sales (id,code,date,customer_name,customer_phone,total,paid_amount,debt_amount,payment_status,created_by) VALUES (?,?,?,?,?,?,?,?,?,?)')
+        .run(sid, code, new Date().toISOString(), String(b.customerName || 'Khách lẻ').trim(), b.customerPhone ? String(b.customerPhone).trim() : null, total, paidAmount, debtAmount, status, s.name);
+
+      const insI = db.prepare('INSERT INTO sale_items (id,sale_id,product_id,name,unit,qty,price,cost_price,total_price) VALUES (?,?,?,?,?,?,?,?,?)');
+      const updStock = db.prepare('UPDATE products SET stock = stock - ? WHERE id = ?');
+
+      for (const vi of validatedItems) {
+        insI.run(crypto.randomUUID(), sid, vi.product.id, vi.product.name, vi.product.unit, vi.qty, vi.price, vi.costPrice, vi.itemTotal);
+        updStock.run(vi.qty, vi.product.id);
+      }
+
+      db.exec('COMMIT');
+    } catch (err) {
+      db.exec('ROLLBACK');
+      return json(res, 500, { error: 'Lỗi khi lưu đơn hàng: ' + err.message });
+    }
+
     return json(res, 200, { ok: true, id: sid, code, total, debtAmount });
   }
 
@@ -332,14 +360,20 @@ async function handleApi(req, res, url) {
     const code = `PN-${Date.now().toString().slice(-6)}`;
     const totalPrice = qty * costPrice;
 
-    db.prepare('INSERT INTO stock_in (id,code,supplier_name,total,date,created_by) VALUES (?,?,?,?,?,?)')
-      .run(stockInId, code, supplierName, totalPrice, new Date().toISOString(), s.name);
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      db.prepare('INSERT INTO stock_in (id,code,supplier_name,total,date,created_by) VALUES (?,?,?,?,?,?)')
+        .run(stockInId, code, supplierName, totalPrice, new Date().toISOString(), s.name);
 
-    db.prepare('INSERT INTO stock_in_items (id,stock_in_id,product_id,product_name,unit,qty,cost_price,total_price) VALUES (?,?,?,?,?,?,?,?)')
-      .run(crypto.randomUUID(), stockInId, p.id, p.name, p.unit, qty, costPrice, totalPrice);
+      db.prepare('INSERT INTO stock_in_items (id,stock_in_id,product_id,product_name,unit,qty,cost_price,total_price) VALUES (?,?,?,?,?,?,?,?)')
+        .run(crypto.randomUUID(), stockInId, p.id, p.name, p.unit, qty, costPrice, totalPrice);
 
-    // Update product stock inventory and average cost price
-    db.prepare('UPDATE products SET stock = stock + ?, cost_price = ? WHERE id = ?').run(qty, costPrice, p.id);
+      db.prepare('UPDATE products SET stock = stock + ?, cost_price = ? WHERE id = ?').run(qty, costPrice, p.id);
+      db.exec('COMMIT');
+    } catch (err) {
+      db.exec('ROLLBACK');
+      return json(res, 500, { error: 'Lỗi khi lưu phiếu nhập: ' + err.message });
+    }
 
     return json(res, 200, { ok: true, code, totalPrice });
   }

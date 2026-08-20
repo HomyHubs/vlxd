@@ -20,12 +20,6 @@
     <input id="loginPass" type="password" autocomplete="current-password" required>
     <div class="login-error" id="loginError"></div>
     <button class="btn primary" type="submit" style="width:100%; margin-top:16px">Đăng nhập</button>
-    <div class="muted" style="font-size:12px; margin-top:16px; line-height:1.6">
-      Tài khoản mẫu:<br>
-      <code>admin / admin123</code> — Quản trị<br>
-      <code>banhang / banhang123</code> — Chỉnh sửa<br>
-      <code>khach / xem123</code> — Chỉ xem
-    </div>
   </form>
 </div>
 
@@ -223,54 +217,6 @@
       <div class="table-scroll">
         <table id="priceHistoryTable">
           <thead><tr><th>Ngày cập nhật</th><th>Mặt hàng</th><th class="num">Giá cũ</th><th class="num">Giá mới</th><th class="num">Thay đổi</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= USERS (admin) ================= -->
-  <section class="view" id="view-users">
-    <div class="topbar">
-      <div>
-        <h1>Người dùng</h1>
-        <div class="subtitle">Thêm tài khoản và phân quyền: chỉ xem / chỉnh sửa / quản trị</div>
-      </div>
-    </div>
-    <div class="panel">
-      <h3>Thêm người dùng mới</h3>
-      <div class="form-row">
-        <div>
-          <label for="auUser">Tên đăng nhập</label>
-          <input id="auUser" placeholder="VD: nhanvien1">
-        </div>
-        <div>
-          <label for="auName">Tên hiển thị</label>
-          <input id="auName" placeholder="VD: Anh Ba">
-        </div>
-      </div>
-      <div class="form-row">
-        <div>
-          <label for="auPass">Mật khẩu</label>
-          <input id="auPass" type="text" placeholder="Mật khẩu ban đầu">
-        </div>
-        <div>
-          <label for="auRole">Quyền</label>
-          <select id="auRole">
-            <option value="viewer">Chỉ xem</option>
-            <option value="editor">Chỉnh sửa</option>
-            <option value="admin">Quản trị</option>
-          </select>
-        </div>
-      </div>
-      <div style="margin-top:16px; text-align:right">
-        <button class="btn primary" onclick="addUser()">+ Thêm người dùng</button>
-      </div>
-    </div>
-    <div class="card" style="padding:0">
-      <div class="table-scroll">
-        <table id="usersTable">
-          <thead><tr><th>Tên đăng nhập</th><th>Tên hiển thị</th><th>Quyền</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>

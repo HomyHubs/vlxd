@@ -501,39 +501,6 @@ function renderPriceHistory(){
   }).join('');
 }
 
-/* ================= Users (admin) ================= */
-async function renderUsers(){
-  if(state.user.role!=='admin') return;
-  const users = await api('/api/users');
-  const tb = document.querySelector('#usersTable tbody');
-  tb.innerHTML = users.map(u=>`
-    <tr>
-      <td><strong>${esc(u.username)}</strong></td>
-      <td>${esc(u.name)}</td>
-      <td>
-        <select style="width:auto; min-height:32px; padding:4px 8px" onchange="changeRole('${u.id}', this.value)" ${u.id===state.user.id?'disabled':''}>
-          <option value="viewer" ${u.role==='viewer'?'selected':''}>Chỉ xem</option>
-          <option value="editor" ${u.role==='editor'?'selected':''}>Chỉnh sửa</option>
-          <option value="admin" ${u.role==='admin'?'selected':''}>Quản trị</option>
-        </select>
-      </td>
-    </tr>`).join('');
-}
-async function addUser(){
-  const username = document.getElementById('auUser').value.trim();
-  const name = document.getElementById('auName').value.trim();
-  const password = document.getElementById('auPass').value;
-  const role = document.getElementById('auRole').value;
-  if(!username || !password){ alert('Vui lòng nhập tên đăng nhập và mật khẩu'); return; }
-  await api('/api/users', { method:'POST', body:{ username, name, password, role } });
-  document.getElementById('auUser').value=''; document.getElementById('auName').value=''; document.getElementById('auPass').value='';
-  await renderUsers();
-}
-async function changeRole(id, role){
-  await api(`/api/users/${id}/role`, { method:'POST', body:{ role } });
-  await renderUsers();
-}
-
 /* ================= Task 3: Stock-In (Nhập hàng) ================= */
 function fillStockInProducts() {
   const byCat = {};
@@ -788,7 +755,7 @@ function filterUsers() {
   }
 
   tb.innerHTML = filtered.map(u => {
-    const isSelf = state.user && state.user.name === u.name;
+    const isSelf = state.user && (state.user.id ? state.user.id === u.id : state.user.name === u.name);
     const roleBadgeClass = u.role === 'admin' ? 'role-admin' : (u.role === 'editor' ? 'role-editor' : 'role-viewer');
 
     return `
