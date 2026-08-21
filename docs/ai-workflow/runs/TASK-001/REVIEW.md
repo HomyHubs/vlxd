@@ -3,7 +3,7 @@
 ## Metadata
 
 - Reviewer: AI Bot 2 (Reviewer) / GPT Web Review
-- PR/commit reviewed: Pending PR creation
+- PR/commit reviewed: [#6](https://github.com/HomyHubs/vlxd/pull/6) (`6cabdc9`)
 - Reviewed at (UTC): 2026-08-21T10:45:00Z
 - Review round: 1
 - Verdict: pending

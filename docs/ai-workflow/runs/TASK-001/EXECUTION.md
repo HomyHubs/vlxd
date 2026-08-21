@@ -104,7 +104,7 @@
 
 ## Kết quả bàn giao
 
-- PR: Sẽ cập nhật sau khi tạo PR vào `dev`.
+- PR: [#6](https://github.com/HomyHubs/vlxd/pull/6)
 - Final status: `ready_for_review`
 - Output chính:
   - Thư mục `prototype/legacy-app/` (Read-Only).
