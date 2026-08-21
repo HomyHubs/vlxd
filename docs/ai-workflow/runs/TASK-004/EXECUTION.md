@@ -100,7 +100,7 @@
 
 ## Kết quả bàn giao
 
-- PR: Sẽ cập nhật sau khi tạo PR vào `dev`.
+- PR: [#11](https://github.com/HomyHubs/vlxd/pull/11)
 - Final status: `ready_for_review`
 - Output chính: 9 file ADR tại `docs/adr/` và `docs/adr/README.md`
 - Reviewer cần tập trung:

@@ -10,7 +10,7 @@
 
 | Lane | Task active | Tiêu đề | Status | PR | Reviewer |
 | --- | --- | --- | --- | --- | --- |
-| `LANE-CORE` | `TASK-004` | Viết ADR kiến trúc production | `ready_for_review` | Đang mở | Chưa gán |
+| `LANE-CORE` | `TASK-004` | Viết ADR kiến trúc production | `ready_for_review` | [#11](https://github.com/HomyHubs/vlxd/pull/11) | AI Bot 2 / GPT Web Review |
 | `LANE-CATALOG` | — | — | `blocked` (chờ M1) | — | — |
 | `LANE-CRM` | — | — | `blocked` (chờ TASK-013) | — | — |
 | `LANE-COMMERCE` | — | — | `blocked` (chờ M2) | — | — |
@@ -22,7 +22,7 @@
 - **`TASK-004` · `LANE-CORE`**
   - Task packet: `docs/tasks/MVP-BACKLOG.md#task-004--viết-adr-kiến-trúc-production`
   - Prerequisite: `TASK-003` (accepted & merged via [#9](https://github.com/HomyHubs/vlxd/pull/9))
-  - Implementer PR: `task/TASK-004-production-adrs` -> `dev`
+  - Implementer PR: [#11](https://github.com/HomyHubs/vlxd/pull/11) (`task/TASK-004-production-adrs` -> `dev`)
   - Reviewer: AI Bot 2 (Reviewer) / GPT Web Review
 
 ## Quy tắc cập nhật
