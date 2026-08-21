@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HomyHubs VLXD - Quản lý Vật liệu Xây dựng</title>
+    <meta name="description" content="Hệ thống quản lý cửa hàng và kho bãi Vật liệu Xây dựng mật độ cao" />
+    <meta property="og:title" content="HomyHubs VLXD - Quản lý Vật liệu Xây dựng" />
+    <meta property="og:description" content="Hệ thống quản lý cửa hàng và kho bãi Vật liệu Xây dựng mật độ cao" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <style>
+      html, body, #root {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+      }
+    </style>
+    <script>
+      // Shim to ensure window.fetch is writable and doesn't throw if assigned to
+      try {
+        let _customFetch = window.fetch ? window.fetch.bind(window) : undefined;
+        Object.defineProperty(window, 'fetch', {
+          get: function() {
+            return _customFetch;
+          },
+          set: function(val) {
+            _customFetch = val;
+          },
+          configurable: true,
+          enumerable: true
+        });
+      } catch (e) {
+        // Continue safely
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

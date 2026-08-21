@@ -1,0 +1,6 @@
+{
+  "name": "HomyHubs VLXD - Quản lý Vật liệu Xây dựng",
+  "description": "Ứng dụng quản lý cửa hàng và kho bãi Vật liệu Xây dựng mật độ cao với quản lý danh mục, tồn kho, đơn hàng, công nợ và báo cáo",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
