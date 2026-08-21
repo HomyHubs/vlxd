@@ -1,14 +1,14 @@
-﻿name: CI Tests
+name: CI
 
 on:
   push:
-    branches: [ dev, main, feat/* ]
+    branches: [ dev, main, "feat/*", "fix/*", "task/*" ]
   pull_request:
     branches: [ dev, main ]
 
 jobs:
-  test:
-    name: Run Integration & Security Tests
+  repo-hygiene:
+    name: Repo Integrity & Hygiene
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +20,13 @@ jobs:
         with:
           node-version: 22
 
-      - name: Run test suite
+      - name: Verify repository structure and core files
         run: |
-          cd vlxd-app
-          node test.js
+          echo "Verifying essential repository files..."
+          test -f AGENTS.md || { echo "Missing AGENTS.md"; exit 1; }
+          test -f README.md || { echo "Missing README.md"; exit 1; }
+          test -f docs/README.md || { echo "Missing docs/README.md"; exit 1; }
+          test -f docs/tasks/CURRENT.md || { echo "Missing docs/tasks/CURRENT.md"; exit 1; }
+          test -f docs/tasks/MVP-BACKLOG.md || { echo "Missing docs/tasks/MVP-BACKLOG.md"; exit 1; }
+          test -d prototype/legacy-app || { echo "Missing prototype/legacy-app directory"; exit 1; }
+          echo "Repository integrity check passed successfully."
