@@ -1,6 +1,54 @@
-# Backlog triển khai tuần tự — vlxd
+# Backlog triển khai — vlxd (v2: milestone + lane song song)
 
-Backlog này được thực thi theo `docs/ai-workflow/README.md`. Mỗi task là một PR độc lập. Mọi task thay đổi API phải sửa OpenAPI trước; thay đổi DB phải có migration reversible; feature phải enforce tenant, permission, service plan và audit ở backend khi áp dụng.
+> Bản viết lại từ backlog tuần tự ban đầu. Giữ nguyên kỷ luật **contract-first** và **foundation-first**, nhưng bổ sung 5 thay đổi:
+> 1. Chia thành **milestone** demo-được (M0–M4).
+> 2. Cho phép các **lane chạy song song** sau khi nền tảng xong.
+> 3. **Chẻ các task-epic** thành sub-PR review được.
+> 4. Thêm **SLA quyết định** để không nghẽn cả backlog.
+> 5. Kéo **staging smoke + observability + secret scan** lên sớm.
+>
+> Mỗi task vẫn là một PR độc lập. Thay đổi API phải sửa OpenAPI trước; thay đổi DB phải có migration reversible; feature phải enforce tenant, permission, service plan và audit ở backend khi áp dụng.
+
+---
+
+## Mô hình thực thi
+
+- **Đơn vị giao hàng:** 1 PR nhỏ, review được (ưu tiên < ~400 dòng thay đổi thực chất). Task lớn phải chẻ theo sub-ID (vd `TASK-016a`).
+- **Pipeline 2 bot** giữ nguyên theo `docs/ai-workflow/README.md`: implementer → reviewer.
+- **Lane** (tuyến công việc chạy song song khi prerequisite đã `accepted`):
+  - `LANE-CORE` — nền tảng, tuần tự nghiêm ngặt, không song song trong nội bộ lane.
+  - `LANE-CATALOG` — product, warehouse, inventory.
+  - `LANE-CRM` — customer, supplier.
+  - `LANE-COMMERCE` — order, delivery, payment, purchase.
+  - `LANE-PLATFORMUI` — app shell, i18n, settings, report, import/export.
+  - `LANE-QUALITY` — accessibility, security, E2E (chạy tăng dần, không dồn cuối).
+- **WIP limit:** tối đa 1 task `active` mỗi lane; nhiều lane có thể active đồng thời.
+- **Decision SLA:** mọi mục `Open` trong `docs/decision-backlog.md` phải có `temporary assumption` để không chặn code. Owner chốt trong ≤ 2 ngày làm việc; quá hạn thì dùng assumption và ghi rủi ro vào task. AI vẫn **không** được tự chuyển `Open` → `Accepted`.
+- **CURRENT.md** mở rộng thành bảng nhiều dòng: mỗi lane một dòng task `active`, kèm milestone.
+
+## Milestones
+
+| Mốc | Tên | Nội dung | Tiêu chí demo |
+| --- | --- | --- | --- |
+| **M0** | Foundation guardrails | repo audit, decisions, requirements, ADR, scaffold, CI, staging smoke | `pnpm install` + baseline checks xanh; staging chạy `/health` + web shell rỗng |
+| **M1** | Platform core | OpenAPI, DB multi-tenant, backend platform + observability, auth, role/authz, plan enforce, frontend shell/i18n | Login thật, phân quyền enforce ở backend, shell song ngữ vi/en |
+| **M2** | Master data | product, warehouse, customer/supplier | CRUD master data thật, không còn mock/localStorage |
+| **M3** | Commerce & finance | inventory ledger, order, delivery/return, payment/debt, purchase | Chuỗi bán hàng → xuất kho → thu tiền chạy E2E |
+| **M4** | Insights & hardening | report, import/export, settings/print, yard/converter, a11y, security/E2E ship gate | Báo cáo từ ledger thật; ship gate không BLOCKER/HIGH |
+
+## Sơ đồ phụ thuộc rút gọn
+
+```text
+M0: 001→002→003→004→005→006→006b        (LANE-CORE, tuần tự)
+M1: 005→007 ; 005→008a→008b→008c ; 007+008c→009(+obs) ; 009→010a→010b
+    009+010* → 011a→011b→011c→011d ; 009→012 ; 007+010b→013
+M2: 014a→{014b,014c} ; 014a→015 (LANE-CATALOG) ‖ 013→017 (LANE-CRM)
+M3: 015+016 decisions→016a→016b→016c→016d
+    014+016+017→018a→018b→018c→018d→018e→019
+    017+018→020a→020b→020c ; 016+017+020→021
+M4: 016+018+020+021→022 ; 014+017→023 ; 013+018→024 ; 015+016→025
+    LANE-QUALITY: 026 chạy tăng dần theo từng UI slice ; 027 ship gate cuối
+```
 
 ## Công nghệ chuẩn
 
@@ -14,333 +62,280 @@ Backlog này được thực thi theo `docs/ai-workflow/README.md`. Mỗi task l
 
 ---
 
+# M0 — Foundation guardrails · `LANE-CORE`
+
 ## TASK-001 — Đối soát trạng thái repo và cô lập prototype
+
+**Lane:** CORE · **Prerequisite:** —
 
 **Mục tiêu:** làm tài liệu phản ánh đúng repo: `app/` là AI Studio frontend prototype, không phải production app.
 
-**Cách làm:** đọc root docs và toàn bộ cấu trúc `app/`; lập inventory chức năng; chọn giải pháp ưu tiên là di chuyển nguyên trạng `app/` sang `prototype/legacy-app/` bằng một commit giữ lịch sử hợp lý, hoặc nếu rủi ro build/hosting chưa rõ thì giữ nguyên và đánh dấu read-only. Cập nhật `AGENTS.md`, root `README.md`, `docs/README.md`; không xóa prototype và không refactor code prototype.
-
-**Công nghệ:** Git, Markdown; không thêm dependency.
+**Cách làm:** đọc root docs và toàn bộ cấu trúc `app/`; lập inventory chức năng; ưu tiên di chuyển nguyên trạng `app/` sang `prototype/legacy-app/` bằng một commit giữ lịch sử, hoặc nếu rủi ro build/hosting chưa rõ thì giữ nguyên và đánh dấu read-only. Cập nhật `AGENTS.md`, root `README.md`, `docs/README.md`; không xóa prototype và không refactor code prototype.
 
 **Output:** nguồn sự thật thống nhất; bảng implemented/demo/missing; quyết định rõ production target là `apps/web` + `apps/api`; execution/review logs.
 
-**Acceptance:** không còn câu khẳng định sai “chưa có code”; agent sau không nhầm prototype với production; link tài liệu không hỏng.
-
-**Review focus:** mất file, thay đổi prototype ngoài scope, mâu thuẫn tài liệu.
+**Acceptance:** không còn khẳng định sai “chưa có code”; agent sau không nhầm prototype với production; link tài liệu không hỏng.
 
 ## TASK-002 — Decision backlog và phạm vi MVP
 
-**Prerequisite:** TASK-001 accepted.
+**Lane:** CORE · **Prerequisite:** TASK-001 accepted
 
-**Mục tiêu:** khóa các quyết định nghiệp vụ trước khi code.
+**Mục tiêu:** khóa quyết định nghiệp vụ trước khi code.
 
-**Cách làm:** tạo `docs/decision-backlog.md`; mỗi mục có ID, owner, status, options, recommendation, trigger và decision record. Bao gồm platform-vs-tenant admin, branch scope, thời điểm reserve/trừ tồn, negative stock/backorder, order state machine, cancel/reverse, partial payment, VAT, costing method, discount approval, credit limit, transfer workflow, archive policy.
+**Cách làm:** tạo `docs/decision-backlog.md`; mỗi mục có ID, owner, status, options, recommendation, trigger, decision record **và `temporary assumption` bắt buộc cho mục `Open`**. Bao gồm platform-vs-tenant admin, branch scope, thời điểm reserve/trừ tồn, negative stock/backorder, order state machine, cancel/reverse, partial payment, VAT, costing method, discount approval, credit limit, transfer workflow, archive policy.
 
-**Công nghệ:** Markdown; ADR cho quyết định khó đảo ngược.
+**Output:** backlog quyết định có `Accepted`, `Temporary assumption` hoặc `Open`; danh sách blocker trước từng feature; **SLA chốt ≤ 2 ngày làm việc**.
 
-**Output:** backlog quyết định có `Accepted`, `Temporary assumption` hoặc `Open`; danh sách blocker trước từng feature.
-
-**Acceptance:** không còn business blocker ẩn; AI không được tự chốt mục `Open`.
+**Acceptance:** không còn business blocker cứng; mọi mục `Open` đều có assumption an toàn; AI không tự chốt `Open`.
 
 ## TASK-003 — Requirements MVP theo capability
 
-**Prerequisite:** TASK-002 accepted hoặc các mục liên quan đã được owner chấp nhận.
+**Lane:** CORE · **Prerequisite:** TASK-002 accepted (hoặc các mục liên quan đã có assumption/accepted)
 
-**Mục tiêu:** viết requirements kiểm thử được.
+**Mục tiêu:** viết requirements kiểm thử được cho product, warehouse, inventory, customer/supplier, sales order, delivery/return, payment/debt, purchase, report, audit. Mỗi tài liệu có actors/permissions, scope, state machine, invariants, happy path, failures, concurrency, audit, plan gates, acceptance criteria, out-of-scope.
 
-**Cách làm:** tạo tài liệu cho product, warehouse, inventory, customer/supplier, sales order, delivery/return, payment/debt, purchase, report và audit. Mỗi tài liệu có actors/permissions, scope, state machine, invariants, happy path, failures, concurrency, audit, plan gates, acceptance criteria và out-of-scope.
-
-**Output:** `docs/requirements/*.md` hoàn chỉnh và được link từ `docs/README.md`.
+**Output:** `docs/requirements/*.md` hoàn chỉnh, link từ `docs/README.md`.
 
 **Acceptance:** acceptance criteria quan sát được; không trộn implementation detail vào business requirement.
 
 ## TASK-004 — ADR kiến trúc production
 
-**Prerequisite:** TASK-003 accepted.
+**Lane:** CORE · **Prerequisite:** TASK-003 accepted
 
-**Mục tiêu:** chốt kiến trúc trước scaffold.
+**Mục tiêu:** chốt kiến trúc trước scaffold. ADR cho monorepo, Fastify/Kysely/Supabase, opaque session, capability authorization, multi-tenant shared DB, **định hướng sớm cho tenant routing/enterprise dedicated DB**, OpenAPI design-first, inventory ledger, money/date/time representation.
 
-**Cách làm:** ADR cho monorepo, Fastify/Kysely/Supabase, opaque session, capability authorization, multi-tenant shared DB, OpenAPI design-first, inventory ledger và money/date/time representation.
+**Output:** `docs/adr/NNNN-*.md`, ADR index, architecture overview.
 
-**Output:** `docs/adr/NNNN-*.md`, ADR index và architecture overview.
-
-**Acceptance:** dependency direction, trust boundaries, rollback/migration consequences và rejected alternatives rõ ràng.
+**Acceptance:** dependency direction, trust boundaries, rollback/migration consequences, rejected alternatives rõ ràng.
 
 ## TASK-005 — Scaffold monorepo và quality baseline
 
-**Prerequisite:** TASK-004 accepted.
+**Lane:** CORE · **Prerequisite:** TASK-004 accepted
 
-**Mục tiêu:** tạo skeleton production đúng `AGENTS.md` mà không phát minh feature.
-
-**Cách làm:** tạo workspace `apps/web`, `apps/api`, `packages/shared`, `packages/api-client`, config packages, `contracts/http`, `db`, `e2e`; pin Node/pnpm/TypeScript; cấu hình Turbo, strict TS, ESLint, Prettier, Vitest và root commands. Prototype không được copy nguyên vào production app.
-
-**Output:** install/build/typecheck tối thiểu chạy được; `.nvmrc`, `pnpm-workspace.yaml`, `turbo.json`, lockfile, root scripts và AGENTS con.
+**Mục tiêu:** skeleton production đúng `AGENTS.md`, không phát minh feature. Tạo `apps/web`, `apps/api`, `packages/shared`, `packages/api-client`, config packages, `contracts/http`, `db`, `e2e`; pin Node/pnpm/TypeScript; Turbo, strict TS, ESLint, Prettier, Vitest, root commands. Prototype không copy nguyên vào production.
 
 **Acceptance:** `pnpm install --frozen-lockfile` và baseline checks xanh; không có placeholder business endpoint/table.
 
-## TASK-006 — Sửa GitHub Actions CI
+## TASK-006 — GitHub Actions CI + secret/dependency scan baseline
 
-**Prerequisite:** TASK-005 accepted.
+**Lane:** CORE · **Prerequisite:** TASK-005 accepted
 
-**Mục tiêu:** thay workflow hỏng hiện tại.
-
-**Cách làm:** Node 24 + pnpm cache; chạy frozen install, format, lint, typecheck, unit/integration, build, OpenAPI drift và secret/dependency scan; concurrency cancellation; branch rules phù hợp `dev`/`main`.
+**Mục tiêu:** thay workflow hỏng; **đưa secret/dependency scan vào ngay từ nền tảng** (không chờ ship gate). Node 24 + pnpm cache; frozen install, format, lint, typecheck, unit/integration, build, OpenAPI drift, secret + dependency scan; concurrency cancellation; branch rules cho `dev`/`main`.
 
 **Output:** `.github/workflows/ci.yml` hợp lệ, không còn `cd vlxd-app`/`test.js`.
 
-**Acceptance:** CI xanh trên PR mẫu; command local và CI giống nhau về contract.
+**Acceptance:** CI xanh trên PR mẫu; command local và CI khớp contract; scan chạy trên mọi PR.
 
-## TASK-007 — OpenAPI foundation và generated client
+## TASK-006b — Staging smoke deploy (MỚI)
 
-**Prerequisite:** TASK-005 accepted.
+**Lane:** CORE · **Prerequisite:** TASK-005 accepted, TASK-006 accepted
 
-**Mục tiêu:** thiết lập contract-first.
+**Mục tiêu:** rút ngắn vòng phản hồi: có môi trường staging tối thiểu từ rất sớm.
 
-**Cách làm:** OpenAPI 3.1 cho health, error envelope, pagination, money, date/time, request ID và optimistic version; cấu hình lint/generator; generate `packages/api-client`; thêm drift test. Không thêm business endpoint chưa có requirement.
+**Cách làm:** pipeline deploy staging cho `apps/api` (`/health`) và `apps/web` (shell rỗng); config qua env/secret manager, không hard-code; smoke test tự động sau deploy; rollback đơn giản.
 
-**Output:** `contracts/http/openapi.yaml`, generated client, lint/generation scripts và docs.
+**Acceptance:** mỗi merge vào `dev` deploy staging tự động; smoke `/health` + tải shell xanh; không secret trong log/artifact.
+
+---
+
+# M1 — Platform core
+
+## TASK-007 — OpenAPI foundation và generated client · `LANE-CORE`
+
+**Prerequisite:** TASK-005 accepted
+
+OpenAPI 3.1 cho health, error envelope, pagination, money, date/time, request ID, optimistic version; lint/generator; generate `packages/api-client`; drift test. Không thêm business endpoint chưa có requirement.
 
 **Acceptance:** generated files không sửa tay; CI phát hiện drift.
 
-## TASK-008 — Database multi-tenant foundation
+## TASK-008 — Database multi-tenant foundation · `LANE-CORE` (chẻ 3 PR)
 
-**Prerequisite:** TASK-004, TASK-005 accepted.
+**Prerequisite:** TASK-004, TASK-005 accepted
 
-**Mục tiêu:** tạo identity, tenancy, permission, plan và audit schema nền.
+- **TASK-008a — Identity & tenancy:** migrations `tenants`, `users`, `tenant_users`, `sessions`; UTC timestamps; archive fields; test clean install + rollback.
+- **TASK-008b — Permission & scope:** `titles`, `role_groups`, `permissions`, mappings, overrides, scopes; constraints/indexes/grants.
+- **TASK-008c — Audit & plan:** `audit_logs`, `tenant_plans`; deterministic seeds chỉ dùng dữ liệu giả; tenant isolation test.
 
-**Cách làm:** dbmate migrations cho tenants, users, tenant_users, sessions, titles, role_groups, permissions, mappings, overrides, scopes, audit_logs, tenant_plans; constraints/indexes/grants; UTC timestamps; archive fields; test clean install, rollback và tenant isolation.
+**Acceptance chung:** tenant A không đọc/ghi tenant B; migration up/down sạch; không secret.
 
-**Output:** reversible SQL migrations, deterministic seeds chỉ dùng dữ liệu giả, DB integration tests.
+## TASK-009 — Backend platform foundation + observability · `LANE-CORE`
 
-**Acceptance:** tenant A không đọc/ghi tenant B; migration up/down sạch; không secret.
+**Prerequisite:** TASK-007, TASK-008c accepted
 
-## TASK-009 — Backend platform foundation
+Fastify + Zod config, Kysely/pg, request ID, **pino redaction + structured logging + health/readiness (observability baseline kéo lên đây)**, error mapper, graceful shutdown, transaction helper, tenant context; testcontainers integration.
 
-**Prerequisite:** TASK-007, TASK-008 accepted.
+**Acceptance:** startup fail-fast khi config sai; không lộ stack/SQL/secret; shutdown đóng connection; log có request-id, PII redacted.
 
-**Mục tiêu:** Fastify API vận hành an toàn.
+## TASK-010 — Authentication và session · `LANE-CORE` (chẻ 2 PR)
 
-**Cách làm:** Zod config, Kysely/pg, request ID, pino redaction, error mapper, graceful shutdown, health/readiness, transaction helper, tenant context; testcontainers integration.
+**Prerequisite:** TASK-009 accepted; auth requirement/ADR accepted
 
-**Output:** runnable `apps/api`, `/health`, platform tests, env example.
+- **TASK-010a — Backend auth:** OpenAPI trước; password hashing; opaque server-side session; secure cookie; login/logout/current session; expiry/revocation; suspended user; CSRF policy; audit login.
+- **TASK-010b — Frontend login shell:** dùng generated client; form login; xử lý session state; không lưu token nhạy cảm ở localStorage.
 
-**Acceptance:** startup fail-fast khi config sai; không lộ stack/SQL/secret; shutdown đóng connection.
+**Acceptance:** session fixation/revocation và failure cases được test; token nhạy cảm không ở localStorage.
 
-## TASK-010 — Authentication và session
+## TASK-011 — Role Management và capability authorization · `LANE-CORE` (chẻ 4 PR)
 
-**Prerequisite:** TASK-009 accepted; auth requirement/ADR accepted.
+**Prerequisite:** TASK-010 accepted
 
-**Mục tiêu:** internal account login bằng opaque server-side session.
+- **TASK-011a — Authorization engine:** permission catalog + authorization hook/use-case policy; deny-override thắng allow theo policy đã chốt.
+- **TASK-011b — Tenant user lifecycle:** invite/suspend tenant user, gán title/role group (contract-first).
+- **TASK-011c — Override & scope:** allow/deny override, tenant/warehouse/own-record scope.
+- **TASK-011d — UI quản lý user/role:** vertical slice UI + audit mọi thay đổi quyền.
 
-**Cách làm:** OpenAPI trước; password hashing; secure cookie; login/logout/current session; expiry/revocation; suspended user; CSRF policy; audit login; frontend login shell sau generated client.
+**Acceptance:** direct API bypass bị từ chối; không hard-code quyền theo title; deny override thắng allow.
 
-**Output:** migration/contract/backend/frontend/tests.
+## TASK-012 — Service plan enforcement · `LANE-CORE` (song song sau 009)
 
-**Acceptance:** không lưu token nhạy cảm trong localStorage; session fixation/revocation và failure cases được test.
+**Prerequisite:** TASK-009 accepted; service-plan requirements accepted
 
-## TASK-011 — Role Management và capability authorization
-
-**Prerequisite:** TASK-010 accepted.
-
-**Mục tiêu:** backend enforce permission và scope.
-
-**Cách làm:** invite/suspend tenant user, title, role group, permission catalog, allow/deny override, tenant/warehouse/own-record scope; authorization hook/use case policy; UI quản lý user/role; audit mọi thay đổi quyền.
-
-**Output:** vertical slice contract->DB->API->generated client->UI->tests.
-
-**Acceptance:** direct API bypass bị từ chối; không hard-code quyền theo title; deny override thắng allow theo policy đã chốt.
-
-## TASK-012 — Service plan enforcement
-
-**Prerequisite:** TASK-009 accepted; service-plan requirements accepted.
-
-**Mục tiêu:** enforce Free/Standard/Premium/Enterprise ở backend.
-
-**Cách làm:** central plan capability config; limits product 80/800 và warehouse 1/unlimited; AI/OCR feature gates; downgrade giữ dữ liệu cũ nhưng chặn tạo mới; stable error codes; admin plan assignment/audit.
-
-**Output:** shared schemas, backend policy, API errors, tests; UI chỉ phản ánh policy.
+Central plan capability config; product 80/800, warehouse 1/unlimited; AI/OCR feature gates; downgrade giữ dữ liệu cũ nhưng chặn tạo mới; stable error codes; admin plan assignment/audit.
 
 **Acceptance:** gọi API trực tiếp không bypass limit; enterprise dedicated DB chỉ là explicit unimplemented capability nếu chưa có ADR vận hành.
 
-## TASK-013 — Frontend shell, router và i18n
+## TASK-013 — Frontend shell, router và i18n · `LANE-PLATFORMUI`
 
-**Prerequisite:** TASK-007, TASK-010 accepted.
+**Prerequisite:** TASK-007, TASK-010b accepted
 
-**Mục tiêu:** tạo app shell production, không copy monolithic `App.tsx`.
-
-**Cách làm:** React Router 7, MUI theme tokens, TanStack Query, auth provider, error boundary, capability-aware navigation; i18next `vi` mặc định, `en` fallback; locale preference; centralized Intl formatters; mobile-first shell.
-
-**Output:** `apps/web/src/app`, i18n namespaces, shared UI contracts, tests.
+React Router 7, MUI theme tokens, TanStack Query, auth provider, error boundary, capability-aware navigation; i18next `vi` mặc định, `en` fallback; locale preference; centralized Intl formatters; mobile-first shell. Không copy monolithic `App.tsx`.
 
 **Acceptance:** không hard-code UI copy; refresh/deep link/back-forward hoạt động; loading/error/not-found/denied states có test.
 
-## TASK-014 — Product catalog vertical slice
+---
 
-**Prerequisite:** TASK-011, TASK-012, TASK-013 accepted.
+# M2 — Master data (các lane chạy song song)
 
-**Mục tiêu:** product/category/unit/price production-grade.
+## TASK-014 — Product catalog · `LANE-CATALOG` (chẻ 3 PR)
 
-**Cách làm:** OpenAPI trước; product migration; backend create/read/update/archive/search/filter/sort/paginate; unique SKU per tenant; price history append-only; product limit; permissions/audit; generated client; React Query UI/forms bằng RHF+Zod.
+**Prerequisite:** TASK-011 (ít nhất 011a+011b), TASK-012, TASK-013 accepted
 
-**Output:** feature slices ở API/web, migration, tests và docs.
+- **TASK-014a — Contract + DB + backend core:** OpenAPI trước; product migration; create/read/update/archive/search/filter/sort/paginate; unique SKU per tenant; permissions/audit; generated client.
+- **TASK-014b — Price history append-only:** bảng lịch sử giá append-only + enforce product limit theo plan.
+- **TASK-014c — UI:** React Query UI/forms bằng RHF+Zod; vi/en.
 
-**Acceptance:** archive thay delete; server authoritative; no localStorage business data; pagination/filter reset đúng; vi/en UI.
+**Acceptance:** archive thay delete; server authoritative; no localStorage business data; pagination/filter reset đúng.
 
-## TASK-015 — Warehouse và location
+## TASK-015 — Warehouse và location · `LANE-CATALOG`
 
-**Prerequisite:** TASK-014 accepted.
+**Prerequisite:** TASK-014a accepted
 
-**Mục tiêu:** warehouse/location thật, thay chuỗi hard-code.
-
-**Cách làm:** CRUD/archive warehouse/location; plan limit; warehouse scope; tenant isolation; capacity metadata chỉ khi requirement có; contract-first vertical slice.
-
-**Output:** DB/API/client/UI/tests.
+CRUD/archive warehouse/location; plan limit; warehouse scope; tenant isolation; capacity metadata chỉ khi requirement có; contract-first vertical slice.
 
 **Acceptance:** Free/Standard không tạo warehouse thứ hai; user ngoài scope không truy cập kho.
 
-## TASK-016 — Inventory ledger
+## TASK-017 — Customer và supplier · `LANE-CRM` (song song với CATALOG)
 
-**Prerequisite:** TASK-015 accepted; inventory decisions accepted.
+**Prerequisite:** TASK-013 accepted
 
-**Mục tiêu:** nguồn sự thật tồn kho bất biến và concurrency-safe.
-
-**Cách làm:** stock balance theo product+warehouse; append-only movement ledger; stock-in/out/transfer/stocktake/adjustment/reserve/release/reverse; transaction + lock/version; idempotency; không sửa quantity trực tiếp; permission/approval/audit.
-
-**Output:** schema, use cases, API, UI, integration/concurrency tests.
-
-**Acceptance:** transfer giảm nguồn tăng đích atomically; retry không nhân đôi; reverse tạo movement bù; không mất update đồng thời.
-
-## TASK-017 — Customer và supplier
-
-**Prerequisite:** TASK-013 accepted.
-
-**Mục tiêu:** master data khách hàng/NCC có archive, credit và search.
-
-**Cách làm:** contract-first CRUD/archive, customer type, addresses/projects, credit limit, supplier contacts, tenant isolation, permissions/audit, pagination.
-
-**Output:** DB/API/client/UI/tests.
+Contract-first CRUD/archive, customer type, addresses/projects, credit limit, supplier contacts, tenant isolation, permissions/audit, pagination.
 
 **Acceptance:** không hard delete entity đã được chứng từ tham chiếu; PII không xuất hiện trong log.
 
-## TASK-018 — Quotation và sales order
+---
 
-**Prerequisite:** TASK-014, TASK-016, TASK-017 accepted.
+# M3 — Commerce & finance · `LANE-COMMERCE`
 
-**Mục tiêu:** quotation/order state machine liên kết reservation.
+## TASK-016 — Inventory ledger (chẻ 4 PR)
 
-**Cách làm:** quotation->order; price snapshot; reserve stock ở transition đã chốt; validate tồn; edit reconcile reservation; discount policy; optimistic concurrency; cancel/release/reverse; delivery info; audit.
+**Prerequisite:** TASK-015 accepted; inventory decisions accepted
 
-**Output:** complete vertical slice và E2E happy/conflict paths.
+- **TASK-016a — Balance & schema:** stock balance theo product+warehouse; schema nền; không sửa quantity trực tiếp.
+- **TASK-016b — Core movements:** stock-in/out/transfer/stocktake/adjustment append-only ledger.
+- **TASK-016c — Reserve & safety:** reserve/release/reverse; transaction + lock/version; idempotency; permission/approval/audit.
+- **TASK-016d — UI + tests:** UI + integration/concurrency tests.
 
-**Acceptance:** sửa/hủy đơn không làm lệch tồn; không tự coi hoàn tất là đã thu đủ; không bán vượt tồn trừ khi backorder được accepted.
+**Acceptance:** transfer giảm nguồn tăng đích atomically; retry không nhân đôi; reverse tạo movement bù; không mất update đồng thời.
+
+## TASK-018 — Quotation và sales order (chẻ 5 PR)
+
+**Prerequisite:** TASK-014, TASK-016, TASK-017 accepted
+
+- **TASK-018a — Quotation:** báo giá + price snapshot.
+- **TASK-018b — Order state machine:** quotation→order; state machine; validate tồn.
+- **TASK-018c — Reservation integration:** reserve stock ở transition đã chốt; optimistic concurrency.
+- **TASK-018d — Discount & lifecycle:** discount policy; edit reconcile reservation; cancel/release/reverse; delivery info; audit.
+- **TASK-018e — UI + E2E:** vertical slice UI + E2E happy/conflict paths.
+
+**Acceptance:** sửa/hủy đơn không lệch tồn; không tự coi hoàn tất là đã thu đủ; không bán vượt tồn trừ khi backorder accepted.
 
 ## TASK-019 — Delivery, stock-out và return
 
-**Prerequisite:** TASK-018 accepted.
+**Prerequisite:** TASK-018 accepted
 
-**Mục tiêu:** giao hàng và xuất kho tách khỏi payment.
-
-**Cách làm:** delivery note, partial delivery, stock-out, confirmation, return và return condition; reverse/cancel; proof-of-delivery chỉ khi requirement chốt; permission/audit.
-
-**Output:** contract/DB/API/UI/tests/printable delivery note.
+Delivery note, partial delivery, stock-out, confirmation, return + return condition; reverse/cancel; proof-of-delivery chỉ khi requirement chốt; permission/audit; printable delivery note.
 
 **Acceptance:** partial delivery và return giữ ledger cân bằng; completed delivery không tự tạo payment.
 
-## TASK-020 — Payment và debt ledger
+## TASK-020 — Payment và debt ledger (chẻ 3 PR)
 
-**Prerequisite:** TASK-017, TASK-018 accepted.
+**Prerequisite:** TASK-017, TASK-018 accepted
 
-**Mục tiêu:** thay thao tác trừ trực tiếp số nợ bằng ledger tài chính.
+- **TASK-020a — Ledger & money:** receivable/payable entries; money decimal (không float ở backend/DB).
+- **TASK-020b — Payment ops:** payment/receipt, method, partial payment, allocation, reversal, reconciliation; finance permissions; audit.
+- **TASK-020c — UI + chứng từ:** UI + phiếu thu/chi.
 
-**Cách làm:** payment/receipt, method, partial payment, allocation, receivable/payable entries, reversal, reconciliation; money decimal; finance permissions; audit.
-
-**Output:** DB/API/client/UI/tests và phiếu thu/chi.
-
-**Acceptance:** balance được suy ra từ ledger; overpayment/race/reversal được xử lý; không dùng float cho tiền ở backend/DB.
+**Acceptance:** balance suy ra từ ledger; overpayment/race/reversal xử lý đúng; không float cho tiền.
 
 ## TASK-021 — Purchase và receiving
 
-**Prerequisite:** TASK-016, TASK-017, TASK-020 accepted.
+**Prerequisite:** TASK-016, TASK-017, TASK-020 accepted
 
-**Mục tiêu:** purchase order, nhận hàng, supplier payable và cost update.
-
-**Cách làm:** PO state machine, partial receiving, stock-in integration, purchase invoice, payable, cancel/reverse; costing policy theo decision; separation of duties.
-
-**Output:** vertical slice + integration/E2E tests.
+PO state machine, partial receiving, stock-in integration, purchase invoice, payable, cancel/reverse; costing policy theo decision; separation of duties.
 
 **Acceptance:** receiving và stock movement atomic; supplier debt khớp invoice/payment ledger.
 
-## TASK-022 — Reporting
+---
 
-**Prerequisite:** TASK-016, TASK-018, TASK-020, TASK-021 accepted.
+# M4 — Insights & hardening
 
-**Mục tiêu:** báo cáo từ business events/ledger thật.
+## TASK-022 — Reporting · `LANE-PLATFORMUI`
 
-**Cách làm:** revenue, cash collected, receivable/payable, inventory valuation, realized gross profit, low stock, employee performance; date/warehouse filters; export permission; query/performance budgets.
+**Prerequisite:** TASK-016, TASK-018, TASK-020, TASK-021 accepted
 
-**Output:** report APIs, UI, tests với fixture cố định.
+Revenue, cash collected, receivable/payable, inventory valuation, realized gross profit, low stock, employee performance; date/warehouse filters; export permission; query/performance budgets.
 
 **Acceptance:** loại đúng draft/cancelled; không KPI hard-code; tiền/date format theo locale.
 
-## TASK-023 — Import/export production-grade
+## TASK-023 — Import/export production-grade · `LANE-PLATFORMUI`
 
-**Prerequisite:** TASK-014, TASK-017 accepted; file contract decision accepted.
+**Prerequisite:** TASK-014, TASK-017 accepted; file contract decision accepted
 
-**Mục tiêu:** thay parser CSV thủ công và tuyên bố `.xlsx` sai.
+Server-side bounded import hoặc signed upload theo ADR; robust CSV và `.xlsx` chỉ khi dependency approved; preview/validation/dedup; row limits; downloadable error report; correct CSV escaping; permission/plan/audit.
 
-**Cách làm:** server-side bounded import hoặc signed upload theo ADR; robust CSV và `.xlsx` chỉ khi dependency được approved; preview/validation/dedup; row limits; downloadable error report; correct CSV escaping; permission/plan/audit.
+**Acceptance:** quoted comma/newline/UTF-8/duplicate/malformed/oversize được test; không cần public Google Sheet mặc định.
 
-**Output:** file contract, importer/exporter, UI, security/tests.
+## TASK-024 — Settings, numbering và print templates · `LANE-PLATFORMUI`
 
-**Acceptance:** quoted comma/newline/UTF-8/duplicate/malformed/oversize cases được test; không cần public Google Sheet mặc định.
+**Prerequisite:** TASK-013, TASK-018 accepted
 
-## TASK-024 — Settings, numbering và print templates
-
-**Prerequisite:** TASK-013, TASK-018 accepted.
-
-**Mục tiêu:** loại bỏ thông tin cửa hàng hard-code khỏi phiếu in.
-
-**Cách làm:** tenant settings, tax/bank/contact, document numbering, warehouse thresholds, credit/profit alerts; printable templates dùng settings; permission/audit; print CSS tests.
-
-**Output:** settings vertical slice và mẫu in order/delivery/receipt.
+Tenant settings, tax/bank/contact, document numbering, warehouse thresholds, credit/profit alerts; printable templates dùng settings; permission/audit; print CSS tests.
 
 **Acceptance:** thay settings phản ánh trên bản in; sequence không trùng khi concurrent.
 
-## TASK-025 — Yard map và unit converter hardening
+## TASK-025 — Yard map và unit converter hardening · `LANE-CATALOG`
 
-**Prerequisite:** TASK-015, TASK-016 accepted.
+**Prerequisite:** TASK-015, TASK-016 accepted
 
-**Mục tiêu:** biến tiện ích prototype thành feature có dữ liệu thật hoặc loại khỏi MVP.
-
-**Cách làm:** yard zone/location/capacity từ DB, không hard-code; accessible list fallback. Tách công thức converter thành pure functions, unit test, validation và nguồn/assumption; không tuyên bố TCVN nếu chưa có bằng chứng chuyên môn.
-
-**Output:** accepted feature hoặc ADR ghi rõ hoãn; tests và docs.
+Yard zone/location/capacity từ DB, không hard-code; accessible list fallback. Tách converter thành pure functions, unit test, validation, nguồn/assumption; không tuyên bố TCVN nếu chưa có bằng chứng.
 
 **Acceptance:** nút không dùng `alert()` giả; mobile/keyboard usable; formula edge cases được test.
 
-## TASK-026 — Accessibility, responsive và visual QA
+## TASK-026 — Accessibility, responsive và visual QA · `LANE-QUALITY` (tăng dần)
 
-**Prerequisite:** các UI slice MVP hoàn tất.
+**Prerequisite:** áp dụng **tăng dần cho từng UI slice** (013, 014c, 017, 018e, ...) thay vì dồn cuối; tổng kết khi các UI slice MVP hoàn tất.
 
-**Mục tiêu:** WCAG 2.2 AA và viewport production baseline.
+Semantic dialogs, focus trap/restore, keyboard tables, `aria-sort`, form errors, reduced motion, dark theme tokens, iPhone/desktop/zoom 200%; Playwright + axe; visual review record.
 
-**Cách làm:** semantic dialogs, focus trap/restore, keyboard tables, `aria-sort`, form errors, reduced motion, dark theme tokens, iPhone/desktop/zoom 200%; Playwright + axe; visual review record.
+**Acceptance:** critical axe violations = 0; keyboard-only hoàn thành workflow chính.
 
-**Output:** automated tests, fixes, QA matrix.
+## TASK-027 — Security, E2E, deployment readiness (ship gate) · `LANE-QUALITY`
 
-**Acceptance:** critical axe violations bằng 0; keyboard-only hoàn thành workflow chính.
+**Prerequisite:** toàn bộ MVP slices accepted
 
-## TASK-027 — Security, E2E, deployment readiness
+Tenant/permission negative tests, CSRF, session security, rate/file limits, secret/dependency/container scans, PII redaction, backup/restore, migration deploy/rollback, health/readiness, observability; E2E login→product→stock-in→order→delivery→partial payment→debt→reverse.
 
-**Prerequisite:** toàn bộ MVP slices accepted.
-
-**Mục tiêu:** ship gate trước staging/production.
-
-**Cách làm:** tenant/permission negative tests, CSRF, session security, rate/file limits, secret/dependency/container scans, PII redaction, backup/restore, migration deploy/rollback, health/readiness, observability; E2E login->product->stock-in->order->delivery->partial payment->debt->reverse.
-
-**Output:** CI ship gate, threat-model updates, runbooks, staging evidence.
-
-**Acceptance:** không BLOCKER/HIGH security finding; backup restore được diễn tập; clean environment deploy và E2E xanh.
+**Acceptance:** không BLOCKER/HIGH security finding; backup restore diễn tập được; clean environment deploy và E2E xanh.
 
 ---
 
@@ -348,4 +343,4 @@ Backlog này được thực thi theo `docs/ai-workflow/README.md`. Mỗi task l
 
 - OCR hóa đơn: upload contract, async job, correction workflow, retention, Premium/Enterprise gate.
 - AI chat/voice: permission-safe tools, confirmation cho hành động tiền/hàng, transcript/retention/audit, cost controls.
-- Enterprise dedicated DB: provisioning, tenant routing, schema compatibility, backup/recovery và secrets runbook.
+- Enterprise dedicated DB: provisioning, tenant routing, schema compatibility, backup/recovery, secrets runbook (ADR định hướng đã đặt ở TASK-004).
