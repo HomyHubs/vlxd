@@ -3,9 +3,9 @@
 ## Metadata
 
 - Reviewer: AI Bot 2 (Reviewer) / GPT Web Review
-- PR/commit reviewed: [#8](https://github.com/HomyHubs/vlxd/pull/8) (`db23290`)
-- Reviewed at (UTC): 2026-08-21T16:10:00Z
-- Review round: 1
+- PR/commit reviewed: [#10](https://github.com/HomyHubs/vlxd/pull/10) (`fix/decision-backlog-and-audit-sync`)
+- Reviewed at (UTC): 2026-08-21T23:00:00Z
+- Review round: 3
 - Verdict: accepted
 
 ## Phạm vi đã kiểm tra
@@ -25,22 +25,33 @@
 
 | Command | Kết quả/exit code | Ghi chú |
 | --- | --- | --- |
-| `git diff dev...HEAD --stat` | Exit 0 | 7 files changed, 429 insertions(+), 7 deletions(-). `docs/decision-backlog.md` được tạo chuẩn xác |
-| `gh pr view 8` | Exit 0 | PR #8 mở thành công hướng vào nhánh base `dev` |
+| `git diff dev...HEAD --stat` | Exit 0 | `docs/decision-backlog.md`, `docs/ai-workflow/runs/TASK-002/*` chuẩn xác |
+| `gh pr view 10` | Exit 0 | PR #10 mở thành công hướng vào nhánh base `dev` |
+| `gh pr checks 10` | Exit 0 | CI workflow check passed 100% green |
 
 ## Findings
 
-### FINDING-001 — [NONE]
-- Severity: LOW
-- File/dòng hoặc bằng chứng: Không có vấn đề kỹ thuật hay vi phạm quy ước.
-- Trạng thái: resolved
+### FINDING-001 — [ROUND 1] Loại bỏ tracked MCP config
+- Severity: BLOCKER
+- File/dòng: `.agents/mcp_config.json`
+- Trạng thái: resolved (đã đưa `.agents/` vào `.gitignore` và xóa tracking).
+
+### FINDING-002 — [ROUND 2] Khớp FSM Transition và Task ID Milestone M4
+- Severity: BLOCKER
+- File/dòng: `docs/decision-backlog.md` (DEC-004, DEC-005, Section 3)
+- Trạng thái: resolved (cập nhật FSM: `BACKORDER -> CONFIRMED -> PROCESSING`, đồng bộ task IDs M4: `TASK-022`, `TASK-024`, `TASK-025`).
+
+### FINDING-003 — [ROUND 3] Thống nhất vòng đời bán POS, Phân quyền Capability chiết khấu & Phạm vi DEC-013
+- Severity: LOW / RECOMMENDATION
+- File/dòng: `docs/decision-backlog.md` (DEC-003, DEC-010, DEC-013, Section 3)
+- Trạng thái: resolved (chuẩn hóa vòng đời POS qua `CONFIRMED -> PROCESSING -> COMPLETED`, enforce chiết khấu qua capability `sales.discount.*`, giới hạn DEC-013 Soft-delete ở M1 `TASK-008a` và hoãn Cold Archive sau MVP).
 
 ## Acceptance criteria
 
 | Criterion | Pass/Fail/Not verified | Evidence |
 | --- | --- | --- |
-| Không còn business blocker cứng làm gián đoạn scaffold | Pass | 10 mục Open đều có Temporary Assumption an toàn, khả thi |
-| AI không tự ý chốt Open thành Accepted | Pass | Chỉ DEC-001, DEC-006, DEC-013 là Accepted theo AGENTS.md |
+| Không còn business blocker cứng làm gián đoạn scaffold | Pass | 12 mục Open đều có Temporary Assumption an toàn, khả thi |
+| AI không tự ý chốt Open thành Accepted | Pass | Chỉ DEC-006 là Accepted theo AGENTS.md |
 | Danh mục bao quát đủ 13 quyết định cốt lõi ngành VLXD | Pass | `docs/decision-backlog.md` bao quát từ Auth, Kho, Đơn hàng, Kế toán, Thuế, Soft-delete |
 | Có ma trận ánh xạ Blocker trước từng Feature/Milestone | Pass | Mermaid diagram và bảng ánh xạ Milestone M1–M4 đầy đủ |
 | Toàn bộ liên kết tài liệu không bị hỏng (no broken links) | Pass | `docs/README.md`, `AGENTS.md`, `CURRENT.md` đồng bộ 100% |
@@ -55,4 +66,5 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: PR #8 đáp ứng 100% yêu cầu nghiệm thu của TASK-002, hồ sơ log đầy đủ, sẵn sàng merge vào `dev`.
+- Lý do kết luận: PR #10 đáp ứng 100% yêu cầu nghiệm thu của TASK-002 qua 3 vòng review, hồ sơ log đầy đủ, sẵn sàng merge vào `dev`.
+
