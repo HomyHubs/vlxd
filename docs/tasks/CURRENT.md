@@ -10,7 +10,7 @@
 
 | Lane | Task active | Tiêu đề | Status | PR | Reviewer |
 | --- | --- | --- | --- | --- | --- |
-| `LANE-CORE` | `TASK-001` | Đối soát trạng thái repo và cô lập prototype | `ready_for_review` | [#6](https://github.com/HomyHubs/vlxd/pull/6) | AI Bot 2 / GPT Web Review |
+| `LANE-CORE` | `TASK-002` | Decision backlog và phạm vi MVP | `ready` | chưa có | chưa gán |
 | `LANE-CATALOG` | — | — | `blocked` (chờ M1) | — | — |
 | `LANE-CRM` | — | — | `blocked` (chờ TASK-013) | — | — |
 | `LANE-COMMERCE` | — | — | `blocked` (chờ M2) | — | — |
@@ -19,11 +19,11 @@
 
 ### Chi tiết task active
 
-- **`TASK-001` · `LANE-CORE`**
-  - Task packet: `docs/tasks/MVP-BACKLOG.md#task-001--đối-soát-trạng-thái-repo-và-cô-lập-prototype`
-  - Prerequisite: — (task đầu tiên)
-  - Implementer PR: [#6](https://github.com/HomyHubs/vlxd/pull/6) (`task/TASK-001-audit-and-isolate-legacy-app` -> `dev`)
-  - Reviewer: AI Bot 2 (Reviewer) / GPT Web Review
+- **`TASK-002` · `LANE-CORE`**
+  - Task packet: `docs/tasks/MVP-BACKLOG.md#task-002--decision-backlog-và-phạm-vi-mvp`
+  - Prerequisite: `TASK-001` (accepted & merged via [#6](https://github.com/HomyHubs/vlxd/pull/6))
+  - Implementer PR: chưa có
+  - Reviewer: chưa gán
 
 ## Quy tắc cập nhật
 
