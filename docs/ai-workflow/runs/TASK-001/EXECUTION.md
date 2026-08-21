@@ -5,7 +5,7 @@
 - Task: TASK-001 — Đối soát trạng thái repo và cô lập prototype
 - Implementer: AI Bot 1 (Implementer)
 - Branch: `task/TASK-001-audit-and-isolate-legacy-app`
-- Base commit: `11e6507c917b2b0051eb5e9db535ee62649b5cfa`
+- Base commit: `11e6507a405ef3a16e0b4392cda8a8e63a0cf79d`
 - Started at (UTC): 2026-08-21T10:40:00Z
 - Status: ready_for_review
 
