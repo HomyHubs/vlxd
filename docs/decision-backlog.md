@@ -23,7 +23,7 @@
 | **DEC-010** | Phân cấp Phê duyệt Chiết khấu & Giảm giá | Nghiệp vụ / Bán hàng | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-018a, 018b) | `order`, `role-management` |
 | **DEC-011** | Kiểm soát Hạn mức Công nợ Khách hàng (Credit Limit) | Nghiệp vụ / Rủi ro | `Open` (Assumption) | CEO / Risk Lead | M2 (TASK-017), M3 (TASK-018a) | `customer`, `order` |
 | **DEC-012** | Quy trình Chuyển kho Nội bộ (Stock Transfer) | Nghiệp vụ / Kho | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016d) | `warehouse`, `inventory` |
-| **DEC-013** | Chính sách Lưu trữ, Soft-delete & Archive Dữ liệu | Kỹ thuật / DB | `Open` (Assumption) | Architect | M1 (TASK-008a), M4 (TASK-027) | Toàn bộ các module, `platform`, `archive` |
+| **DEC-013** | Chính sách Lưu trữ, Soft-delete & Archive Dữ liệu | Kỹ thuật / DB | `Open` (Assumption) | Architect | M1 (TASK-008a) | Toàn bộ các module, `platform`, `db` |
 
 ---
 
@@ -60,13 +60,13 @@
 - **Bối cảnh:** Khi nhân viên tạo đơn hàng bán, tồn kho có bị trừ ngay hay chỉ giữ chỗ tạm thời?
 - **Các phương án:**
   - *Option A:* Trừ tồn kho thực tế ngay khi tạo Đơn hàng ở trạng thái bất kỳ. (Rủi ro: Khách chưa lấy hàng hoặc hủy đơn sẽ làm sai lệch tồn thực tế tại bãi).
-  - *Option B (Chọn):* Tách bạch giữa **Tồn thực tế (`on_hand`)** và **Tồn khả dụng (`available = on_hand - reserved`)**, luôn bảo đảm bất biến $0 \le \text{reserved} \le \text{on\_hand}$:
-    - **Giữ chỗ (`RESERVE`):** Khi Đơn hàng chuyển sang `CONFIRMED`, hệ thống tăng `reserved += qty` (`available = on_hand - reserved`). Đơn ở trạng thái `BACKORDER` không thực hiện giữ chỗ.
+  - *Option B (Chọn - Nhất quán toàn bộ các luồng bán):* Tách bạch giữa **Tồn thực tế (`on_hand`)** và **Tồn khả dụng (`available = on_hand - reserved`)**, luôn bảo đảm bất biến $0 \le \text{reserved} \le \text{on\_hand}$:
+    - **Giữ chỗ (`RESERVE`):** Khi Đơn hàng chuyển sang `CONFIRMED`, hệ thống kiểm tra tồn khả dụng và tự động tăng `reserved += qty` (`available = on_hand - reserved`). Đơn ở trạng thái `BACKORDER` không thực hiện giữ chỗ.
     - **Sự kiện Trừ kho thực tế duy nhất (`EXPORT`):**
       - Đối với đơn giao hàng tận nơi: Trừ kho thực tế (`on_hand -= qty, reserved -= qty`) duy nhất tại thời điểm đơn hàng chuyển sang `DELIVERING` (hàng được bốc lên xe và xuất bãi).
-      - Đối với đơn bán lẻ tại quầy / POS: Nếu đơn đã qua `CONFIRMED` (`reserved > 0`), hệ thống trừ đồng thời `on_hand -= qty, reserved -= qty` tại thời điểm chuyển sang `COMPLETED`; nếu là đơn bán ngay không qua bước giữ chỗ, hệ thống trừ trực tiếp `on_hand -= qty`.
-    - **Giải phóng giữ chỗ (`UNRESERVE`):** Khi Đơn hàng từ `CONFIRMED` hoặc `PROCESSING` bị `CANCELLED` trước khi xuất hàng, hệ thống giải phóng giữ chỗ `reserved -= qty`.
-- **Recommendation:** Option B đảm bảo tính chính xác tuyệt đối, loại trừ hoàn toàn nguy cơ rò rỉ (leak) hoặc trừ trùng lặp (double-deduction) lượng tồn giữ chỗ.
+      - Đối với đơn bán lẻ tại quầy / POS: Trừ kho thực tế (`on_hand -= qty, reserved -= qty`) duy nhất tại thời điểm chuyển sang `COMPLETED` (sau khi quét mã/kiểm đếm tại quầy và khách hoàn tất thanh toán nhận hàng).
+    - **Giải phóng giữ chỗ (`UNRESERVE`):** Khi Đơn hàng từ `CONFIRMED` hoặc `PROCESSING` bị `CANCELLED` trước khi xuất kho, hệ thống giải phóng giữ chỗ `reserved -= qty`.
+- **Recommendation:** Option B bảo đảm tính chính xác tuyệt đối, chuẩn hóa vòng đời bán hàng thống nhất qua 1 pipeline, loại trừ hoàn toàn nguy cơ rò rỉ (leak) hoặc trừ trùng lặp (double-deduction).
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Triển khai theo Option B. Tồn kho trong Sổ cái (`inventory_ledger`) ghi nhận theo từng sự kiện biến động (RESERVE, UNRESERVE, EXPORT, IMPORT).
 - **Blocker:** M3 (`TASK-016a`, `TASK-018a`).
@@ -94,9 +94,9 @@
   1. `DRAFT`: Đơn nháp / Báo giá, chưa giữ tồn kho.
   2. `CONFIRMED`: Khách đã chốt đơn, hàng có sẵn trong kho, hệ thống tự động giữ chỗ tồn kho (`reserved += qty`).
   3. `BACKORDER`: Khách đặt hàng nhưng kho chưa đủ tồn khả dụng; không giữ chỗ tồn kho thực tế, chờ nhập hàng để phân bổ.
-  4. `PROCESSING`: Đang bốc dỡ hàng tại bãi / phân công phương tiện vận tải.
+  4. `PROCESSING`: Đang bốc dỡ hàng tại bãi / chuẩn bị hàng tại quầy / phân công phương tiện vận tải.
   5. `DELIVERING`: Xe đang vận chuyển hàng tới công trình. **Đây là điểm trừ tồn kho thực tế (`on_hand -= qty, reserved -= qty`)** cho đơn giao hàng.
-  6. `COMPLETED`: Giao hàng thành công (khách ký nhận) hoặc hoàn tất bán lẻ tại bãi (trừ kho thực tế và giải phóng `reserved` tương ứng).
+  6. `COMPLETED`: Giao hàng thành công (khách ký nhận) hoặc hoàn tất bán lẻ tại quầy/bãi (trừ kho thực tế `on_hand -= qty, reserved -= qty`).
   7. `CANCELLED`: Hủy đơn (nếu hủy từ `CONFIRMED`/`PROCESSING`, hệ thống tự động giải phóng `reserved -= qty`; nếu hủy sau khi đã xuất kho, phải đi qua quy trình ghi nhận hoàn trả).
   8. `RETURNED`: Đơn hàng bị khách trả lại một phần hoặc toàn bộ; sinh phiếu nhập hoàn kho bù trừ.
 - **Sơ đồ chuyển đổi trạng thái (FSM):**
@@ -171,13 +171,13 @@
 - **Bối cảnh:** Ngăn ngừa tình trạng nhân viên tự ý giảm giá quá sâu gây thất thoát lợi nhuận.
 - **Các phương án:**
   - *Option A:* Bất kỳ nhân viên nào cũng được quyền nhập % giảm giá tùy ý.
-  - *Option B (Chọn):* Phân tầng hạn mức chiết khấu theo chức danh:
-    - Nhân viên bán hàng: Chiết khấu tối đa **$\le 3\%$**.
-    - Quản lý cửa hàng / chi nhánh: Chiết khấu tối đa **$\le 10\%$**.
-    - Vượt quá $10\%$: Bắt buộc có phê duyệt (Approval OTP / Xác nhận trực tiếp) từ Chủ cửa hàng (Super Admin).
+  - *Option B (Chọn):* Phân tầng hạn mức chiết khấu theo capability thẩm quyền (không hard-code theo title):
+    - Capability `sales.discount.tier1` (mặc định gán nhân viên bán hàng): Chiết khấu tối đa **$\le 3\%$**.
+    - Capability `sales.discount.tier2` (mặc định gán quản lý cửa hàng / chi nhánh): Chiết khấu tối đa **$\le 10\%$**.
+    - Capability `sales.discount.override` (mặc định gán chủ cửa hàng / super admin): Chiết khấu vượt quá $10\%$ (yêu cầu phê duyệt Approval OTP / Xác nhận trực tiếp).
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
-- **Temporary Assumption:** Triển khai hạn mức chiết khấu 3% / 10% như Option B. Backend trả mã lỗi `DISCOUNT_LIMIT_EXCEEDED` nếu người dùng không đủ thẩm quyền.
+- **Temporary Assumption:** Triển khai hạn mức chiết khấu theo capabilities như Option B. Backend trả mã lỗi `DISCOUNT_LIMIT_EXCEEDED` nếu người dùng không có capability tương ứng.
 - **Blocker:** M3 (`TASK-018a`, `TASK-018b`).
 
 ---
@@ -199,7 +199,7 @@
 
 - **Bối cảnh:** Điều chuyển vật liệu giữa bãi chính và các chi nhánh bán lẻ.
 - **Các phương án:**
-  - *Option A (1 bước):* Trừ kho xuất và cộng ngay vào kho nhập trong 1 giao dịch. (Không phản ánh thời gian hàng đang trên xe vận chuyển, dễ thất thoát nếu có sự cố dọc đường).
+  - *Option A:* 1 bước: Trừ kho xuất và cộng ngay vào kho nhập trong 1 giao dịch. (Không phản ánh thời gian hàng đang trên xe vận chuyển, dễ thất thoát nếu có sự cố dọc đường).
   - *Option B (2 bước - Chọn):* 
     - Bước 1 (Phiếu xuất chuyển): Trừ kho nguồn $\rightarrow$ hàng chuyển sang trạng thái `IN_TRANSIT`.
     - Bước 2 (Phiếu xác nhận nhập): Kho đích kiểm đếm số lượng thực nhận $\rightarrow$ cộng vào tồn kho đích $\rightarrow$ ghi nhận chênh lệch hao hụt (nếu có).
@@ -215,11 +215,11 @@
 - **Bối cảnh:** Đảm bảo toàn vẹn dữ liệu kế toán, hóa đơn và lịch sử giao dịch nhiều năm.
 - **Các phương án:**
   - *Option A:* Cho phép xóa record vật lý sau khi đơn hoàn tất. (Cấm tuyệt đối theo quy chuẩn AGENTS.md).
-  - *Option B (Chọn):* Toàn bộ bảng dữ liệu nghiệp vụ chính (`products`, `warehouses`, `customers`, `suppliers`, `orders`, `invoices`, `ledger`) sử dụng cờ `deleted_at`, `is_archived`. Dữ liệu giao dịch kế toán/kho được lưu trữ vĩnh viễn; sau 2 năm có thể chuyển sang bảng lưu trữ lạnh (Cold Archive) để tối ưu hiệu năng query.
+  - *Option B (Chọn):* Toàn bộ bảng dữ liệu master data và giao dịch (`products`, `warehouses`, `customers`, `suppliers`, `orders`, `invoices`, `ledger`) áp dụng Soft-delete (`deleted_at`, `is_archived`). Dữ liệu giao dịch kế toán/kho được lưu trữ vĩnh viễn trong MVP; chiến lược chuyển dữ liệu lịch sử trên 2 năm sang bảng lưu trữ lạnh (Cold Archive) được định hướng cho giai đoạn vận hành sau MVP (Post-MVP).
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
-- **Temporary Assumption:** Áp dụng cơ chế Soft-delete (`deleted_at`, `is_archived`) cho master data và Cold Archive sau 2 năm cho transaction ledger.
-- **Blocker:** M1 (`TASK-008a`), M4 (`TASK-027`).
+- **Temporary Assumption:** Áp dụng cơ chế Soft-delete (`deleted_at`, `is_archived`) ở cấp độ schema DB cho master data và transactions trong MVP; Cold Archive được hoãn lại sau MVP.
+- **Blocker:** M1 (`TASK-008a`).
 
 ---
 
@@ -229,7 +229,7 @@
 graph TD
     subgraph M1_PlatformCore [Milestone M1: Platform Core]
         DEC001[DEC-001: Platform vs Tenant Admin] --> F_Auth[Feature: Auth & Role (TASK-009, 010a)]
-        DEC013[DEC-013: Soft-delete & Archive] --> F_DB[Feature: Platform DB (TASK-008a)]
+        DEC013[DEC-013: Soft-delete Master Data] --> F_DB[Feature: Platform DB (TASK-008a)]
     end
 
     subgraph M2_MasterData [Milestone M2: Master Data]
@@ -255,7 +255,6 @@ graph TD
         DEC009 --> F_Report[Feature: Reporting & Analytics (TASK-022)]
         DEC008 --> F_Settings[Feature: Settings & Print Templates (TASK-024)]
         DEC002 --> F_Yard[Feature: Yard Map Hardening (TASK-025)]
-        DEC013 --> F_ShipGate[Feature: Security & Ship Gate (TASK-027)]
     end
 ```
 

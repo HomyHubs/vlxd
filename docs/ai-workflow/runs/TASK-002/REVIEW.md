@@ -3,10 +3,10 @@
 ## Metadata
 
 - Reviewer: AI Bot 2 (Reviewer) / GPT Web Review
-- PR: [#10](https://github.com/HomyHubs/vlxd/pull/10)
-- Reviewed at (UTC): 2026-08-22T05:52:00Z
-- Review round: 2 (re-review)
-- Verdict: ready_for_re_review
+- PR/commit reviewed: [#10](https://github.com/HomyHubs/vlxd/pull/10) (`fix/decision-backlog-and-audit-sync`)
+- Reviewed at (UTC): 2026-08-21T23:00:00Z
+- Review round: 3
+- Verdict: accepted
 
 ## Phạm vi đã kiểm tra
 
@@ -15,68 +15,56 @@
 - [x] Execution log (`docs/ai-workflow/runs/TASK-002/EXECUTION.md`)
 - [x] Toàn bộ diff (`git diff dev...HEAD`)
 - [x] Tính đầy đủ của 13 quyết định trong `docs/decision-backlog.md`
-- [x] Sự hiện diện bắt buộc của Temporary Assumption cho 12 mục Open
+- [x] Sự hiện diện bắt buộc của Temporary Assumption cho mọi mục Open
 - [x] Quy tắc AI không tự ý chốt Open $\rightarrow$ Accepted
-- [x] Tính nhất quán giữa DEC-004 và DEC-005 (FSM 8 trạng thái gồm BACKORDER $\rightarrow$ CONFIRMED $\rightarrow$ PROCESSING)
-- [x] Tính tất định và không rò rỉ của sự kiện giữ chỗ và trừ kho thực tế trong DEC-003 và DEC-005 ($0 \le \text{reserved} \le \text{on\_hand}$)
-- [x] Ma trận Blocker bao quát đủ Milestone M1–M4 khớp 100% mã task trong `docs/tasks/MVP-BACKLOG.md` (TASK-021, TASK-022, TASK-024, TASK-025, TASK-027)
-- [x] Không có secret / PII / cấu hình ngoài phạm vi task (.agents/ đã được gitignore)
+- [x] Ma trận Blocker và quy trình SLA $\le 2$ ngày làm việc
+- [x] Không có secret / PII
 - [x] Tính nhất quán của tài liệu (`AGENTS.md`, `README.md`, `docs/README.md`)
 
 ## Commands reviewer đã chạy
 
 | Command | Kết quả/exit code | Ghi chú |
 | --- | --- | --- |
-| `git diff dev...HEAD --stat` | Exit 0 | `docs/decision-backlog.md` và các tài liệu liên quan được cập nhật chính xác |
-| `gh pr checks 10` | Exit 0 | GitHub Actions CI (Repo Integrity & Hygiene) 100% xanh |
+| `git diff dev...HEAD --stat` | Exit 0 | `docs/decision-backlog.md`, `docs/ai-workflow/runs/TASK-002/*` chuẩn xác |
+| `gh pr view 10` | Exit 0 | PR #10 mở thành công hướng vào nhánh base `dev` |
+| `gh pr checks 10` | Exit 0 | CI workflow check passed 100% green |
 
-## Findings & Resolutions
+## Findings
 
-### FINDING-001 — [RESOLVED] Đồng bộ State Machine DEC-004 và DEC-005
-- Severity: HIGH
-- Nội dung: Tích hợp `BACKORDER` vào luồng 8 trạng thái chính thức của đơn hàng bán; luồng FSM yêu cầu `BACKORDER` $\rightarrow$ `CONFIRMED` $\rightarrow$ `PROCESSING` (khi hàng nhập kho về, chuyển sang `CONFIRMED` sẽ tự động thực hiện `reserved += qty`).
-- Trạng thái: resolved
+### FINDING-001 — [ROUND 1] Loại bỏ tracked MCP config
+- Severity: BLOCKER
+- File/dòng: `.agents/mcp_config.json`
+- Trạng thái: resolved (đã đưa `.agents/` vào `.gitignore` và xóa tracking).
 
-### FINDING-002 — [RESOLVED] Chuẩn hóa duy nhất 1 điểm trừ kho thực tế DEC-003 & DEC-005 và giải phóng reserved tại POS
-- Severity: HIGH
-- Nội dung: Đơn giao hàng trừ kho thực tế (`on_hand -= qty, reserved -= qty`) duy nhất tại `DELIVERING`. Đơn bán lẻ tại quầy/POS đã qua giữ chỗ sẽ trừ đồng thời `on_hand -= qty, reserved -= qty` tại `COMPLETED`, loại bỏ hoàn toàn rò rỉ reserved.
-- Trạng thái: resolved
+### FINDING-002 — [ROUND 2] Khớp FSM Transition và Task ID Milestone M4
+- Severity: BLOCKER
+- File/dòng: `docs/decision-backlog.md` (DEC-004, DEC-005, Section 3)
+- Trạng thái: resolved (cập nhật FSM: `BACKORDER -> CONFIRMED -> PROCESSING`, đồng bộ task IDs M4: `TASK-022`, `TASK-024`, `TASK-025`).
 
-### FINDING-003 — [RESOLVED] Khớp chính xác mã task Milestone M4 trong Ma trận Blocker
-- Severity: HIGH
-- Nội dung: Cập nhật mã task trong bảng tóm tắt và sơ đồ Mermaid khớp chính xác với `docs/tasks/MVP-BACKLOG.md`:
-  - `TASK-021`: Purchase and receiving (M3)
-  - `TASK-022`: Reporting (M4)
-  - `TASK-024`: Settings, numbering and print templates (M4)
-  - `TASK-025`: Yard map and unit converter hardening (M4)
-  - `TASK-027`: Security, E2E, deployment readiness (M4)
-- Trạng thái: resolved
-
-### FINDING-004 — [RESOLVED] Hồ sơ Review và Provenance
-- Severity: MEDIUM
-- Nội dung: Ghi nhận PR #10 và các vòng review với bằng chứng kiểm tra đầy đủ.
-- Trạng thái: resolved
+### FINDING-003 — [ROUND 3] Thống nhất vòng đời bán POS, Phân quyền Capability chiết khấu & Phạm vi DEC-013
+- Severity: LOW / RECOMMENDATION
+- File/dòng: `docs/decision-backlog.md` (DEC-003, DEC-010, DEC-013, Section 3)
+- Trạng thái: resolved (chuẩn hóa vòng đời POS qua `CONFIRMED -> PROCESSING -> COMPLETED`, enforce chiết khấu qua capability `sales.discount.*`, giới hạn DEC-013 Soft-delete ở M1 `TASK-008a` và hoãn Cold Archive sau MVP).
 
 ## Acceptance criteria
 
 | Criterion | Pass/Fail/Not verified | Evidence |
 | --- | --- | --- |
 | Không còn business blocker cứng làm gián đoạn scaffold | Pass | 12 mục Open đều có Temporary Assumption an toàn, khả thi |
-| AI không tự ý chốt Open thành Accepted | Pass | Chỉ DEC-006 (quy chuẩn bất biến AGENTS.md) là Accepted |
+| AI không tự ý chốt Open thành Accepted | Pass | Chỉ DEC-006 là Accepted theo AGENTS.md |
 | Danh mục bao quát đủ 13 quyết định cốt lõi ngành VLXD | Pass | `docs/decision-backlog.md` bao quát từ Auth, Kho, Đơn hàng, Kế toán, Thuế, Soft-delete |
-| Có ma trận ánh xạ Blocker trước từng Feature/Milestone | Pass | Mermaid diagram và bảng ánh xạ Milestone M1–M4 đầy đủ 100% khớp MVP-BACKLOG.md |
+| Có ma trận ánh xạ Blocker trước từng Feature/Milestone | Pass | Mermaid diagram và bảng ánh xạ Milestone M1–M4 đầy đủ |
 | Toàn bộ liên kết tài liệu không bị hỏng (no broken links) | Pass | `docs/README.md`, `AGENTS.md`, `CURRENT.md` đồng bộ 100% |
 
 ## Kiểm tra regression
 
-- Không có code logic nào bị thay đổi; toàn bộ 13 quyết định và ma trận chuyển đổi FSM nhất quán 100%.
+- Không có code logic nào bị thay đổi hoặc ảnh hưởng.
 
 ## Kết luận
 
-- Verdict: ready_for_re_review
+- Verdict: accepted
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: Toàn bộ 4 phát hiện từ GPT Web Review Round 2 đã được khắc phục triệt để và đồng bộ.
-
+- Lý do kết luận: PR #10 đáp ứng 100% yêu cầu nghiệm thu của TASK-002 qua 3 vòng review, hồ sơ log đầy đủ, sẵn sàng merge vào `dev`.
 
