@@ -16,9 +16,9 @@ Tài liệu thiết kế kiến trúc, yêu cầu nghiệp vụ và quy trình p
 - `ai-workflow/README.md` — Quy trình làm việc và review 2-bot tuần tự.
 - `ai-workflow/runs/` — Lưu trữ Execution log và Review report cho từng task.
 
-## 3. Kiến trúc & Quyết định (Sẽ bổ sung theo lộ trình M0)
+## 3. Kiến trúc & Quyết định
 
-- `decision-backlog.md` — Danh mục quyết định nghiệp vụ/kiến trúc cần chốt (TASK-002).
+- `decision-backlog.md` — Danh mục 13 quyết định nghiệp vụ & kiến trúc cốt lõi, giả định tạm thời và ma trận blocker.
 - `adr/` — Kiến trúc và quyết định khó đảo ngược (TASK-004).
 - `architecture/` — Sơ đồ luồng dữ liệu, trust boundary và sơ đồ hệ thống tổng thể.
 
