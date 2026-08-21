@@ -4,10 +4,23 @@ Tài liệu thiết kế kiến trúc, yêu cầu nghiệp vụ và quy trình p
 
 ## 1. Yêu cầu sản phẩm & Nghiệp vụ (`docs/requirements/`)
 
+### Nền tảng & Quản trị chung
 - `requirements/prototype-feature-inventory.md` — Bảng đối soát chi tiết tính năng giữa prototype AI Studio và production.
 - `requirements/role-management.md` — Thiết kế role, title, user và ma trận phân quyền.
 - `requirements/service-plans.md` — Phân tầng gói dịch vụ Free, Standard, Premium, Enterprise.
 - `requirements/i18n.md` — Quy chuẩn song ngữ Việt / Anh, mặc định tiếng Việt.
+
+### Đặc tả Yêu cầu Nghiệp vụ theo Capability (TASK-003)
+- `requirements/product.md` — Quản lý Sản phẩm, vật liệu thô/xả đống, đơn vị tính quy đổi, bảng giá đa tầng.
+- `requirements/warehouse.md` — Quản lý Kho kín, bãi lộ thiên (Yard Map), phân khu Zone/Slot và sức chứa.
+- `requirements/inventory.md` — Sổ cái kho bất biến (`inventory_ledger`), kiểm kê, chuyển kho 2 bước, chặn xuất âm & backorder.
+- `requirements/partner.md` — Quản lý Khách hàng, Nhà cung cấp, công trình và hạn mức công nợ (Credit Limit).
+- `requirements/sales-order.md` — Bán lẻ (POS), Đơn hàng thương mại, State machine 7 trạng thái, giữ chỗ tồn kho (Reservation).
+- `requirements/delivery-return.md` — Điều phối chuyến xe giao hàng, biên bản bàn giao (POD) và quy trình đổi trả hàng.
+- `requirements/finance-debt.md` — Sổ nợ kép (`debt_ledger`), thu chi, thanh toán từng phần (Partial Payment) và hóa đơn VAT.
+- `requirements/purchase.md` — Đơn đặt mua hàng (PO), nhập kho theo đợt từ nhà máy/mỏ và quản lý nợ phải trả NCC.
+- `requirements/report.md` — Báo cáo doanh thu, lợi nhuận gộp theo giá vốn bình quân gia quyền, phân tích tuổi nợ.
+- `requirements/audit.md` — Nhật ký kiểm toán bất biến (WORM), lưu vết mọi thao tác nhạy cảm và đối soát tuân thủ.
 
 ## 2. Kế hoạch & Quy trình triển khai (`docs/tasks/` & `docs/ai-workflow/`)
 

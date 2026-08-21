@@ -416,6 +416,7 @@ Một UI feature chỉ được coi là xong khi:
 
 - [x] TASK-001 — Đối soát trạng thái repo, cô lập prototype sang `prototype/legacy-app/` (read-only), xuất bảng feature inventory (`docs/requirements/prototype-feature-inventory.md`).
 - [x] TASK-002 — Xây dựng Decision Backlog và khóa quyết định nghiệp vụ trước khi code (`docs/decision-backlog.md`).
+- [x] TASK-003 — Hoàn thiện Requirements MVP chi tiết cho 10 capability (`docs/requirements/*.md`).
 - [x] Làm rõ cấu trúc repo tách `apps/web` và `apps/api`, mỗi bên chia `features/<feature>`.
 - [x] Thêm định hướng Role Management cho cửa hàng vật liệu xây dựng (`docs/requirements/role-management.md`).
 - [x] Chuẩn hóa yêu cầu gói dịch vụ ở mức root AGENTS và `docs/requirements/service-plans.md`.
@@ -425,10 +426,9 @@ Một UI feature chỉ được coi là xong khi:
 
 ### Đang làm
 
-- [ ] `TASK-002`: Review và merge PR Decision Backlog.
+- [ ] `TASK-003`: Review và merge PR Requirements MVP theo capability.
 
 ### Bước tiếp theo
 
-- [ ] `TASK-003` (M0): Hoàn thiện Requirements MVP theo capability (`docs/requirements/*.md`).
 - [ ] `TASK-004` (M0): Viết ADR kiến trúc production (`docs/adr/`).
 - [ ] `TASK-005` (M0): Scaffold monorepo skeleton (`apps/web`, `apps/api`, `packages/*`) và quality baseline.
