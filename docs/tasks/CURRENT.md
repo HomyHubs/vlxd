@@ -10,7 +10,7 @@
 
 | Lane | Task active | Tiêu đề | Status | PR | Reviewer |
 | --- | --- | --- | --- | --- | --- |
-| `LANE-CORE` | `TASK-004` | Viết ADR kiến trúc production | `ready` | chưa có | chưa gán |
+| `LANE-CORE` | `TASK-005` | Scaffold monorepo skeleton & quality baseline | `ready` | chưa có | chưa gán |
 | `LANE-CATALOG` | — | — | `blocked` (chờ M1) | — | — |
 | `LANE-CRM` | — | — | `blocked` (chờ TASK-013) | — | — |
 | `LANE-COMMERCE` | — | — | `blocked` (chờ M2) | — | — |
@@ -19,9 +19,9 @@
 
 ### Chi tiết task active
 
-- **`TASK-004` · `LANE-CORE`**
-  - Task packet: `docs/tasks/MVP-BACKLOG.md#task-004--viết-adr-kiến-trúc-production`
-  - Prerequisite: `TASK-003` (accepted & merged via [#9](https://github.com/HomyHubs/vlxd/pull/9))
+- **`TASK-005` · `LANE-CORE`**
+  - Task packet: `docs/tasks/MVP-BACKLOG.md#task-005--scaffold-monorepo-skeleton--quality-baseline`
+  - Prerequisite: `TASK-004` (accepted & merged via [#11](https://github.com/HomyHubs/vlxd/pull/11))
   - Implementer PR: chưa có
   - Reviewer: chưa gán
 

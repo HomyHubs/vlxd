@@ -9,9 +9,10 @@
   - Round 2 (PR #10): `0067dafafe9f33b1fb1849a623709b8d234850fa`
   - Round 3 (PR #10): `195219154a922c07ef4d6444cc443ca6a634f057`
   - Round 4 (PR #10): `e1ad0d024b2d72ed364eac57762355e86e63503c`
-- Reviewed at (UTC): 2026-08-21T23:05:00Z
-- Review round: 4
-- Verdict: changes_required (Round 4) -> pending re-review
+  - Round 5 (PR #10): `abbf796255e48168077a95ccf2198a061e86a300`
+- Reviewed at (UTC): 2026-08-21T23:10:00Z
+- Review round: 5
+- Verdict: changes_required (Round 5) -> pending re-review
 
 ## Phạm vi đã kiểm tra
 
@@ -30,7 +31,7 @@
 
 | Command | Kết quả/exit code | Ghi chú |
 | --- | --- | --- |
-| `git diff dev...HEAD --stat` | Exit 0 | `docs/decision-backlog.md`, `docs/ai-workflow/runs/TASK-002/*` chuẩn xác |
+| `git diff dev...HEAD --stat` | Exit 0 | `docs/decision-backlog.md`, `docs/tasks/MVP-BACKLOG.md`, `docs/ai-workflow/runs/TASK-002/*` chuẩn xác |
 | `gh pr view 10` | Exit 0 | PR #10 mở thành công hướng vào nhánh base `dev` |
 | `gh pr checks 10` | Exit 0 | CI workflow check passed 100% green |
 
@@ -56,6 +57,11 @@
 - File/dòng: `docs/decision-backlog.md` (DEC-012)
 - Trạng thái: resolved (quy định rõ 2 Atomic DB Transactions cho Dispatch & Receive, bút toán `inventory_ledger`, ghi nhận hao hụt `TRANSFER_SHRINKAGE`, idempotency và luật bảo toàn tồn kho $\text{source} + \text{in\_transit} + \text{dest} + \text{shrinkage} = \text{const}$).
 
+### FINDING-005 — [ROUND 5] Đồng bộ tiêu chí nghiệm thu TASK-016 trong MVP-BACKLOG.md & Hợp nhất nhánh dev
+- Severity: BLOCKER
+- File/dòng: `docs/tasks/MVP-BACKLOG.md` (TASK-016), `docs/decision-backlog.md`
+- Trạng thái: resolved (đồng bộ tiêu chí nghiệm thu TASK-016 khớp 100% với hợp đồng chuyển kho 2 bước DEC-012, hợp nhất sạch sẽ base branch `origin/dev`, giải quyết toàn bộ xung đột).
+
 ## Acceptance criteria
 
 | Criterion | Pass/Fail/Not verified | Evidence |
@@ -76,6 +82,4 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: Đã khắc phục triệt để các phát hiện của Round 4, sẵn sàng đưa SHA mới vào re-review để nhận phê duyệt chính thức `APPROVED_TO_MERGE`.
-
-
+- Lý do kết luận: Đã khắc phục triệt để các phát hiện của Round 5, hợp nhất sạch sẽ với `dev`, sẵn sàng đưa SHA mới vào re-review để nhận phê duyệt chính thức `APPROVED_TO_MERGE`.
