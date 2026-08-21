@@ -1,6 +1,6 @@
 # AGENTS.md — vlxd (Quản lý Vật liệu xây dựng)
 
-> Chỉ dẫn bắt buộc cho AI coding agent làm việc trên repo `HomyHubs/vlxd`. Repo hiện ở giai đoạn **plan + hướng dẫn**, chưa có code sản phẩm. Không scaffold code khi chưa có task triển khai rõ ràng.
+> Chỉ dẫn bắt buộc cho AI coding agent làm việc trên repo `HomyHubs/vlxd`. Repo hiện có bản prototype tham khảo tại `prototype/legacy-app/` (read-only); code production (`apps/web`, `apps/api`) được triển khai từng bước theo backlog. Không scaffold code khi chưa có task triển khai rõ ràng.
 
 ## 0. Nguyên tắc bất biến
 
@@ -23,7 +23,7 @@
 - **Database:** Supabase Postgres.
 - **Mô hình kinh doanh:** dịch vụ theo gói Free, Standard, Premium, Enterprise.
 - **Ngôn ngữ sản phẩm:** song ngữ **Việt / Anh**, ưu tiên tiếng Việt trước.
-- **Trạng thái repo:** plan/hướng dẫn, chưa có code sản phẩm.
+- **Trạng thái repo:** Chứa prototype giao diện tham khảo tại `prototype/legacy-app/` (read-only). Code production (`apps/web`, `apps/api`) đang trong lộ trình triển khai theo `docs/tasks/MVP-BACKLOG.md`.
 
 ---
 
@@ -40,12 +40,15 @@ repo/
 ├── pnpm-workspace.yaml
 ├── .nvmrc
 ├── compose.dev.yml
+├── prototype/
+│   └── legacy-app/                  # AI Studio prototype (read-only reference)
 ├── docs/
 │   ├── README.md
 │   ├── decision-backlog.md
 │   ├── adr/
 │   ├── architecture/
 │   └── requirements/
+│       ├── prototype-feature-inventory.md
 │       ├── service-plans.md
 │       ├── role-management.md
 │       └── i18n.md
@@ -411,20 +414,21 @@ Một UI feature chỉ được coi là xong khi:
 
 ### Đã xong
 
-- [x] Chốt repo hiện ở giai đoạn plan/hướng dẫn, chưa có code.
+- [x] TASK-001 — Đối soát trạng thái repo, cô lập prototype sang `prototype/legacy-app/` (read-only), xuất bảng feature inventory (`docs/requirements/prototype-feature-inventory.md`).
 - [x] Làm rõ cấu trúc repo tách `apps/web` và `apps/api`, mỗi bên chia `features/<feature>`.
-- [x] Thêm định hướng Role Management cho cửa hàng vật liệu xây dựng.
-- [x] Chuẩn hóa yêu cầu gói dịch vụ ở mức root AGENTS.
-- [x] Thêm yêu cầu song ngữ Việt / Anh, mặc định tiếng Việt.
+- [x] Thêm định hướng Role Management cho cửa hàng vật liệu xây dựng (`docs/requirements/role-management.md`).
+- [x] Chuẩn hóa yêu cầu gói dịch vụ ở mức root AGENTS và `docs/requirements/service-plans.md`.
+- [x] Thêm yêu cầu song ngữ Việt / Anh, mặc định tiếng Việt (`docs/requirements/i18n.md`).
+- [x] Viết lại MVP backlog theo milestone + lane song song (`docs/tasks/MVP-BACKLOG.md`, `docs/tasks/CURRENT.md`).
+- [x] Thiết lập quy trình AI workflow 2-bot tuần tự (`docs/ai-workflow/README.md`).
 
 ### Đang làm
 
-- [ ] Dọn tài liệu cũ không quan trọng trong `docs/`.
-- [ ] Chuẩn hóa requirements vào `docs/requirements/`.
+- [ ] `TASK-001`: Review và merge PR cô lập prototype.
 
 ### Bước tiếp theo
 
-- [ ] Tạo/sửa `docs/requirements/role-management.md`.
-- [ ] Tạo/sửa `docs/requirements/service-plans.md`.
-- [ ] Tạo/sửa `docs/requirements/i18n.md`.
-- [ ] Khi bắt đầu scaffold: tạo monorepo skeleton theo mục 2.
+- [ ] `TASK-002` (M0): Xây dựng `docs/decision-backlog.md` và khóa quyết định nghiệp vụ trước khi code.
+- [ ] `TASK-003` (M0): Hoàn thiện Requirements MVP theo capability (`docs/requirements/*.md`).
+- [ ] `TASK-004` (M0): Viết ADR kiến trúc production (`docs/adr/`).
+- [ ] `TASK-005` (M0): Scaffold monorepo skeleton (`apps/web`, `apps/api`, `packages/*`) và quality baseline.
