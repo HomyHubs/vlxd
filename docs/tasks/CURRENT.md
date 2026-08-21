@@ -10,7 +10,7 @@
 
 | Lane | Task active | Tiêu đề | Status | PR | Reviewer |
 | --- | --- | --- | --- | --- | --- |
-| `LANE-CORE` | `TASK-002` | Decision backlog và phạm vi MVP | `ready` | chưa có | chưa gán |
+| `LANE-CORE` | `TASK-002` | Decision backlog và phạm vi MVP | `ready_for_review` | Đang mở | Chưa gán |
 | `LANE-CATALOG` | — | — | `blocked` (chờ M1) | — | — |
 | `LANE-CRM` | — | — | `blocked` (chờ TASK-013) | — | — |
 | `LANE-COMMERCE` | — | — | `blocked` (chờ M2) | — | — |
@@ -22,8 +22,8 @@
 - **`TASK-002` · `LANE-CORE`**
   - Task packet: `docs/tasks/MVP-BACKLOG.md#task-002--decision-backlog-và-phạm-vi-mvp`
   - Prerequisite: `TASK-001` (accepted & merged via [#6](https://github.com/HomyHubs/vlxd/pull/6))
-  - Implementer PR: chưa có
-  - Reviewer: chưa gán
+  - Implementer PR: `task/TASK-002-decision-backlog-and-mvp-scope` -> `dev`
+  - Reviewer: AI Bot 2 (Reviewer) / GPT Web Review
 
 ## Quy tắc cập nhật
 
