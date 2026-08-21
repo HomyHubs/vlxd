@@ -48,19 +48,20 @@
 
 | Thời điểm | Nội dung | Căn cứ | Ảnh hưởng |
 | --- | --- | --- | --- |
-| 2026-08-21 | Đặt 10 quyết định nghiệp vụ mở ở trạng thái `Open` kèm `Temporary Assumption` | Quy định MVP-BACKLOG.md không được tự chốt thay owner | Đảm bảo tiến độ scaffold M0/M1 không bị đình trệ; owner có SLA 2 ngày để điều chỉnh |
-| 2026-08-21 | Ghi nhận `DEC-001`, `DEC-006`, `DEC-013` là `Accepted` | Đã được chốt trong quy chuẩn bất biến của AGENTS.md | Đồng bộ nguồn sự thật phân quyền, immutable ledger và soft-delete |
+| 2026-08-21 | Đặt 12 quyết định nghiệp vụ/kiến trúc mở ở trạng thái `Open` kèm `Temporary Assumption` | Quy định MVP-BACKLOG.md không được tự chốt thay owner | Đảm bảo tiến độ scaffold M0/M1 không bị đình trệ; owner có SLA 2 ngày để điều chỉnh |
+| 2026-08-21 | Ghi nhận `DEC-006` là `Accepted` (Chính sách hủy/hoàn tác bù trừ không xóa cứng) | Đã được chốt trong quy chuẩn bất biến của AGENTS.md | Đồng bộ nguồn sự thật immutable ledger và audit trail |
+| 2026-08-22 | Đồng bộ State Machine 8 trạng thái (DEC-004 & DEC-005), khóa điểm trừ kho duy nhất (DEC-003) và mở rộng ma trận Blocker đủ M1-M4 | GPT Web Review Round 1 | Đảm bảo tính tất định cho tầng nghiệp vụ và backend implementation |
 
 ## Thay đổi đã thực hiện
 
 | File/khu vực | Thay đổi | Lý do |
 | --- | --- | --- |
-| `docs/decision-backlog.md` | Tạo mới danh mục 13 quyết định kiến trúc/nghiệp vụ, ma trận blocker và quy trình SLA | Hoàn thành output bắt buộc của TASK-002 |
+| `docs/decision-backlog.md` | Tạo mới danh mục 13 quyết định kiến trúc/nghiệp vụ (FSM 8 trạng thái, điểm trừ kho duy nhất, ma trận blocker M1–M4 và quy trình SLA) | Hoàn thành output bắt buộc của TASK-002 |
 | `docs/README.md` | Cập nhật mục 3 liên kết tới `docs/decision-backlog.md` | Giữ bản đồ tài liệu nhất quán |
 | `AGENTS.md` | Cập nhật trạng thái tiến độ mục 10 | Phản ánh chính xác tiến độ repo |
 | `docs/ai-workflow/runs/TASK-002/EXECUTION.md` | Tạo execution log | Theo dõi quá trình thực thi theo quy trình 2-bot |
 | `docs/ai-workflow/runs/TASK-002/REVIEW.md` | Tạo review log | Chuẩn bị hồ sơ cho Bot 2 review |
-| `docs/tasks/CURRENT.md` | Cập nhật trạng thái `TASK-002` sang `ready_for_review` | Cập nhật bảng task active |
+| `docs/tasks/CURRENT.md` | Cập nhật trạng thái `TASK-002` | Cập nhật bảng task active |
 
 ## Migration/contract/generated artifacts
 
