@@ -197,15 +197,18 @@
 
 ### DEC-012 — Quy trình Chuyển kho Nội bộ (Stock Transfer)
 
-- **Bối cảnh:** Điều chuyển vật liệu giữa bãi chính và các chi nhánh bán lẻ.
+- **Bối cảnh:** Điều chuyển vật liệu giữa bãi chính và các chi nhánh bán lẻ cần phản ánh chính xác thời gian vận chuyển trên đường, đối soát hao hụt và đảm bảo tính toàn vẹn số liệu kế toán kho.
 - **Các phương án:**
-  - *Option A:* 1 bước: Trừ kho xuất và cộng ngay vào kho nhập trong 1 giao dịch. (Không phản ánh thời gian hàng đang trên xe vận chuyển, dễ thất thoát nếu có sự cố dọc đường).
-  - *Option B (2 bước - Chọn):* 
-    - Bước 1 (Phiếu xuất chuyển): Trừ kho nguồn $\rightarrow$ hàng chuyển sang trạng thái `IN_TRANSIT`.
-    - Bước 2 (Phiếu xác nhận nhập): Kho đích kiểm đếm số lượng thực nhận $\rightarrow$ cộng vào tồn kho đích $\rightarrow$ ghi nhận chênh lệch hao hụt (nếu có).
-- **Recommendation:** Option B.
+  - *Option A (1 bước):* Trừ kho xuất và cộng ngay vào kho nhập trong 1 giao dịch database duy nhất. (Nhược điểm: Không phản ánh thời gian hàng đang trên xe vận chuyển, dễ thất thoát nếu có sự cố dọc đường, không đối soát được trách nhiệm tài xế).
+  - *Option B (2 bước - Chọn):* Quy trình Chuyển kho 2 bước độc lập với đảm bảo Giao dịch nguyên tử (Atomic Transactions) & Bất biến bảo toàn tồn kho (Inventory Conservation):
+    - **Bước 1 — Xuất chuyển (`DISPATCH`):** Thực thi 1 Atomic DB Transaction: Trừ tồn kho nguồn (`source_on_hand -= qty`) và ghi nhận vào trạng thái đang đi đường (`in_transit += qty`), sinh bút toán xuất chuyển trên `inventory_ledger`.
+    - **Bước 2 — Xác nhận nhập (`RECEIVE`):** Thực thi 1 Atomic DB Transaction: Trừ hàng đang chuyển (`in_transit -= qty`), cộng tồn kho đích theo số lượng thực nhận (`destination_on_hand += received_qty`). Nếu phát sinh chênh lệch hao hụt (`shrinkage_qty = qty - received_qty > 0`), hệ thống tự động sinh bút toán hao hụt chuyển kho (`TRANSFER_SHRINKAGE`) trên `inventory_ledger`.
+    - **Bất biến Bảo toàn Tồn kho (Inventory Conservation Invariant):** Tại mọi thời điểm $t$, hệ thống luôn bảo đảm:
+      $$\text{source\_on\_hand} + \text{in\_transit} + \text{destination\_on\_hand} + \text{shrinkage} = \text{Tổng số lượng ban đầu}$$
+    - **Tính lũy biến & Chống trùng lặp (Idempotency):** Mọi thao tác xác nhận chuyển/nhập kho đều enforce Idempotency qua `transfer_id` và version lock (ngăn chặn double-receive khi mạng chập chờn); hỗ trợ hoàn tác hủy phiếu xuất (`CANCEL_DISPATCH`) khi hàng chưa nhập kho đích.
+- **Recommendation:** Option B phản ánh đúng nghiệp vụ vận tải VLXD thực tế, loại trừ sai lệch kiểm kê và đảm bảo an toàn giao dịch cấp ledger.
 - **Trạng thái:** `Open` (Assumption).
-- **Temporary Assumption:** Áp dụng quy trình Chuyển kho 2 bước (Xuất chuyển $\rightarrow$ Đang đi đường $\rightarrow$ Nhập kho).
+- **Temporary Assumption:** Áp dụng quy trình Chuyển kho 2 bước (Xuất chuyển nguyên tử $\rightarrow$ Đang đi đường $\rightarrow$ Xác nhận nhập nguyên tử kèm ghi nhận hao hụt) theo Option B.
 - **Blocker:** M3 (`TASK-016d`).
 
 ---

@@ -3,10 +3,15 @@
 ## Metadata
 
 - Reviewer: AI Bot 2 (Reviewer) / GPT Web Review
-- PR/commit reviewed: [#10](https://github.com/HomyHubs/vlxd/pull/10) (`fix/decision-backlog-and-audit-sync`)
-- Reviewed at (UTC): 2026-08-21T23:00:00Z
-- Review round: 3
-- Verdict: accepted
+- PR reviewed: [#10](https://github.com/HomyHubs/vlxd/pull/10)
+- Reviewed commits:
+  - Round 1 (PR #8): `db232908f51a4cf135bc8dd49c7fe6e1ea8dc0f4`
+  - Round 2 (PR #10): `0067dafafe9f33b1fb1849a623709b8d234850fa`
+  - Round 3 (PR #10): `195219154a922c07ef4d6444cc443ca6a634f057`
+  - Round 4 (PR #10): `e1ad0d024b2d72ed364eac57762355e86e63503c`
+- Reviewed at (UTC): 2026-08-21T23:05:00Z
+- Review round: 4
+- Verdict: changes_required (Round 4) -> pending re-review
 
 ## Phạm vi đã kiểm tra
 
@@ -34,7 +39,7 @@
 ### FINDING-001 — [ROUND 1] Loại bỏ tracked MCP config
 - Severity: BLOCKER
 - File/dòng: `.agents/mcp_config.json`
-- Trạng thái: resolved (đã đưa `.agents/` vào `.gitignore` và xóa tracking).
+- Trạng thái: resolved (đã đưa `.agents/` vào `.gitignore` và hủy theo dõi git).
 
 ### FINDING-002 — [ROUND 2] Khớp FSM Transition và Task ID Milestone M4
 - Severity: BLOCKER
@@ -42,9 +47,14 @@
 - Trạng thái: resolved (cập nhật FSM: `BACKORDER -> CONFIRMED -> PROCESSING`, đồng bộ task IDs M4: `TASK-022`, `TASK-024`, `TASK-025`).
 
 ### FINDING-003 — [ROUND 3] Thống nhất vòng đời bán POS, Phân quyền Capability chiết khấu & Phạm vi DEC-013
-- Severity: LOW / RECOMMENDATION
+- Severity: BLOCKER
 - File/dòng: `docs/decision-backlog.md` (DEC-003, DEC-010, DEC-013, Section 3)
 - Trạng thái: resolved (chuẩn hóa vòng đời POS qua `CONFIRMED -> PROCESSING -> COMPLETED`, enforce chiết khấu qua capability `sales.discount.*`, giới hạn DEC-013 Soft-delete ở M1 `TASK-008a` và hoãn Cold Archive sau MVP).
+
+### FINDING-004 — [ROUND 4] Chuẩn hóa Giao dịch Nguyên tử Chuyển kho 2 bước (DEC-012) & Bất biến Bảo toàn Tồn kho
+- Severity: BLOCKER
+- File/dòng: `docs/decision-backlog.md` (DEC-012)
+- Trạng thái: resolved (quy định rõ 2 Atomic DB Transactions cho Dispatch & Receive, bút toán `inventory_ledger`, ghi nhận hao hụt `TRANSFER_SHRINKAGE`, idempotency và luật bảo toàn tồn kho $\text{source} + \text{in\_transit} + \text{dest} + \text{shrinkage} = \text{const}$).
 
 ## Acceptance criteria
 
@@ -62,9 +72,10 @@
 
 ## Kết luận
 
-- Verdict: accepted
+- Verdict: resolved_pending_re-review
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: PR #10 đáp ứng 100% yêu cầu nghiệm thu của TASK-002 qua 3 vòng review, hồ sơ log đầy đủ, sẵn sàng merge vào `dev`.
+- Lý do kết luận: Đã khắc phục triệt để các phát hiện của Round 4, sẵn sàng đưa SHA mới vào re-review để nhận phê duyệt chính thức `APPROVED_TO_MERGE`.
+
 
