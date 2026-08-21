@@ -12,18 +12,18 @@
 | ID | Quyết định | Phân loại | Trạng thái | Owner | Trigger / Milestone | Blocker cho Feature |
 | --- | --- | --- | --- | --- | --- | --- |
 | **DEC-001** | Platform Admin vs Tenant Admin Scope | Kiến trúc / Auth | `Open` (Assumption) | CEO / Architect | M1 (TASK-009, 010a) | `auth`, `role-management`, `service-plan` |
-| **DEC-002** | Branch & Multi-Warehouse Scope | Nghiệp vụ / Core | `Open` (Assumption) | CEO / Ops Lead | M2 (TASK-014a, 015), M4 (TASK-024) | `warehouse`, `inventory`, `yard-map` |
+| **DEC-002** | Branch & Multi-Warehouse Scope | Nghiệp vụ / Core | `Open` (Assumption) | CEO / Ops Lead | M2 (TASK-014a, 015), M4 (TASK-025) | `warehouse`, `inventory`, `yard-map` |
 | **DEC-003** | Thời điểm Reserve và Trừ Tồn kho | Nghiệp vụ / Ledger | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016a, 018a) | `inventory`, `order`, `pos` |
 | **DEC-004** | Cho phép Xuất âm & Xử lý Đơn đặt trước (Backorder) | Nghiệp vụ / Kho | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-016b, 018b) | `inventory`, `order` |
 | **DEC-005** | State Machine và Vòng đời Đơn hàng | Nghiệp vụ / Bán hàng | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-018a, 018c) | `order`, `invoice`, `pos` |
 | **DEC-006** | Chính sách Hủy chứng từ, Hoàn tác & Ghi sổ bù trừ | Nghiệp vụ / Ledger | `Accepted` | CEO / Accountant | M3 (TASK-016c, 018d) | `inventory`, `order`, `finance` |
 | **DEC-007** | Thanh toán từng phần & Quản lý Sổ nợ Công nợ | Nghiệp vụ / Tài chính | `Open` (Assumption) | CEO / Accountant | M3 (TASK-018e, 020a) | `order`, `customer`, `supplier`, `finance` |
-| **DEC-008** | Xử lý Thuế VAT trên Báo giá và Đơn hàng | Nghiệp vụ / Thuế | `Open` (Assumption) | CEO / Accountant | M3 (TASK-018b, 018e), M4 (TASK-022) | `product`, `order`, `invoice`, `settings` |
-| **DEC-009** | Phương pháp Tính giá vốn Hàng tồn kho | Kế toán / Kho | `Open` (Assumption) | CEO / Accountant | M3 (TASK-016a), M4 (TASK-021) | `inventory`, `report`, `finance` |
+| **DEC-008** | Xử lý Thuế VAT trên Báo giá và Đơn hàng | Nghi vụ / Thuế | `Open` (Assumption) | CEO / Accountant | M3 (TASK-018b, 018e), M4 (TASK-024) | `product`, `order`, `invoice`, `settings` |
+| **DEC-009** | Phương pháp Tính giá vốn Hàng tồn kho | Kế toán / Kho | `Open` (Assumption) | CEO / Accountant | M3 (TASK-016a, 021), M4 (TASK-022) | `inventory`, `purchase`, `report`, `finance` |
 | **DEC-010** | Phân cấp Phê duyệt Chiết khấu & Giảm giá | Nghiệp vụ / Bán hàng | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-018a, 018b) | `order`, `role-management` |
 | **DEC-011** | Kiểm soát Hạn mức Công nợ Khách hàng (Credit Limit) | Nghiệp vụ / Rủi ro | `Open` (Assumption) | CEO / Risk Lead | M2 (TASK-017), M3 (TASK-018a) | `customer`, `order` |
 | **DEC-012** | Quy trình Chuyển kho Nội bộ (Stock Transfer) | Nghiệp vụ / Kho | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016d) | `warehouse`, `inventory` |
-| **DEC-013** | Chính sách Lưu trữ, Soft-delete & Archive Dữ liệu | Kỹ thuật / DB | `Open` (Assumption) | Architect | M1 (TASK-008a), M4 (TASK-025) | Toàn bộ các module, `platform`, `archive` |
+| **DEC-013** | Chính sách Lưu trữ, Soft-delete & Archive Dữ liệu | Kỹ thuật / DB | `Open` (Assumption) | Architect | M1 (TASK-008a), M4 (TASK-027) | Toàn bộ các module, `platform`, `archive` |
 
 ---
 
@@ -51,7 +51,7 @@
 - **Recommendation:** Option B để phản ánh đúng thực tế cửa hàng VLXD (1 chi nhánh có thể có bãi cát đá riêng và kho xi măng/sắt thép kế bên).
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Áp dụng mô hình Tenant $\rightarrow$ Chi nhánh (Branch) $\rightarrow$ Kho (Warehouse/Yard). Dữ liệu tồn kho được lưu và quản lý theo cấp độ từng Kho cụ thể. Gói Free/Standard giới hạn 1 kho; gói Premium/Enterprise không giới hạn.
-- **Blocker:** M2 (`TASK-014a`, `TASK-015`), M4 (`TASK-024`).
+- **Blocker:** M2 (`TASK-014a`, `TASK-015`), M4 (`TASK-025`).
 
 ---
 
@@ -60,13 +60,13 @@
 - **Bối cảnh:** Khi nhân viên tạo đơn hàng bán, tồn kho có bị trừ ngay hay chỉ giữ chỗ tạm thời?
 - **Các phương án:**
   - *Option A:* Trừ tồn kho thực tế ngay khi tạo Đơn hàng ở trạng thái bất kỳ. (Rủi ro: Khách chưa lấy hàng hoặc hủy đơn sẽ làm sai lệch tồn thực tế tại bãi).
-  - *Option B (Chọn):* Tách bạch giữa **Tồn thực tế (`on_hand`)** và **Tồn khả dụng (`available = on_hand - reserved`)**.
-    - **Giữ chỗ (`RESERVE`):** Khi Đơn hàng chuyển sang `CONFIRMED`, hệ thống tăng `reserved` (`available = on_hand - reserved`).
+  - *Option B (Chọn):* Tách bạch giữa **Tồn thực tế (`on_hand`)** và **Tồn khả dụng (`available = on_hand - reserved`)**, luôn bảo đảm bất biến $0 \le \text{reserved} \le \text{on\_hand}$:
+    - **Giữ chỗ (`RESERVE`):** Khi Đơn hàng chuyển sang `CONFIRMED`, hệ thống tăng `reserved += qty` (`available = on_hand - reserved`). Đơn ở trạng thái `BACKORDER` không thực hiện giữ chỗ.
     - **Sự kiện Trừ kho thực tế duy nhất (`EXPORT`):**
       - Đối với đơn giao hàng tận nơi: Trừ kho thực tế (`on_hand -= qty, reserved -= qty`) duy nhất tại thời điểm đơn hàng chuyển sang `DELIVERING` (hàng được bốc lên xe và xuất bãi).
-      - Đối với đơn bán lẻ tại bãi / POS: Trừ kho thực tế (`on_hand -= qty`) tại thời điểm chuyển sang `COMPLETED` (bàn giao hàng và thu tiền ngay tại quầy).
-    - **Giải phóng giữ chỗ (`UNRESERVE`):** Khi Đơn hàng bị `CANCELLED` trước khi xuất hàng, hệ thống giải phóng `reserved -= qty`.
-- **Recommendation:** Option B đảm bảo tính chính xác, xác định duy nhất 1 sự kiện trừ kho thực tế, loại trừ hoàn toàn nguy cơ trừ trùng lặp (double-deduction).
+      - Đối với đơn bán lẻ tại quầy / POS: Nếu đơn đã qua `CONFIRMED` (`reserved > 0`), hệ thống trừ đồng thời `on_hand -= qty, reserved -= qty` tại thời điểm chuyển sang `COMPLETED`; nếu là đơn bán ngay không qua bước giữ chỗ, hệ thống trừ trực tiếp `on_hand -= qty`.
+    - **Giải phóng giữ chỗ (`UNRESERVE`):** Khi Đơn hàng từ `CONFIRMED` hoặc `PROCESSING` bị `CANCELLED` trước khi xuất hàng, hệ thống giải phóng giữ chỗ `reserved -= qty`.
+- **Recommendation:** Option B đảm bảo tính chính xác tuyệt đối, loại trừ hoàn toàn nguy cơ rò rỉ (leak) hoặc trừ trùng lặp (double-deduction) lượng tồn giữ chỗ.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Triển khai theo Option B. Tồn kho trong Sổ cái (`inventory_ledger`) ghi nhận theo từng sự kiện biến động (RESERVE, UNRESERVE, EXPORT, IMPORT).
 - **Blocker:** M3 (`TASK-016a`, `TASK-018a`).
@@ -79,7 +79,7 @@
 - **Các phương án:**
   - *Option A (Lỏng):* Cho phép xuất âm tồn kho thoải mái; cảnh báo sau. (Hệ quả: Rối loạn giá vốn bình quân và sai lệch kiểm kê).
   - *Option B (Chặt):* Tuyệt đối không cho xuất âm (`Strict No-Negative Stock`).
-  - *Option C (Chọn - Cân bằng):* Mặc định chặn xuất âm trên sổ kho. Nếu tồn khả dụng không đủ đáp ứng, đơn hàng chuyển sang trạng thái "Đặt trước / Chờ hàng về" (`BACKORDER`). Khi phiếu nhập hàng (`IMPORT`) tương ứng được duyệt vào kho, hệ thống tự động thông báo và cho phép chuyển đơn sang `CONFIRMED` / `PROCESSING`.
+  - *Option C (Chọn - Cân bằng):* Mặc định chặn xuất âm trên sổ kho. Nếu tồn khả dụng không đủ đáp ứng, đơn hàng chuyển sang trạng thái "Đặt trước / Chờ hàng về" (`BACKORDER`). Khi phiếu nhập hàng (`IMPORT`) tương ứng được duyệt vào kho, hệ thống tự động phân bổ và chuyển đơn hàng sang `CONFIRMED` (nơi thực hiện `reserved += qty`).
 - **Recommendation:** Option C.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Mặc định áp dụng Strict No-Negative Stock cho giao dịch kho thông thường; tích hợp trạng thái đơn `BACKORDER` vào State Machine chuẩn của đơn hàng.
@@ -96,19 +96,19 @@
   3. `BACKORDER`: Khách đặt hàng nhưng kho chưa đủ tồn khả dụng; không giữ chỗ tồn kho thực tế, chờ nhập hàng để phân bổ.
   4. `PROCESSING`: Đang bốc dỡ hàng tại bãi / phân công phương tiện vận tải.
   5. `DELIVERING`: Xe đang vận chuyển hàng tới công trình. **Đây là điểm trừ tồn kho thực tế (`on_hand -= qty, reserved -= qty`)** cho đơn giao hàng.
-  6. `COMPLETED`: Giao hàng thành công (khách ký nhận) hoặc hoàn tất bán lẻ tại bãi.
-  7. `CANCELLED`: Hủy đơn (nếu hủy từ `CONFIRMED`/`PROCESSING`, hệ thống tự động giải phóng `reserved`; nếu hủy sau khi đã xuất kho, phải đi qua quy trình ghi nhận hoàn trả).
+  6. `COMPLETED`: Giao hàng thành công (khách ký nhận) hoặc hoàn tất bán lẻ tại bãi (trừ kho thực tế và giải phóng `reserved` tương ứng).
+  7. `CANCELLED`: Hủy đơn (nếu hủy từ `CONFIRMED`/`PROCESSING`, hệ thống tự động giải phóng `reserved -= qty`; nếu hủy sau khi đã xuất kho, phải đi qua quy trình ghi nhận hoàn trả).
   8. `RETURNED`: Đơn hàng bị khách trả lại một phần hoặc toàn bộ; sinh phiếu nhập hoàn kho bù trừ.
 - **Sơ đồ chuyển đổi trạng thái (FSM):**
-  - `DRAFT` $\rightarrow$ `CONFIRMED` (đủ tồn) | `BACKORDER` (thiếu tồn) | `CANCELLED`
-  - `BACKORDER` $\rightarrow$ `CONFIRMED` / `PROCESSING` (khi hàng nhập về) | `CANCELLED`
-  - `CONFIRMED` $\rightarrow$ `PROCESSING` | `CANCELLED`
-  - `PROCESSING` $\rightarrow$ `DELIVERING` (đơn giao tận nơi, trừ `on_hand`) | `COMPLETED` (bán lẻ tại quầy, trừ `on_hand`) | `CANCELLED`
+  - `DRAFT` $\rightarrow$ `CONFIRMED` (đủ tồn, `reserved += qty`) | `BACKORDER` (thiếu tồn) | `CANCELLED`
+  - `BACKORDER` $\rightarrow$ `CONFIRMED` (khi hàng nhập về, tự động `reserved += qty`) | `CANCELLED`
+  - `CONFIRMED` $\rightarrow$ `PROCESSING` | `CANCELLED` (giải phóng `reserved -= qty`)
+  - `PROCESSING` $\rightarrow$ `DELIVERING` (đơn giao tận nơi, trừ `on_hand` & `reserved`) | `COMPLETED` (bán lẻ tại quầy, trừ `on_hand` & `reserved`) | `CANCELLED` (giải phóng `reserved -= qty`)
   - `DELIVERING` $\rightarrow$ `COMPLETED` (giao thành công) | `RETURNED` / `CANCELLED` (giao thất bại, sinh phiếu nhập hoàn trả)
   - `COMPLETED` $\rightarrow$ `RETURNED` (khách trả hàng sau giao)
 - **Recommendation:** Triển khai Finite State Machine bất biến ở backend, trả mã lỗi `INVALID_STATE_TRANSITION` nếu vi phạm luồng chuyển đổi.
 - **Trạng thái:** `Open` (Assumption).
-- **Temporary Assumption:** Áp dụng luồng 8 trạng thái và ma trận chuyển đổi trên.
+- **Temporary Assumption:** Áp dụng luồng 8 trạng thái và ma trận chuyển đổi tuần tự nghiêm ngặt trên.
 - **Blocker:** M3 (`TASK-018a`, `TASK-018c`).
 
 ---
@@ -148,7 +148,7 @@
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Hỗ trợ cấu hình VAT theo từng sản phẩm và tính toán chi tiết thuế trên từng dòng đơn hàng khi xuất hóa đơn VAT.
-- **Blocker:** M3 (`TASK-018b`, `TASK-018e`), M4 (`TASK-022`).
+- **Blocker:** M3 (`TASK-018b`, `TASK-018e`), M4 (`TASK-024`).
 
 ---
 
@@ -162,7 +162,7 @@
 - **Recommendation:** Option B tối ưu cho ngành VLXD, dễ vận hành và độ chính xác tài chính cao.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Áp dụng phương pháp Bình quân gia quyền liên hoàn cho toàn bộ danh mục vật liệu.
-- **Blocker:** M3 (`TASK-016a`), M4 (`TASK-021`).
+- **Blocker:** M3 (`TASK-016a`, `TASK-021`), M4 (`TASK-022`).
 
 ---
 
@@ -219,7 +219,7 @@
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Áp dụng cơ chế Soft-delete (`deleted_at`, `is_archived`) cho master data và Cold Archive sau 2 năm cho transaction ledger.
-- **Blocker:** M1 (`TASK-008a`), M4 (`TASK-025`).
+- **Blocker:** M1 (`TASK-008a`), M4 (`TASK-027`).
 
 ---
 
@@ -245,16 +245,17 @@ graph TD
         DEC006[DEC-006: Reversal & Cancellation] --> F_Order
         DEC008[DEC-008: VAT Calculation] --> F_Order
         DEC010[DEC-010: Discount Approval Limit] --> F_Order
-        DEC009[DEC-009: Moving Weighted Average Cost] --> F_InvLedger
+        DEC009[DEC-009: Moving Weighted Average Cost] --> F_Purchase[Feature: Purchase & Receiving (TASK-021)]
+        DEC009 --> F_InvLedger
         DEC012[DEC-012: 2-Step Stock Transfer] --> F_InvTransfer[Feature: Stock Transfer (TASK-016d)]
         DEC007[DEC-007: Partial Payment & Debt Ledger] --> F_Finance[Feature: Debt & Payment (TASK-018e, 020a)]
     end
 
     subgraph M4_HardeningReporting [Milestone M4: Operations, Hardening & Launch]
-        DEC009 --> F_Report[Feature: Reporting & Analytics (TASK-021)]
-        DEC008 --> F_Settings[Feature: Settings & Print Templates (TASK-022)]
-        DEC002 --> F_Yard[Feature: Yard Map Hardening (TASK-024)]
-        DEC013 --> F_Archive[Feature: Cold Archive & Data Retention (TASK-025)]
+        DEC009 --> F_Report[Feature: Reporting & Analytics (TASK-022)]
+        DEC008 --> F_Settings[Feature: Settings & Print Templates (TASK-024)]
+        DEC002 --> F_Yard[Feature: Yard Map Hardening (TASK-025)]
+        DEC013 --> F_ShipGate[Feature: Security & Ship Gate (TASK-027)]
     end
 ```
 
