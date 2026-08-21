@@ -104,7 +104,7 @@
 
 ## Kết quả bàn giao
 
-- PR: Sẽ cập nhật sau khi tạo PR vào `dev`.
+- PR: [#9](https://github.com/HomyHubs/vlxd/pull/9)
 - Final status: `ready_for_review`
 - Output chính: 10 file requirement tại `docs/requirements/`
 - Reviewer cần tập trung:

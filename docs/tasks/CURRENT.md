@@ -10,7 +10,7 @@
 
 | Lane | Task active | Tiêu đề | Status | PR | Reviewer |
 | --- | --- | --- | --- | --- | --- |
-| `LANE-CORE` | `TASK-003` | Requirements MVP theo capability | `ready_for_review` | Đang mở | Chưa gán |
+| `LANE-CORE` | `TASK-003` | Requirements MVP theo capability | `ready_for_review` | [#9](https://github.com/HomyHubs/vlxd/pull/9) | AI Bot 2 / GPT Web Review |
 | `LANE-CATALOG` | — | — | `blocked` (chờ M1) | — | — |
 | `LANE-CRM` | — | — | `blocked` (chờ TASK-013) | — | — |
 | `LANE-COMMERCE` | — | — | `blocked` (chờ M2) | — | — |
@@ -22,7 +22,7 @@
 - **`TASK-003` · `LANE-CORE`**
   - Task packet: `docs/tasks/MVP-BACKLOG.md#task-003--requirements-mvp-theo-capability`
   - Prerequisite: `TASK-002` (accepted & merged via [#8](https://github.com/HomyHubs/vlxd/pull/8))
-  - Implementer PR: `task/TASK-003-requirements-mvp-by-capability` -> `dev`
+  - Implementer PR: [#9](https://github.com/HomyHubs/vlxd/pull/9) (`task/TASK-003-requirements-mvp-by-capability` -> `dev`)
   - Reviewer: AI Bot 2 (Reviewer) / GPT Web Review
 
 ## Quy tắc cập nhật
