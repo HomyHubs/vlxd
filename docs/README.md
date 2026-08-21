@@ -32,7 +32,16 @@ Tài liệu thiết kế kiến trúc, yêu cầu nghiệp vụ và quy trình p
 ## 3. Kiến trúc & Quyết định
 
 - `decision-backlog.md` — Danh mục 13 quyết định nghiệp vụ & kiến trúc cốt lõi, giả định tạm thời và ma trận blocker.
-- `adr/` — Kiến trúc và quyết định khó đảo ngược (TASK-004).
+- `adr/README.md` — Danh mục Architecture Decision Records (ADR) chuẩn MADR (TASK-004):
+  - `adr/0001-monorepo-structure.md` — Monorepo với pnpm workspace và Turborepo.
+  - `adr/0002-vertical-slice-architecture.md` — Tổ chức mã nguồn theo Vertical Slice Feature.
+  - `adr/0003-contract-first-openapi.md` — Phát triển Contract-First với OpenAPI 3.1.
+  - `adr/0004-database-and-data-access.md` — Supabase Postgres, dbmate Migration & Kysely.
+  - `adr/0005-multi-tenancy-isolation.md` — Mô hình Phân lập Dữ liệu Đa thuê bao.
+  - `adr/0006-auth-and-authorization.md` — Xác thực Server Session & Phân quyền Capability.
+  - `adr/0007-immutable-ledgers-and-state-machines.md` — Sổ cái Bất biến & State Machines.
+  - `adr/0008-i18n-vietnamese-first.md` — Chiến lược Đa ngôn ngữ Vietnamese-First.
+  - `adr/0009-service-plans-enforcement.md` — Thực thi Rào chắn Gói Dịch vụ.
 - `architecture/` — Sơ đồ luồng dữ liệu, trust boundary và sơ đồ hệ thống tổng thể.
 
 ## 4. Nguyên tắc quản trị tài liệu
