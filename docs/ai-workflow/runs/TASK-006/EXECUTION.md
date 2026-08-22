@@ -103,7 +103,7 @@
 
 ## Kết quả bàn giao
 
-- PR: Sẵn sàng mở PR hướng vào `dev`
+- PR: [#14](https://github.com/HomyHubs/vlxd/pull/14)
 - Final status: `ready_for_review`
 - Output chính: `.github/workflows/ci.yml` chuẩn hóa, `pnpm audit` sạch 100%, master check xanh 18/18.
 - Reviewer cần tập trung: Cấu hình 3 jobs (`repo-hygiene`, `quality-gates`, `security-scan`) và tính tương thích của frozen-lockfile.
