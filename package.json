@@ -18,6 +18,10 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md,yaml,yml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md,yaml,yml}\"",
     "check": "turbo run lint typecheck test build && pnpm run format:check",
+    "test:smoke": "node scripts/smoke-test.mjs",
+    "staging:build": "docker compose -f compose.staging.yml build",
+    "staging:up": "docker compose -f compose.staging.yml up -d",
+    "staging:down": "docker compose -f compose.staging.yml down",
     "clean": "turbo run clean && rimraf node_modules"
   },
   "devDependencies": {
