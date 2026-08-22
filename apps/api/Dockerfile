@@ -34,7 +34,7 @@ RUN pnpm install --prod --frozen-lockfile
 USER node
 EXPOSE 3001
 
-HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
-  CMD wget -qO- http://localhost:3001/health || exit 1
+HEALTHCHECK --interval=5s --timeout=3s --retries=5 --start-period=3s \
+  CMD node -e "fetch('http://127.0.0.1:3001/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 
 CMD ["node", "apps/api/dist/main.js"]

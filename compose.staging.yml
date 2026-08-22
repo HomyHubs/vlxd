@@ -15,11 +15,15 @@ services:
     networks:
       - vlxd-staging-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/health || exit 1"]
-      interval: 10s
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:3001/health'').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"',
+        ]
+      interval: 5s
       timeout: 3s
       retries: 5
-      start_period: 5s
+      start_period: 3s
 
   web:
     build:
@@ -35,11 +39,11 @@ services:
       api:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:80/healthz || exit 1"]
-      interval: 10s
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:80/healthz || exit 1"]
+      interval: 5s
       timeout: 3s
       retries: 5
-      start_period: 5s
+      start_period: 3s
 
 networks:
   vlxd-staging-network:

@@ -20,7 +20,7 @@ COPY nginx/staging.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
-HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
-  CMD wget -qO- http://localhost:80/healthz || exit 1
+HEALTHCHECK --interval=5s --timeout=3s --retries=5 --start-period=3s \
+  CMD wget -qO- http://127.0.0.1:80/healthz || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]

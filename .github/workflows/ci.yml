@@ -127,8 +127,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Setup Node.js 24 for smoke testing
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
 
       - name: Build and boot staging Docker Compose stack
         run: docker compose -f compose.staging.yml up -d --build --wait
