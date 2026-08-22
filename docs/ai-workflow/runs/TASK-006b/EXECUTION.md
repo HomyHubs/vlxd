@@ -110,6 +110,7 @@
 
 ## Kết quả bàn giao
 
-- PR: Sẵn sàng mở PR hướng vào `dev`
+- PR: [#15](https://github.com/HomyHubs/vlxd/pull/15)
 - Final status: `ready_for_review`
 - Output chính: `compose.staging.yml`, `apps/api/Dockerfile`, `apps/web/Dockerfile`, `nginx/staging.conf`, `scripts/smoke-test.mjs`, `.github/workflows/deploy-staging.yml`.
+- Reviewer cần tập trung: Cấu hình container đa tầng, smoke test logic, và workflow deploy staging.
