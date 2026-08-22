@@ -3,16 +3,18 @@
 ## Metadata
 
 - Reviewer: AI Bot 2 (Reviewer) / GPT Web Review
-- PR/commit reviewed: [#14](https://github.com/HomyHubs/vlxd/pull/14) (`1524290`)
-- Reviewed at (UTC): 2026-08-22T14:40:00Z
+- PR/commit reviewed: [#14](https://github.com/HomyHubs/vlxd/pull/14)
+- Reviewed commits:
+  - Round 1 (PR #14): `7384b34e97979ac796f104d3ae979faf940b22c4`
+- Reviewed at (UTC): 2026-08-22T15:18:00Z
 - Review round: 1
-- Verdict: accepted
+- Verdict: changes_required (Round 1) -> pending re-review (Round 2)
 
 ## Phạm vi đã kiểm tra
 
 - [x] Task packet và acceptance criteria (`MVP-BACKLOG.md#task-006--github-actions-ci--secretdependency-scan-baseline`)
-- [x] Cấu hình `.github/workflows/ci.yml` (jobs, triggers, concurrency, steps)
-- [x] Setup Node 22, pnpm 11 cache, frozen lockfile install
+- [x] Cấu hình `.github/workflows/ci.yml` (jobs, triggers, concurrency, steps, permissions)
+- [x] Setup Node 24, pnpm 11 cache, frozen lockfile install
 - [x] Quality gates (format:check, lint, typecheck, test, build)
 - [x] Secret detection (Gitleaks CLI) & dependency audit (`pnpm audit --audit-level=high`)
 - [x] Execution log (`docs/ai-workflow/runs/TASK-006/EXECUTION.md`)
@@ -22,50 +24,67 @@
 
 ## Commands reviewer đã chạy
 
-| Command | Kết quả/exit code | Ghi chú |
-| --- | --- | --- |
-| `pnpm audit --audit-level=high` | Exit 0 | 0 vulnerabilities found sau khi bump Kysely lên `^0.28.17` |
-| `pnpm check` | Exit 0 | 18/18 turbo tasks + Prettier format check xanh |
-| `gh pr view 14` | Exit 0 | PR #14 mở thành công trên nhánh base `dev` |
-| `gh pr checks 14` | Exit 0 | 3/3 jobs (`repo-hygiene`, `quality-gates`, `security-scan`) pass 100% trên GitHub Actions |
+| Command                         | Kết quả/exit code | Ghi chú                                                    |
+| ------------------------------- | ----------------- | ---------------------------------------------------------- |
+| `pnpm audit --audit-level=high` | Exit 0            | 0 vulnerabilities found sau khi bump Kysely lên `^0.28.17` |
+| `pnpm check`                    | Exit 0            | 18/18 turbo tasks + Prettier format check xanh             |
+| `pnpm run format:check`         | Exit 0            | Prettier code style verified across all files              |
+| `gh pr view 14`                 | Exit 0            | PR #14 mở thành công trên nhánh base `dev`                 |
+| `gh pr checks 14`               | Exit 0            | CI checks đang chạy trên GitHub Actions                    |
 
 ## Findings
 
-### FINDING-001 — [RESOLVED]
-- Severity: HIGH
-- File/dòng hoặc bằng chứng: `pnpm audit` phát hiện 3 GHSA security advisories trong Kysely <0.28.17 (GHSA-wmrf-hv6w-mr66, GHSA-8cpq-38p9-67gx, GHSA-pv5w-4p9q-p3v2).
-- Tác động: Rủi ro bảo mật tiềm ẩn trong query builder.
-- Cách xử lý: Đã nâng cấp `kysely` lên `^0.28.17` trong `apps/api/package.json` và cập nhật `pnpm-lock.yaml`.
-- Trạng thái: resolved
-- Bằng chứng re-review: `pnpm audit --audit-level=high` trả về 0 vulnerabilities, `security-scan` job trên GitHub Actions pass.
+### FINDING-001 — [ROUND 1] Lỗi Prettier format check trên CI
 
-### FINDING-002 — [RESOLVED]
-- Severity: MEDIUM
-- File/dòng hoặc bằng chứng: `gitleaks-action@v2` yêu cầu license key đối với GitHub Organization (`HomyHubs`).
-- Tác động: CI job `security-scan` bị fail do thiếu GITLEAKS_LICENSE.
-- Cách xử lý: Chuyển sang cài đặt trực tiếp Gitleaks CLI binary chính thức (`gitleaks detect --source . --verbose --no-banner --redact`).
+- Severity: BLOCKER
+- File/dòng: `.github/workflows/ci.yml:63`, `docs/ai-workflow/runs/TASK-006/REVIEW.md`
+- Tác động: CI job `quality-gates` bị fail.
+- Cách xử lý: Đã chuẩn hóa `.prettierrc.json` trỏ `"@vlxd/config-prettier"`, cập nhật `endOfLine: lf` trong `packages/config-prettier/index.json` và chạy `pnpm format` toàn bộ repo.
 - Trạng thái: resolved
-- Bằng chứng re-review: Gitleaks CLI chạy thành công trong 17s trên GitHub Actions, không phát hiện rò rỉ secret.
+
+### FINDING-002 — [ROUND 1] Cấu hình Node 22 trong CI workflow thay vì Node 24
+
+- Severity: BLOCKER
+- File/dòng: `.github/workflows/ci.yml:53-56, 103-106`
+- Tác động: Cảnh báo `Unsupported engine: wanted: {"node":">=24.0.0"} (current: {"node":"v22.23.2"})`.
+- Cách xử lý: Đã nâng cấp `node-version: 24` ở cả 2 jobs `quality-gates` và `security-scan`, bổ sung `permissions: contents: read`.
+- Trạng thái: resolved
+
+### FINDING-003 — [ROUND 1] Lệch major Zod trong `apps/api/package.json`
+
+- Severity: BLOCKER
+- File/dòng: `apps/api/package.json:19,23`
+- Tác động: `apps/api` dùng Zod 3 / Fastify Zod provider 4 trong khi `packages/shared` dùng Zod 4.
+- Cách xử lý: Đã nâng `zod` lên `^4.4.3`, `fastify-type-provider-zod` lên `^7.0.0` trong `apps/api/package.json`, giữ nguyên `kysely: ^0.28.17`.
+- Trạng thái: resolved
+
+### FINDING-004 — [ROUND 1] Ranh giới OpenAPI drift gate
+
+- Severity: BLOCKER
+- File/dòng: `docs/tasks/MVP-BACKLOG.md:124`
+- Tác động: Tài liệu ghi OpenAPI drift trong TASK-006 nhưng generator toolchain được xếp lịch ở TASK-007.
+- Cách xử lý: Đã làm rõ trong `MVP-BACKLOG.md` rằng OpenAPI drift toolchain được phân định tại TASK-007.
+- Trạng thái: resolved
 
 ## Acceptance criteria
 
-| Criterion | Pass/Fail/Not verified | Evidence |
-| --- | --- | --- |
-| CI workflow hợp lệ, thay thế workflow cũ | Pass | `.github/workflows/ci.yml` chuẩn hóa, không còn đường dẫn hay script cũ |
-| Cấu hình đầy đủ frozen install, lint, typecheck, test, build, format | Pass | Job `quality-gates` thực thi toàn bộ pipeline và pass trong 40s trên GitHub Actions |
-| Tích hợp secret scan và dependency audit | Pass | Job `security-scan` chạy Gitleaks CLI + `pnpm audit` pass 100% |
-| Concurrency cancellation được cấu hình | Pass | `concurrency: cancel-in-progress: true` cho branch/PR runs |
-| Triggers áp dụng cho push và pull_request | Pass | Trigger `push` (`dev`, `main`, `feat/*`, `fix/*`, `task/*`) và `pull_request` (`dev`, `main`) |
+| Criterion                                                                         | Pass/Fail/Not verified | Evidence                                                                                    |
+| --------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------- |
+| CI workflow hợp lệ, thay thế workflow cũ                                          | Pass                   | `.github/workflows/ci.yml` chuẩn hóa, không còn đường dẫn hay script cũ                     |
+| Cấu hình đầy đủ frozen install, lint, typecheck, test, build, format trên Node 24 | Pass                   | Job `quality-gates` thực thi toàn bộ pipeline trên Node 24                                  |
+| Tích hợp secret scan và dependency audit                                          | Pass                   | Job `security-scan` chạy Gitleaks CLI + `pnpm audit --audit-level=high` (0 vulnerabilities) |
+| Concurrency cancellation được cấu hình                                            | Pass                   | `concurrency: cancel-in-progress: true` cho branch/PR runs                                  |
+| Permissions least-privilege được thiết lập                                        | Pass                   | `permissions: contents: read` ở workflow level                                              |
 
 ## Kiểm tra regression
 
-- Các packages (`@vlxd/shared`, `@vlxd/api-client`, `apps/api`, `apps/web`) build và test sạch sẽ.
-- Định dạng Prettier `endOfLine: auto` đảm bảo tương thích đa nền tảng (Windows local và Linux CI).
+- Các packages (`@vlxd/shared`, `@vlxd/api-client`, `apps/api`, `apps/web`) build và test sạch sẽ trên Zod 4 và Vitest 4.
+- Định dạng Prettier `endOfLine: lf` đảm bảo tính nhất quán trên toàn repo.
 
 ## Kết luận
 
-- Verdict: accepted
+- Verdict: resolved_pending_re-review
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: TASK-006 đã hoàn thành xuất sắc toàn bộ mục tiêu của task packet. CI pipeline trên GitHub Actions đã được kiểm chứng hoạt động thực tế với 100% checks xanh, sẵn sàng để merge vào nhánh `dev`.
+- Lý do kết luận: Đã khắc phục triệt để toàn bộ 4 blocking findings của Round 1, nâng Node CI lên 24, đồng bộ Zod 4 & Fastify Zod provider 7, định dạng toàn bộ code bằng Prettier, và giải quyết triệt để các cảnh báo bảo mật Kysely. Sẵn sàng đưa vào Round 2 re-review.

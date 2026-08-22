@@ -121,7 +121,7 @@ M4: 016+018+020+021→022 ; 014+017→023 ; 013+018→024 ; 015+016→025
 
 **Lane:** CORE · **Prerequisite:** TASK-005 accepted
 
-**Mục tiêu:** thay workflow hỏng; **đưa secret/dependency scan vào ngay từ nền tảng** (không chờ ship gate). Node 24 + pnpm cache; frozen install, format, lint, typecheck, unit/integration, build, OpenAPI drift, secret + dependency scan; concurrency cancellation; branch rules cho `dev`/`main`.
+**Mục tiêu:** thay workflow hỏng; **đưa secret/dependency scan vào ngay từ nền tảng** (không chờ ship gate). Node 24 + pnpm cache; frozen install, format, lint, typecheck, unit/integration, build, secret + dependency scan (OpenAPI drift detection toolchain được triển khai tại TASK-007); concurrency cancellation; branch rules cho `dev`/`main`.
 
 **Output:** `.github/workflows/ci.yml` hợp lệ, không còn `cd vlxd-app`/`test.js`.
 

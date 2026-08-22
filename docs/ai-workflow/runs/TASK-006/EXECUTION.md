@@ -97,9 +97,13 @@
 
 ## Feedback đã xử lý
 
-| Review finding                        | Cách sửa | Commit/test bằng chứng |
-| ------------------------------------- | -------- | ---------------------- |
-| (Chưa có feedback — chờ Bot 2 review) | —        | —                      |
+| Review finding                                                                                               | Cách sửa                                                                                                                                                         | Commit/test bằng chứng                                  |
+| ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| FINDING-001 (Round 1): CI cấu hình Node 22 thay vì Node 24                                                   | Cập nhật `.github/workflows/ci.yml` lên `node-version: 24` ở cả 2 jobs `quality-gates` và `security-scan`, thêm `permissions: contents: read`.                   | `.github/workflows/ci.yml`                              |
+| FINDING-002 (Round 1): `apps/api/package.json` bị hạ Zod 3 / Fastify Zod provider 4 tạo ranh giới lệch major | Nâng `zod` lên `^4.4.3`, `fastify-type-provider-zod` lên `^7.0.0` trong `apps/api/package.json`, giữ nguyên `kysely: ^0.28.17`.                                  | `apps/api/package.json`, `pnpm-lock.yaml`, `pnpm check` |
+| FINDING-003 (Round 1): Lỗi Prettier format check trên CI do `REVIEW.md`                                      | Chuẩn hóa `.prettierrc.json` trỏ `"@vlxd/config-prettier"`, cập nhật `endOfLine: lf` trong `packages/config-prettier/index.json` và chạy `pnpm format`.          | `pnpm run format:check` 100% PASS                       |
+| FINDING-004 (Round 1): Làm rõ ranh giới OpenAPI drift gate giữa TASK-006 và TASK-007                         | Làm rõ trong `docs/tasks/MVP-BACKLOG.md` rằng OpenAPI drift toolchain nằm trong TASK-007, TASK-006 tập trung CI quality gates + secret/dependency scan baseline. | `MVP-BACKLOG.md`                                        |
+| FINDING-005 (Round 1): Cập nhật chính xác hồ sơ review theo HEAD SHA                                         | Cập nhật `REVIEW.md` phản ánh đúng các vòng review và kết quả chạy CI thực tế.                                                                                   | `docs/ai-workflow/runs/TASK-006/REVIEW.md`              |
 
 ## Kết quả bàn giao
 
