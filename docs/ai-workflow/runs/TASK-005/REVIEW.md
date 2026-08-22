@@ -3,8 +3,8 @@
 ## Metadata
 
 - Reviewer: AI Bot 2 (Reviewer) / GPT Web Review
-- PR/commit reviewed:
-- Reviewed at (UTC):
+- PR/commit reviewed: [#13](https://github.com/HomyHubs/vlxd/pull/13)
+- Reviewed at (UTC): 
 - Review round: 1
 - Verdict: pending
 

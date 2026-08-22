@@ -134,7 +134,7 @@
 
 ## Kết quả bàn giao
 
-- PR: Branch `task/TASK-005-scaffold-monorepo-and-quality-baseline`
+- PR: [#13](https://github.com/HomyHubs/vlxd/pull/13)
 - Final status: `ready_for_review`
 - Output chính:
   - Cấu trúc Monorepo Turborepo + pnpm workspace
