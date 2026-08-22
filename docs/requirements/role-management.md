@@ -82,46 +82,46 @@ report.profit.view
 
 Scope giới hạn quyền theo phạm vi:
 
-| Scope | Ý nghĩa |
-| --- | --- |
-| tenant | Toàn công ty/cửa hàng |
-| branch | Một chi nhánh |
-| warehouse | Một hoặc nhiều kho |
-| own_records | Chỉ record do user tạo/phụ trách |
-| assigned_records | Record được phân công |
-| read_only | Chỉ xem |
+| Scope            | Ý nghĩa                          |
+| ---------------- | -------------------------------- |
+| tenant           | Toàn công ty/cửa hàng            |
+| branch           | Một chi nhánh                    |
+| warehouse        | Một hoặc nhiều kho               |
+| own_records      | Chỉ record do user tạo/phụ trách |
+| assigned_records | Record được phân công            |
+| read_only        | Chỉ xem                          |
 
 ---
 
 ## 3. Role group chuẩn
 
-| Role group | Mục đích | Quyền mặc định | Không nên có quyền |
-| --- | --- | --- | --- |
-| Super admin | Chủ cửa hàng/công ty, người chịu trách nhiệm cuối cùng | Toàn quyền tenant, billing/plan, cấu hình, phân quyền cấp cao, xem mọi báo cáo | Không nên dùng cho thao tác bán hàng hằng ngày nếu không cần |
-| System admin | Quản trị vận hành hệ thống | Quản lý user, title, role, cấu hình, danh mục, thêm/sửa/xem record | Không tự ý đổi billing/plan nếu không được cấp |
-| Support admin | Quản lý nghiệp vụ | Thêm/sửa/xem record, xử lý sai lệch, xem thống kê/báo cáo, hỗ trợ kho/bán hàng/kế toán | Không toàn quyền phân quyền cấp cao, không billing |
-| User | Nhân viên thao tác hằng ngày | Tạo đơn, xem record được phân quyền, xem tồn kho, cập nhật tác vụ được giao | Không quản lý user/quyền, không xem báo cáo nhạy cảm mặc định |
+| Role group    | Mục đích                                               | Quyền mặc định                                                                         | Không nên có quyền                                            |
+| ------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Super admin   | Chủ cửa hàng/công ty, người chịu trách nhiệm cuối cùng | Toàn quyền tenant, billing/plan, cấu hình, phân quyền cấp cao, xem mọi báo cáo         | Không nên dùng cho thao tác bán hàng hằng ngày nếu không cần  |
+| System admin  | Quản trị vận hành hệ thống                             | Quản lý user, title, role, cấu hình, danh mục, thêm/sửa/xem record                     | Không tự ý đổi billing/plan nếu không được cấp                |
+| Support admin | Quản lý nghiệp vụ                                      | Thêm/sửa/xem record, xử lý sai lệch, xem thống kê/báo cáo, hỗ trợ kho/bán hàng/kế toán | Không toàn quyền phân quyền cấp cao, không billing            |
+| User          | Nhân viên thao tác hằng ngày                           | Tạo đơn, xem record được phân quyền, xem tồn kho, cập nhật tác vụ được giao            | Không quản lý user/quyền, không xem báo cáo nhạy cảm mặc định |
 
 ---
 
 ## 4. Title đề xuất cho cửa hàng vật liệu xây dựng
 
-| Title | Role group mặc định | Trách nhiệm chính | Ghi chú quyền |
-| --- | --- | --- | --- |
-| Chủ cửa hàng / Giám đốc | Super admin | Quyết định kinh doanh, tài chính, nhân sự, gói dịch vụ, dữ liệu | Có quyền cao nhất; nên bật xác thực mạnh |
-| Quản trị hệ thống | System admin | Tạo user, khóa/mở user, gán title/role, cấu hình tenant | Không nhất thiết xem lợi nhuận nếu chủ không cấp |
-| Quản lý cửa hàng | Support admin | Điều phối bán hàng, kho, đơn hàng, nhân sự tại cửa hàng | Có thể xem báo cáo vận hành |
-| Quản lý chi nhánh | Support admin | Quản lý một chi nhánh/kho cụ thể | Scope nên theo branch/warehouse |
-| Nhân viên bán hàng | User | Tạo báo giá, đơn hàng, xem tồn kho, khách hàng | Không sửa giá dưới mức sàn nếu chưa được duyệt |
-| Thu ngân | User | Ghi nhận thanh toán, in hóa đơn/phiếu thu | Không tự hủy thanh toán đã đối soát |
-| Kế toán bán hàng | Support admin | Hóa đơn, thanh toán, công nợ khách hàng | Có quyền báo cáo tài chính vận hành |
-| Kế toán công nợ | Support admin | Theo dõi nợ phải thu/phải trả, nhắc nợ | Hạn chế sửa đơn hàng gốc |
-| Thủ kho | User | Nhập/xuất/chuyển kho, xác nhận giao nhận hàng | Có quyền kho nhưng không sửa giá bán |
-| Nhân viên kho | User | Soạn hàng, kiểm hàng, cập nhật trạng thái kho | Scope theo warehouse |
-| Nhân viên mua hàng | User | Tạo yêu cầu mua/đơn nhập, làm việc NCC | Không duyệt chi nếu chưa cấp |
-| Nhân viên giao hàng | User | Xem đơn giao, cập nhật trạng thái giao, bằng chứng giao | Chỉ xem thông tin cần để giao |
-| CSKH | User | Xem lịch sử mua, tiếp nhận yêu cầu đổi trả/khiếu nại | Không xem báo cáo lợi nhuận |
-| Kiểm soát nội bộ / Auditor | Support admin | Xem audit log, báo cáo, kiểm tra sai lệch | Nên read-only hoặc quyền kiểm soát riêng |
+| Title                      | Role group mặc định | Trách nhiệm chính                                               | Ghi chú quyền                                    |
+| -------------------------- | ------------------- | --------------------------------------------------------------- | ------------------------------------------------ |
+| Chủ cửa hàng / Giám đốc    | Super admin         | Quyết định kinh doanh, tài chính, nhân sự, gói dịch vụ, dữ liệu | Có quyền cao nhất; nên bật xác thực mạnh         |
+| Quản trị hệ thống          | System admin        | Tạo user, khóa/mở user, gán title/role, cấu hình tenant         | Không nhất thiết xem lợi nhuận nếu chủ không cấp |
+| Quản lý cửa hàng           | Support admin       | Điều phối bán hàng, kho, đơn hàng, nhân sự tại cửa hàng         | Có thể xem báo cáo vận hành                      |
+| Quản lý chi nhánh          | Support admin       | Quản lý một chi nhánh/kho cụ thể                                | Scope nên theo branch/warehouse                  |
+| Nhân viên bán hàng         | User                | Tạo báo giá, đơn hàng, xem tồn kho, khách hàng                  | Không sửa giá dưới mức sàn nếu chưa được duyệt   |
+| Thu ngân                   | User                | Ghi nhận thanh toán, in hóa đơn/phiếu thu                       | Không tự hủy thanh toán đã đối soát              |
+| Kế toán bán hàng           | Support admin       | Hóa đơn, thanh toán, công nợ khách hàng                         | Có quyền báo cáo tài chính vận hành              |
+| Kế toán công nợ            | Support admin       | Theo dõi nợ phải thu/phải trả, nhắc nợ                          | Hạn chế sửa đơn hàng gốc                         |
+| Thủ kho                    | User                | Nhập/xuất/chuyển kho, xác nhận giao nhận hàng                   | Có quyền kho nhưng không sửa giá bán             |
+| Nhân viên kho              | User                | Soạn hàng, kiểm hàng, cập nhật trạng thái kho                   | Scope theo warehouse                             |
+| Nhân viên mua hàng         | User                | Tạo yêu cầu mua/đơn nhập, làm việc NCC                          | Không duyệt chi nếu chưa cấp                     |
+| Nhân viên giao hàng        | User                | Xem đơn giao, cập nhật trạng thái giao, bằng chứng giao         | Chỉ xem thông tin cần để giao                    |
+| CSKH                       | User                | Xem lịch sử mua, tiếp nhận yêu cầu đổi trả/khiếu nại            | Không xem báo cáo lợi nhuận                      |
+| Kiểm soát nội bộ / Auditor | Support admin       | Xem audit log, báo cáo, kiểm tra sai lệch                       | Nên read-only hoặc quyền kiểm soát riêng         |
 
 ---
 
@@ -158,19 +158,19 @@ Scope giới hạn quyền theo phạm vi:
 
 ## 6. Module chuẩn bị cho permission matrix
 
-| Module | Resource ví dụ | Action nền tảng |
-| --- | --- | --- |
-| User & Role | user, title, role_group, permission_set | create, read, update, deactivate, assign_role, assign_permission |
-| Product | product, category, unit, price_book | create, read, update, archive, import, export |
-| Warehouse | warehouse, location, stock_level | create, read, update, archive |
-| Inventory | stock_in, stock_out, transfer, stocktake, adjustment | create, read, update, submit, approve, cancel |
-| Sales | quotation, order, invoice, return | create, read, update, submit, approve_discount, cancel, print |
-| Purchase | supplier, purchase_order, purchase_invoice | create, read, update, submit, approve, cancel |
-| Customer | customer, credit_limit, debt | create, read, update, archive, view_debt |
-| Finance | payment, receipt, expense, debt_reconciliation | create, read, update, approve, cancel, export |
-| Report | sales_report, inventory_report, profit_report, debt_report | view, export |
-| Settings | tenant, branch, tax, numbering, print_template | read, update |
-| Audit | audit_log | view, export |
+| Module      | Resource ví dụ                                             | Action nền tảng                                                  |
+| ----------- | ---------------------------------------------------------- | ---------------------------------------------------------------- |
+| User & Role | user, title, role_group, permission_set                    | create, read, update, deactivate, assign_role, assign_permission |
+| Product     | product, category, unit, price_book                        | create, read, update, archive, import, export                    |
+| Warehouse   | warehouse, location, stock_level                           | create, read, update, archive                                    |
+| Inventory   | stock_in, stock_out, transfer, stocktake, adjustment       | create, read, update, submit, approve, cancel                    |
+| Sales       | quotation, order, invoice, return                          | create, read, update, submit, approve_discount, cancel, print    |
+| Purchase    | supplier, purchase_order, purchase_invoice                 | create, read, update, submit, approve, cancel                    |
+| Customer    | customer, credit_limit, debt                               | create, read, update, archive, view_debt                         |
+| Finance     | payment, receipt, expense, debt_reconciliation             | create, read, update, approve, cancel, export                    |
+| Report      | sales_report, inventory_report, profit_report, debt_report | view, export                                                     |
+| Settings    | tenant, branch, tax, numbering, print_template             | read, update                                                     |
+| Audit       | audit_log                                                  | view, export                                                     |
 
 ---
 
@@ -178,22 +178,22 @@ Scope giới hạn quyền theo phạm vi:
 
 > Matrix chi tiết sẽ làm sau. Bảng này định hướng mặc định, không phải implementation cuối.
 
-| Năng lực | Super admin | System admin | Support admin | User |
-| --- | --- | --- | --- | --- |
-| Quản lý tenant/billing/plan | Có | Không mặc định | Không | Không |
-| Tạo/sửa/khóa user | Có | Có | Không mặc định | Không |
-| Gán role/permission | Có | Có trong phạm vi tenant | Không mặc định | Không |
-| Xem sản phẩm/tồn kho | Có | Có | Có | Có theo scope |
-| Tạo/sửa sản phẩm | Có | Có | Có | Không mặc định |
-| Tạo đơn hàng | Có | Có | Có | Có |
-| Hủy đơn hàng | Có | Có | Có theo rule | Không mặc định |
-| Duyệt chiết khấu vượt ngưỡng | Có | Có nếu được cấp | Có nếu được cấp | Không |
-| Nhập/xuất/chuyển kho | Có | Có | Có | Có nếu thuộc kho |
-| Điều chỉnh tồn kho | Có | Có | Có nếu được cấp | Không mặc định |
-| Xem báo cáo doanh thu | Có | Có nếu được cấp | Có | Không mặc định |
-| Xem báo cáo lợi nhuận | Có | Không mặc định | Không mặc định | Không |
-| Export dữ liệu | Có | Có nếu được cấp | Có nếu được cấp | Không mặc định |
-| Xem audit log | Có | Có | Có nếu auditor/manager | Không |
+| Năng lực                     | Super admin | System admin            | Support admin          | User             |
+| ---------------------------- | ----------- | ----------------------- | ---------------------- | ---------------- |
+| Quản lý tenant/billing/plan  | Có          | Không mặc định          | Không                  | Không            |
+| Tạo/sửa/khóa user            | Có          | Có                      | Không mặc định         | Không            |
+| Gán role/permission          | Có          | Có trong phạm vi tenant | Không mặc định         | Không            |
+| Xem sản phẩm/tồn kho         | Có          | Có                      | Có                     | Có theo scope    |
+| Tạo/sửa sản phẩm             | Có          | Có                      | Có                     | Không mặc định   |
+| Tạo đơn hàng                 | Có          | Có                      | Có                     | Có               |
+| Hủy đơn hàng                 | Có          | Có                      | Có theo rule           | Không mặc định   |
+| Duyệt chiết khấu vượt ngưỡng | Có          | Có nếu được cấp         | Có nếu được cấp        | Không            |
+| Nhập/xuất/chuyển kho         | Có          | Có                      | Có                     | Có nếu thuộc kho |
+| Điều chỉnh tồn kho           | Có          | Có                      | Có nếu được cấp        | Không mặc định   |
+| Xem báo cáo doanh thu        | Có          | Có nếu được cấp         | Có                     | Không mặc định   |
+| Xem báo cáo lợi nhuận        | Có          | Không mặc định          | Không mặc định         | Không            |
+| Export dữ liệu               | Có          | Có nếu được cấp         | Có nếu được cấp        | Không mặc định   |
+| Xem audit log                | Có          | Có                      | Có nếu auditor/manager | Không            |
 
 ---
 

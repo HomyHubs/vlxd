@@ -15,6 +15,7 @@
 Phần mềm `vlxd` phục vụ thị trường chính là các cửa hàng, nhà phân phối và doanh nghiệp vật liệu xây dựng tại Việt Nam, đồng thời có định hướng mở rộng hỗ trợ ngôn ngữ tiếng Anh cho các đối tác quốc tế hoặc doanh nghiệp có vốn nước ngoài.
 
 Các vấn đề thường gặp khi phát triển hệ thống đa ngôn ngữ:
+
 - Hard-code chuỗi ký tự (hardcoded strings) trực tiếp trong JSX/TSX khiến giao diện bị lai tạp (nửa Việt nửa Anh).
 - Backend trả về message tiếng Anh hoặc tiếng Việt cố định, khiến Frontend không thể thay đổi ngôn ngữ linh hoạt cho người dùng.
 - Thiếu bản dịch cho một số key dẫn tới việc giao diện bị hiển thị chuỗi rỗng hoặc key thô (`order.validation.min_quantity`).
@@ -48,6 +49,7 @@ Cần một chiến lược quốc tế hóa (i18n) rõ ràng, chuẩn hóa và 
 **Chọn Option B: Sử dụng i18next cho Frontend, tiếng Việt làm ngôn ngữ gốc (Default Locale), Backend trả Error Code chuẩn.**
 
 ### Cấu trúc Translation Files (`apps/web/src/i18n/locales/`):
+
 ```text
 apps/web/src/i18n/
 ├── index.ts
@@ -67,6 +69,7 @@ apps/web/src/i18n/
 ```
 
 ### Định dạng chuẩn hóa:
+
 - **Tiền tệ:** VND (vd: `1,500,000 ₫` hoặc `1.500.000 đ`).
 - **Timezone:** `Asia/Ho_Chi_Minh` (UTC+7).
 - **Đơn vị đo lường VLXD:** Giữ nguyên tên đơn vị tính đặc thù tiếng Việt ($m^3$, viên, bao, cây, tấn, kg, m²).
@@ -76,12 +79,14 @@ apps/web/src/i18n/
 ## 6. Consequences
 
 ### Positive Consequences
+
 - **Trải nghiệm mượt mà:** Khách hàng Việt Nam nhận được giao diện thuần Việt tự nhiên, đúng thuật ngữ ngành VLXD.
 - **Không hard-code text:** 100% nhãn, nút bấm, tiêu đề bảng, thông báo lỗi đều đi qua hàm `t('key')`.
 - **Dễ dàng dịch thêm ngôn ngữ:** Muốn thêm tiếng Trung hay tiếng Hàn chỉ cần bổ sung folder locale mới mà không cần chạm vào JSX logic.
 
 ### Negative Consequences & Mitigations
-- *Cần quản lý nhiều file JSON:* Chia nhỏ theo từng feature slice và viết script kiểm tra thiếu key giữa `vi` và `en`.
+
+- _Cần quản lý nhiều file JSON:_ Chia nhỏ theo từng feature slice và viết script kiểm tra thiếu key giữa `vi` và `en`.
 
 ---
 

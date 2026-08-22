@@ -13,6 +13,7 @@
 ## 2. Context & Problem Statement
 
 Mô hình kinh doanh của `vlxd` là phần mềm dạng dịch vụ (SaaS) theo các gói: **Free**, **Standard**, **Premium**, và **Enterprise**. Mỗi gói có các hạn mức kỹ thuật và tính năng khác nhau:
+
 - **Free:** Tối đa 80 sản phẩm, 1 nhà kho.
 - **Standard:** Tối đa 800 sản phẩm, 1 nhà kho.
 - **Premium:** Không giới hạn sản phẩm, không giới hạn nhà kho, hỗ trợ AI Voice/Chat, OCR hóa đơn.
@@ -49,16 +50,18 @@ Cần một cơ chế thực thi rào chắn gói dịch vụ (Plan Gates Enforc
 **Chọn Option B: Backend Plan Guard Middleware & Service Layer kết hợp Chính sách Bảo lưu Dữ liệu khi Hạ gói (Preserve on Downgrade).**
 
 ### 1. Bảng Ma trận Hạn mức Gói Dịch vụ:
-| Tính năng / Hạn mức | Free | Standard | Premium | Enterprise |
-| --- | --- | --- | --- | --- |
-| Sử dụng ứng dụng Web | Có | Có | Có | Có |
-| Giới hạn Sản phẩm (`max_products`) | **80** | **800** | **Không giới hạn** | **Không giới hạn** |
-| Giới hạn Nhà kho (`max_warehouses`) | **1** | **1** | **Không giới hạn** | **Không giới hạn** |
-| AI Agent Chat / Voice | Không | Không | Có | Có |
-| OCR Hóa đơn viết tay | Không | Không | Có | Có |
-| Dedicated Database riêng | Không | Không | Không | Có |
+
+| Tính năng / Hạn mức                 | Free   | Standard | Premium            | Enterprise         |
+| ----------------------------------- | ------ | -------- | ------------------ | ------------------ |
+| Sử dụng ứng dụng Web                | Có     | Có       | Có                 | Có                 |
+| Giới hạn Sản phẩm (`max_products`)  | **80** | **800**  | **Không giới hạn** | **Không giới hạn** |
+| Giới hạn Nhà kho (`max_warehouses`) | **1**  | **1**    | **Không giới hạn** | **Không giới hạn** |
+| AI Agent Chat / Voice               | Không  | Không    | Có                 | Có                 |
+| OCR Hóa đơn viết tay                | Không  | Không    | Có                 | Có                 |
+| Dedicated Database riêng            | Không  | Không    | Không              | Có                 |
 
 ### 2. Quy tắc Xử lý Khi Hạ Gói (Downgrade Policy):
+
 - Khi một Tenant hạ gói từ Premium xuống Standard/Free mà số lượng sản phẩm hiện có vượt hạn mức (vd đang có 500 sản phẩm mà hạ về Free giới hạn 80):
   1. **Tuyệt đối không xóa hoặc ẩn sản phẩm cũ:** Toàn bộ 500 sản phẩm vẫn xem, xuất kho, bán hàng bình thường.
   2. **Chặn tạo mới:** Tenant không thể bấm tạo thêm sản phẩm thứ 501 cho đến khi nâng lại gói hoặc xóa bớt sản phẩm về dưới 80.
@@ -68,12 +71,14 @@ Cần một cơ chế thực thi rào chắn gói dịch vụ (Plan Gates Enforc
 ## 6. Consequences
 
 ### Positive Consequences
+
 - **Không thể bypass:** Ngay cả khi gọi API bằng curl/Postman, backend vẫn chặn triệt để khi vượt hạn mức gói.
 - **Trải nghiệm khách hàng an toàn:** Khách hàng không lo bị mất dữ liệu khi thay đổi gói dịch vụ kinh doanh.
 - **Dễ dàng mở rộng:** Thêm gói mới (vd Starter hay Pro) chỉ cần thêm cấu hình trong bảng `service_plans` mà không cần sửa logic code phức tạp.
 
 ### Negative Consequences & Mitigations
-- *Chi phí query đếm số lượng:* Tạo Partial Index `COUNT(*) WHERE tenant_id = ... AND deleted_at IS NULL` hoặc cache số lượng tài nguyên vào bảng `tenant_usage_stats`.
+
+- _Chi phí query đếm số lượng:_ Tạo Partial Index `COUNT(*) WHERE tenant_id = ... AND deleted_at IS NULL` hoặc cache số lượng tài nguyên vào bảng `tenant_usage_stats`.
 
 ---
 

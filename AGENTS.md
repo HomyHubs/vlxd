@@ -156,32 +156,32 @@ apps/web/src/features/warehouse/
 
 ### Backend — `apps/api`
 
-| Hạng mục | Lựa chọn |
-| --- | --- |
-| Ngôn ngữ | TypeScript 5.9+, ESM |
-| Runtime | Node 24.x, pin qua `.nvmrc` |
-| Package manager | pnpm 11.x + pnpm workspace |
-| HTTP framework | Fastify 5 + `fastify-type-provider-zod` |
-| Database | PostgreSQL do Supabase cung cấp |
-| Data access | Kysely trên `pg` |
-| Migration | dbmate, SQL thuần, reversible |
-| Validation | Zod 4 dùng chung qua `packages/shared` |
-| Auth | Opaque server-side session + capability-based authorization |
-| Logging | pino, redact PII, request-id |
-| Test | Vitest 4 + testcontainers |
+| Hạng mục        | Lựa chọn                                                    |
+| --------------- | ----------------------------------------------------------- |
+| Ngôn ngữ        | TypeScript 5.9+, ESM                                        |
+| Runtime         | Node 24.x, pin qua `.nvmrc`                                 |
+| Package manager | pnpm 11.x + pnpm workspace                                  |
+| HTTP framework  | Fastify 5 + `fastify-type-provider-zod`                     |
+| Database        | PostgreSQL do Supabase cung cấp                             |
+| Data access     | Kysely trên `pg`                                            |
+| Migration       | dbmate, SQL thuần, reversible                               |
+| Validation      | Zod 4 dùng chung qua `packages/shared`                      |
+| Auth            | Opaque server-side session + capability-based authorization |
+| Logging         | pino, redact PII, request-id                                |
+| Test            | Vitest 4 + testcontainers                                   |
 
 ### Frontend — `apps/web`
 
-| Hạng mục | Lựa chọn |
-| --- | --- |
-| Framework | React 19 + TypeScript + Vite |
-| UI | MUI v6+, x-date-pickers, material-react-table |
-| Server state | TanStack React Query 5 |
-| Form | react-hook-form + Zod resolver |
-| Router | react-router-dom 7 |
-| i18n | i18next + react-i18next, mặc định `vi`, hỗ trợ `en` |
-| API client | Sinh từ OpenAPI vào `packages/api-client` |
-| Test | Vitest + Testing Library, Playwright + axe-core |
+| Hạng mục     | Lựa chọn                                            |
+| ------------ | --------------------------------------------------- |
+| Framework    | React 19 + TypeScript + Vite                        |
+| UI           | MUI v6+, x-date-pickers, material-react-table       |
+| Server state | TanStack React Query 5                              |
+| Form         | react-hook-form + Zod resolver                      |
+| Router       | react-router-dom 7                                  |
+| i18n         | i18next + react-i18next, mặc định `vi`, hỗ trợ `en` |
+| API client   | Sinh từ OpenAPI vào `packages/api-client`           |
+| Test         | Vitest + Testing Library, Playwright + axe-core     |
 
 ---
 
@@ -202,28 +202,28 @@ Chi tiết đầy đủ đặt tại `docs/requirements/role-management.md`.
 
 ### 4.2 Role group tạm thời
 
-| Role group | Ý nghĩa | Phạm vi quyền mặc định |
-| --- | --- | --- |
-| Super admin | Chủ hệ thống / chủ tenant cao nhất | Toàn quyền, bao gồm billing, plan, cấu hình hệ thống, phân quyền cấp cao |
-| System admin | Quản trị vận hành | Thêm/sửa/xem record, quản lý user, gán quyền trong phạm vi tenant, cấu hình cửa hàng |
-| Support admin | Quản lý hỗ trợ / vận hành | Thêm/sửa/xem record, xem thống kê/báo cáo, hỗ trợ xử lý nghiệp vụ, không toàn quyền user/billing |
-| User | Nhân viên sử dụng hằng ngày | Tạo đơn hàng, xem record được phân quyền, xem tồn kho, thao tác nghiệp vụ được giao |
+| Role group    | Ý nghĩa                            | Phạm vi quyền mặc định                                                                           |
+| ------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Super admin   | Chủ hệ thống / chủ tenant cao nhất | Toàn quyền, bao gồm billing, plan, cấu hình hệ thống, phân quyền cấp cao                         |
+| System admin  | Quản trị vận hành                  | Thêm/sửa/xem record, quản lý user, gán quyền trong phạm vi tenant, cấu hình cửa hàng             |
+| Support admin | Quản lý hỗ trợ / vận hành          | Thêm/sửa/xem record, xem thống kê/báo cáo, hỗ trợ xử lý nghiệp vụ, không toàn quyền user/billing |
+| User          | Nhân viên sử dụng hằng ngày        | Tạo đơn hàng, xem record được phân quyền, xem tồn kho, thao tác nghiệp vụ được giao              |
 
 ### 4.3 Title đề xuất cho cửa hàng vật liệu xây dựng
 
-| Nhóm chức danh | Title | Role group mặc định | Lý do kinh doanh |
-| --- | --- | --- | --- |
-| Chủ sở hữu | Chủ cửa hàng / Giám đốc | Super admin | Quyết định tiền, người, gói dịch vụ, dữ liệu và quyền cao nhất |
-| Quản trị | Quản trị hệ thống | System admin | Cài đặt hệ thống, user, quyền, danh mục, cấu hình |
-| Quản lý | Quản lý cửa hàng / Quản lý chi nhánh | Support admin | Điều phối bán hàng, tồn kho, báo cáo, xử lý sai lệch |
-| Bán hàng | Nhân viên bán hàng | User | Tạo báo giá, đơn hàng, hóa đơn bán, xem tồn kho để tư vấn |
-| Kho | Thủ kho / Nhân viên kho | User | Nhập/xuất/chuyển kho/kiểm kho; không cần quyền tài chính đầy đủ |
-| Kế toán | Kế toán bán hàng / Kế toán công nợ | Support admin | Theo dõi hóa đơn, thu chi, công nợ, báo cáo tài chính vận hành |
-| Mua hàng | Nhân viên mua hàng | User | Tạo đơn nhập, làm việc với nhà cung cấp, theo dõi hàng về |
-| Giao hàng | Nhân viên giao hàng | User | Xem đơn cần giao, cập nhật trạng thái giao, bằng chứng giao hàng |
-| Thu ngân | Thu ngân | User | Ghi nhận thanh toán, in hóa đơn/phiếu thu theo quyền |
-| CSKH | Nhân viên chăm sóc khách hàng | User | Xem lịch sử mua, hỗ trợ đổi trả/khiếu nại theo quyền |
-| Kiểm toán | Kiểm soát nội bộ / Auditor | Support admin | Xem báo cáo, audit log, phát hiện sai lệch; hạn chế sửa dữ liệu |
+| Nhóm chức danh | Title                                | Role group mặc định | Lý do kinh doanh                                                 |
+| -------------- | ------------------------------------ | ------------------- | ---------------------------------------------------------------- |
+| Chủ sở hữu     | Chủ cửa hàng / Giám đốc              | Super admin         | Quyết định tiền, người, gói dịch vụ, dữ liệu và quyền cao nhất   |
+| Quản trị       | Quản trị hệ thống                    | System admin        | Cài đặt hệ thống, user, quyền, danh mục, cấu hình                |
+| Quản lý        | Quản lý cửa hàng / Quản lý chi nhánh | Support admin       | Điều phối bán hàng, tồn kho, báo cáo, xử lý sai lệch             |
+| Bán hàng       | Nhân viên bán hàng                   | User                | Tạo báo giá, đơn hàng, hóa đơn bán, xem tồn kho để tư vấn        |
+| Kho            | Thủ kho / Nhân viên kho              | User                | Nhập/xuất/chuyển kho/kiểm kho; không cần quyền tài chính đầy đủ  |
+| Kế toán        | Kế toán bán hàng / Kế toán công nợ   | Support admin       | Theo dõi hóa đơn, thu chi, công nợ, báo cáo tài chính vận hành   |
+| Mua hàng       | Nhân viên mua hàng                   | User                | Tạo đơn nhập, làm việc với nhà cung cấp, theo dõi hàng về        |
+| Giao hàng      | Nhân viên giao hàng                  | User                | Xem đơn cần giao, cập nhật trạng thái giao, bằng chứng giao hàng |
+| Thu ngân       | Thu ngân                             | User                | Ghi nhận thanh toán, in hóa đơn/phiếu thu theo quyền             |
+| CSKH           | Nhân viên chăm sóc khách hàng        | User                | Xem lịch sử mua, hỗ trợ đổi trả/khiếu nại theo quyền             |
+| Kiểm toán      | Kiểm soát nội bộ / Auditor           | Support admin       | Xem báo cáo, audit log, phát hiện sai lệch; hạn chế sửa dữ liệu  |
 
 ### 4.4 Module quyền cần chuẩn bị cho permission matrix
 
@@ -249,15 +249,15 @@ Chi tiết đầy đủ đặt tại `docs/requirements/i18n.md`.
 
 ### 5.1 Quyết định đã chốt
 
-| Hạng mục | Quyết định |
-| --- | --- |
-| Ngôn ngữ mặc định | `vi` |
-| Ngôn ngữ hỗ trợ thêm | `en` |
-| Ưu tiên nội dung | Viết tiếng Việt trước, dịch tiếng Anh sau |
-| Fallback | Nếu thiếu bản dịch `en`, fallback sang `vi` |
+| Hạng mục                | Quyết định                                        |
+| ----------------------- | ------------------------------------------------- |
+| Ngôn ngữ mặc định       | `vi`                                              |
+| Ngôn ngữ hỗ trợ thêm    | `en`                                              |
+| Ưu tiên nội dung        | Viết tiếng Việt trước, dịch tiếng Anh sau         |
+| Fallback                | Nếu thiếu bản dịch `en`, fallback sang `vi`       |
 | UI copy source of truth | i18next resource files trong `apps/web/src/i18n/` |
-| Backend error code | Trả error code ổn định; frontend dịch message |
-| Dữ liệu người dùng nhập | Giữ nguyên theo người dùng nhập, không tự dịch |
+| Backend error code      | Trả error code ổn định; frontend dịch message     |
+| Dữ liệu người dùng nhập | Giữ nguyên theo người dùng nhập, không tự dịch    |
 
 ### 5.2 Quy tắc frontend
 
@@ -324,14 +324,14 @@ Frontend chịu trách nhiệm dịch:
 
 ## 6. Gói dịch vụ
 
-| Tính năng | Free | Standard | Premium | Enterprise |
-| --- | --- | --- | --- | --- |
-| Sử dụng ứng dụng | Có | Có | Có | Có |
-| Giới hạn sản phẩm | 80 | 800 | Không giới hạn | Không giới hạn |
-| Số nhà kho | 1 | 1 | Không giới hạn | Không giới hạn |
-| AI agent chat/voice | Không | Không | Có | Có |
-| OCR hóa đơn viết tay | Không | Không | Có | Có |
-| DB riêng biệt | Không | Không | Không | Có |
+| Tính năng            | Free  | Standard | Premium        | Enterprise     |
+| -------------------- | ----- | -------- | -------------- | -------------- |
+| Sử dụng ứng dụng     | Có    | Có       | Có             | Có             |
+| Giới hạn sản phẩm    | 80    | 800      | Không giới hạn | Không giới hạn |
+| Số nhà kho           | 1     | 1        | Không giới hạn | Không giới hạn |
+| AI agent chat/voice  | Không | Không    | Có             | Có             |
+| OCR hóa đơn viết tay | Không | Không    | Có             | Có             |
+| DB riêng biệt        | Không | Không    | Không          | Có             |
 
 - Gói gắn theo tenant/công ty.
 - Nâng/hạ gói được phép; khi hạ gói mà vượt hạn mức thì giữ dữ liệu cũ, chặn tạo mới.
@@ -394,19 +394,19 @@ Một UI feature chỉ được coi là xong khi:
 
 ## 9. Anti-pattern cấm
 
-| Anti-pattern | Thay bằng |
-| --- | --- |
-| Giữ tiến độ trong chat | Ghi vào `AGENTS.md` |
-| FE gọi Supabase trực tiếp | Gọi backend `apps/api` |
-| Business logic nằm trong `utils`/`components` | Đưa vào feature slice |
-| Global `controllers/services/repositories` | `features/<feature>/...` |
-| Import vào file nội bộ feature khác | Import qua `index.ts` |
-| Hard-code quyền theo title | Kiểm tra capability/permission |
-| Xóa cứng dữ liệu nghiệp vụ | Archive/cancel/reverse + audit log |
-| Sửa code generated | Sửa OpenAPI rồi regenerate |
-| Hard-code UI text trong component | Dùng i18next translation key |
-| Backend trả message UI theo ngôn ngữ cố định | Backend trả error code, frontend dịch |
-| Giữ docs/html/csv xuất tạm không còn giá trị | Xóa hoặc chuẩn hóa vào `docs/requirements` |
+| Anti-pattern                                  | Thay bằng                                  |
+| --------------------------------------------- | ------------------------------------------ |
+| Giữ tiến độ trong chat                        | Ghi vào `AGENTS.md`                        |
+| FE gọi Supabase trực tiếp                     | Gọi backend `apps/api`                     |
+| Business logic nằm trong `utils`/`components` | Đưa vào feature slice                      |
+| Global `controllers/services/repositories`    | `features/<feature>/...`                   |
+| Import vào file nội bộ feature khác           | Import qua `index.ts`                      |
+| Hard-code quyền theo title                    | Kiểm tra capability/permission             |
+| Xóa cứng dữ liệu nghiệp vụ                    | Archive/cancel/reverse + audit log         |
+| Sửa code generated                            | Sửa OpenAPI rồi regenerate                 |
+| Hard-code UI text trong component             | Dùng i18next translation key               |
+| Backend trả message UI theo ngôn ngữ cố định  | Backend trả error code, frontend dịch      |
+| Giữ docs/html/csv xuất tạm không còn giá trị  | Xóa hoặc chuẩn hóa vào `docs/requirements` |
 
 ---
 
@@ -418,6 +418,7 @@ Một UI feature chỉ được coi là xong khi:
 - [x] TASK-002 — Xây dựng Decision Backlog và khóa quyết định nghiệp vụ trước khi code (`docs/decision-backlog.md`).
 - [x] TASK-003 — Hoàn thiện Requirements MVP chi tiết cho 10 capability (`docs/requirements/*.md`).
 - [x] TASK-004 — Viết 9 ADR kiến trúc production chuẩn MADR (`docs/adr/`).
+- [x] TASK-005 — Scaffold monorepo skeleton (`apps/web`, `apps/api`, `packages/*`) và quality baseline.
 - [x] Làm rõ cấu trúc repo tách `apps/web` và `apps/api`, mỗi bên chia `features/<feature>`.
 - [x] Thêm định hướng Role Management cho cửa hàng vật liệu xây dựng (`docs/requirements/role-management.md`).
 - [x] Chuẩn hóa yêu cầu gói dịch vụ ở mức root AGENTS và `docs/requirements/service-plans.md`.
@@ -427,8 +428,8 @@ Một UI feature chỉ được coi là xong khi:
 
 ### Đang làm
 
-- [ ] `TASK-005` (M0): Scaffold monorepo skeleton (`apps/web`, `apps/api`, `packages/*`) và quality baseline.
+- [ ] `TASK-005` (M0): Hoàn tất implementation, sẵn sàng review theo `/codex-review-loop`.
 
 ### Bước tiếp theo
 
-- [ ] `TASK-006` (M0): Thiết lập database migration engine (dbmate) và Supabase local tooling baseline.
+- [ ] `TASK-006` (M0): GitHub Actions CI + secret/dependency scan baseline.

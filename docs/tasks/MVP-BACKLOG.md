@@ -1,6 +1,7 @@
 # Backlog triển khai — vlxd (v2: milestone + lane song song)
 
 > Bản viết lại từ backlog tuần tự ban đầu. Giữ nguyên kỷ luật **contract-first** và **foundation-first**, nhưng bổ sung 5 thay đổi:
+>
 > 1. Chia thành **milestone** demo-được (M0–M4).
 > 2. Cho phép các **lane chạy song song** sau khi nền tảng xong.
 > 3. **Chẻ các task-epic** thành sub-PR review được.
@@ -28,13 +29,13 @@
 
 ## Milestones
 
-| Mốc | Tên | Nội dung | Tiêu chí demo |
-| --- | --- | --- | --- |
-| **M0** | Foundation guardrails | repo audit, decisions, requirements, ADR, scaffold, CI, staging smoke | `pnpm install` + baseline checks xanh; staging chạy `/health` + web shell rỗng |
-| **M1** | Platform core | OpenAPI, DB multi-tenant, backend platform + observability, auth, role/authz, plan enforce, frontend shell/i18n | Login thật, phân quyền enforce ở backend, shell song ngữ vi/en |
-| **M2** | Master data | product, warehouse, customer/supplier | CRUD master data thật, không còn mock/localStorage |
-| **M3** | Commerce & finance | inventory ledger, order, delivery/return, payment/debt, purchase | Chuỗi bán hàng → xuất kho → thu tiền chạy E2E |
-| **M4** | Insights & hardening | report, import/export, settings/print, yard/converter, a11y, security/E2E ship gate | Báo cáo từ ledger thật; ship gate không BLOCKER/HIGH |
+| Mốc    | Tên                   | Nội dung                                                                                                        | Tiêu chí demo                                                                  |
+| ------ | --------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **M0** | Foundation guardrails | repo audit, decisions, requirements, ADR, scaffold, CI, staging smoke                                           | `pnpm install` + baseline checks xanh; staging chạy `/health` + web shell rỗng |
+| **M1** | Platform core         | OpenAPI, DB multi-tenant, backend platform + observability, auth, role/authz, plan enforce, frontend shell/i18n | Login thật, phân quyền enforce ở backend, shell song ngữ vi/en                 |
+| **M2** | Master data           | product, warehouse, customer/supplier                                                                           | CRUD master data thật, không còn mock/localStorage                             |
+| **M3** | Commerce & finance    | inventory ledger, order, delivery/return, payment/debt, purchase                                                | Chuỗi bán hàng → xuất kho → thu tiền chạy E2E                                  |
+| **M4** | Insights & hardening  | report, import/export, settings/print, yard/converter, a11y, security/E2E ship gate                             | Báo cáo từ ledger thật; ship gate không BLOCKER/HIGH                           |
 
 ## Sơ đồ phụ thuộc rút gọn
 

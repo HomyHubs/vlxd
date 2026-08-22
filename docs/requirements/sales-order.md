@@ -6,20 +6,20 @@
 
 ## 1. Actors & Permissions
 
-| Chức danh / Title | Quyền hạn trên module Bán hàng | Khả năng thực hiện (Capabilities) |
-| --- | --- | --- |
-| **Chủ cửa hàng (Super Admin)** | Toàn quyền tạo đơn, sửa đơn, duyệt chiết khấu đặc biệt $> 10\%$, duyệt hạn mức nợ, hủy đơn hàng đã chốt, xem lợi nhuận đơn. | `sales.order.create`, `sales.order.read`, `sales.order.update`, `sales.order.cancel`, `sales.discount.override`, `customer.credit.override`, `sales.order.view_margin` |
-| **Quản lý chi nhánh (Support Admin)** | Duyệt đơn hàng, duyệt chiết khấu $\le 10\%$, duyệt ngoại lệ hạn mức nợ, xem báo cáo bán hàng chi nhánh. | `sales.order.create`, `sales.order.read`, `sales.order.confirm`, `sales.discount.tier2`, `customer.credit.override`, `sales.order.cancel` |
-| **Nhân viên bán hàng (User)** | Tạo báo giá, tạo đơn hàng, áp dụng chiết khấu $\le 3\%$, in phiếu đặt hàng, theo dõi tiến độ giao hàng. | `sales.order.create`, `sales.order.read`, `sales.discount.tier1`, `sales.quote.create` |
-| **Thu ngân (User)** | Thu tiền đơn hàng (tiền mặt/chuyển khoản VietQR), in hóa đơn bán lẻ/phiếu thu tiền. | `sales.order.read`, `sales.payment.collect` |
+| Chức danh / Title                     | Quyền hạn trên module Bán hàng                                                                                              | Khả năng thực hiện (Capabilities)                                                                                                                                      |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Chủ cửa hàng (Super Admin)**        | Toàn quyền tạo đơn, sửa đơn, duyệt chiết khấu đặc biệt $> 10\%$, duyệt hạn mức nợ, hủy đơn hàng đã chốt, xem lợi nhuận đơn. | `sales.order.create`, `sales.order.read`, `sales.order.update`, `sales.order.cancel`, `sales.discount.override`, `customer.credit.override`, `sales.order.view_margin` |
+| **Quản lý chi nhánh (Support Admin)** | Duyệt đơn hàng, duyệt chiết khấu $\le 10\%$, duyệt ngoại lệ hạn mức nợ, xem báo cáo bán hàng chi nhánh.                     | `sales.order.create`, `sales.order.read`, `sales.order.confirm`, `sales.discount.tier2`, `customer.credit.override`, `sales.order.cancel`                              |
+| **Nhân viên bán hàng (User)**         | Tạo báo giá, tạo đơn hàng, áp dụng chiết khấu $\le 3\%$, in phiếu đặt hàng, theo dõi tiến độ giao hàng.                     | `sales.order.create`, `sales.order.read`, `sales.discount.tier1`, `sales.quote.create`                                                                                 |
+| **Thu ngân (User)**                   | Thu tiền đơn hàng (tiền mặt/chuyển khoản VietQR), in hóa đơn bán lẻ/phiếu thu tiền.                                         | `sales.order.read`, `sales.payment.collect`                                                                                                                            |
 
 ---
 
 ## 2. Business Scope & Rules
 
 - **Hai hình thức bán hàng đặc thù VLXD:**
-  1. *Bán lẻ tại quầy / POS (Bán nhanh):* Khách lấy hàng ngay tại bãi/quầy, thanh toán 100% $\rightarrow$ Đi qua luồng chuẩn `CONFIRMED` (giữ chỗ `reserved += qty`) $\rightarrow$ `PROCESSING` $\rightarrow$ Hoàn tất `COMPLETED` (trừ tồn thực tế `on_hand -= qty, reserved -= qty` duy nhất tại thời điểm hoàn tất nhận hàng và thanh toán).
-  2. *Đơn hàng giao công trình (Sales Order):* Lên báo giá/đơn hàng khối lượng lớn $\rightarrow$ Xác nhận đơn `CONFIRMED` (hoặc `BACKORDER` nếu thiếu tồn) $\rightarrow$ `PROCESSING` $\rightarrow$ Điều xe giao tận nơi `DELIVERING` (trừ tồn thực tế `on_hand -= qty, reserved -= qty` duy nhất tại thời điểm xuất bãi) $\rightarrow$ Khách nhận hàng `COMPLETED` $\rightarrow$ Thu tiền nhiều đợt.
+  1. _Bán lẻ tại quầy / POS (Bán nhanh):_ Khách lấy hàng ngay tại bãi/quầy, thanh toán 100% $\rightarrow$ Đi qua luồng chuẩn `CONFIRMED` (giữ chỗ `reserved += qty`) $\rightarrow$ `PROCESSING` $\rightarrow$ Hoàn tất `COMPLETED` (trừ tồn thực tế `on_hand -= qty, reserved -= qty` duy nhất tại thời điểm hoàn tất nhận hàng và thanh toán).
+  2. _Đơn hàng giao công trình (Sales Order):_ Lên báo giá/đơn hàng khối lượng lớn $\rightarrow$ Xác nhận đơn `CONFIRMED` (hoặc `BACKORDER` nếu thiếu tồn) $\rightarrow$ `PROCESSING` $\rightarrow$ Điều xe giao tận nơi `DELIVERING` (trừ tồn thực tế `on_hand -= qty, reserved -= qty` duy nhất tại thời điểm xuất bãi) $\rightarrow$ Khách nhận hàng `COMPLETED` $\rightarrow$ Thu tiền nhiều đợt.
 - **Vòng đời State Machine 8 trạng thái (DEC-004, DEC-005):**
   `DRAFT`, `CONFIRMED`, `BACKORDER`, `PROCESSING`, `DELIVERING`, `COMPLETED`, `CANCELLED`, `RETURNED`.
 - **Cơ chế Giữ chỗ Tồn kho & Sự kiện Trừ kho Thực tế duy nhất (DEC-003, DEC-004, DEC-005):**
@@ -83,12 +83,12 @@ stateDiagram-v2
 
 ## 6. Failure & Edge Cases
 
-| Trường hợp | Phản hồi hệ thống | Mã lỗi backend |
-| --- | --- | --- |
-| Không đủ tồn kho khả dụng khi Confirm | Chặn xác nhận đơn, gợi ý chuyển sang Đơn đặt trước (Backorder) | `INSUFFICIENT_AVAILABLE_STOCK` |
-| Nhân viên nhập chiết khấu $5\%$ ($> 3\%$) | Yêu cầu tài khoản Quản lý chi nhánh duyệt | `DISCOUNT_REQUIRES_APPROVAL` |
-| Đơn hàng vượt hạn mức nợ của khách | Chặn xác nhận, yêu cầu duyệt ghi đè hạn mức nợ | `CREDIT_LIMIT_EXCEEDED` |
-| Hủy đơn hàng khi xe đã xuất bãi (`DELIVERING`) | Chặn hủy trực tiếp, yêu cầu xử lý qua quy trình Trả hàng/Nhập hoàn | `CANNOT_CANCEL_IN_DELIVERY` |
+| Trường hợp                                     | Phản hồi hệ thống                                                  | Mã lỗi backend                 |
+| ---------------------------------------------- | ------------------------------------------------------------------ | ------------------------------ |
+| Không đủ tồn kho khả dụng khi Confirm          | Chặn xác nhận đơn, gợi ý chuyển sang Đơn đặt trước (Backorder)     | `INSUFFICIENT_AVAILABLE_STOCK` |
+| Nhân viên nhập chiết khấu $5\%$ ($> 3\%$)      | Yêu cầu tài khoản Quản lý chi nhánh duyệt                          | `DISCOUNT_REQUIRES_APPROVAL`   |
+| Đơn hàng vượt hạn mức nợ của khách             | Chặn xác nhận, yêu cầu duyệt ghi đè hạn mức nợ                     | `CREDIT_LIMIT_EXCEEDED`        |
+| Hủy đơn hàng khi xe đã xuất bãi (`DELIVERING`) | Chặn hủy trực tiếp, yêu cầu xử lý qua quy trình Trả hàng/Nhập hoàn | `CANNOT_CANCEL_IN_DELIVERY`    |
 
 ---
 

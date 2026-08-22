@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ dev, main, "feat/*", "fix/*", "task/*" ]
+    branches: [dev, main, "feat/*", "fix/*", "task/*"]
   pull_request:
-    branches: [ dev, main ]
+    branches: [dev, main]
 
 jobs:
   repo-hygiene:

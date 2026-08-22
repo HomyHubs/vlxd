@@ -37,4 +37,3 @@ Hệ thống quản lý bán hàng, kho bãi, công nợ và chuỗi vận hành
 - **Contract:** OpenAPI 3.1 (`contracts/http/openapi.yaml`) + Generated API Client (`packages/api-client`).
 - **Monorepo:** pnpm workspace + Turbo.
 - **Auth & Session:** Opaque server-side session + capability-based authorization.
-

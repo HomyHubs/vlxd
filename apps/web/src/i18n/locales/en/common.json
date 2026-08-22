@@ -1,0 +1,28 @@
+{
+  "app": {
+    "title": "Construction Materials Management System",
+    "tagline": "Comprehensive solution for building material stores and supply chains",
+    "status": "System Operational",
+    "version": "Version"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "warehouses": "Warehouses",
+    "inventory": "Inventory",
+    "orders": "Orders",
+    "customers": "Customers",
+    "suppliers": "Suppliers",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "actions": {
+    "switch_language": "Language",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "status": {
+    "healthy": "Healthy",
+    "connecting": "Connecting..."
+  }
+}

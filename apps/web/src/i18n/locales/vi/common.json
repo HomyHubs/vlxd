@@ -1,0 +1,28 @@
+{
+  "app": {
+    "title": "Hệ thống Quản lý Vật liệu Xây dựng",
+    "tagline": "Giải pháp toàn diện cho chuỗi cung ứng và cửa hàng VLXD",
+    "status": "Hệ thống đang hoạt động",
+    "version": "Phiên bản"
+  },
+  "nav": {
+    "dashboard": "Tổng quan",
+    "products": "Sản phẩm",
+    "warehouses": "Nhà kho",
+    "inventory": "Tồn kho",
+    "orders": "Đơn hàng",
+    "customers": "Khách hàng",
+    "suppliers": "Nhà cung cấp",
+    "reports": "Báo cáo",
+    "settings": "Cài đặt"
+  },
+  "actions": {
+    "switch_language": "Ngôn ngữ",
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất"
+  },
+  "status": {
+    "healthy": "Khỏe mạnh",
+    "connecting": "Đang kết nối..."
+  }
+}

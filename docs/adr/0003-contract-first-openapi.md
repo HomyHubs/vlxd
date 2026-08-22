@@ -42,6 +42,7 @@ Cần một phương pháp tiếp cận lấy Hợp đồng API (API Contract) l
 **Chọn Option B: Quy trình Contract-First dựa trên `contracts/http/openapi.yaml`.**
 
 ### Luồng làm việc chuẩn (Workflow):
+
 1. **Thiết kế Contract:** Khi có tính năng mới hoặc thay đổi API, kỹ sư cập nhật `contracts/http/openapi.yaml` trước.
 2. **Sinh mã Client:** Chạy lệnh `pnpm generate:api-client` để tự động sinh mã TypeScript API Client và types vào package `@vlxd/api-client`.
 3. **Backend Binding:** Backend Fastify sử dụng `fastify-type-provider-zod` để validate request payload và response structure khớp 100% với contract.
@@ -52,13 +53,15 @@ Cần một phương pháp tiếp cận lấy Hợp đồng API (API Contract) l
 ## 6. Consequences
 
 ### Positive Consequences
+
 - **Type Safety Tuyệt đối:** Khi contract thay đổi, TypeScript compiler ở Frontend sẽ lập tức báo lỗi đỏ tại các vị trí component bị ảnh hưởng.
 - **Song song hóa tối đa:** Frontend có thể bắt đầu code giao diện ngay sau khi PR OpenAPI Contract được merge mà không cần chờ Backend code xong.
 - **Tài liệu API luôn chuẩn xác:** Tài liệu OpenAPI không bao giờ bị lỗi thời so với thực tế.
 
 ### Negative Consequences & Mitigations
-- *Cần bảo trì file OpenAPI YAML:* Sử dụng cấu trúc chia nhỏ file OpenAPI (hoặc ref component) nếu file quá lớn.
-- *Tuyệt đối cấm sửa file generated bằng tay:* Thêm script CI kiểm tra `pnpm check:openapi-drift` để phát hiện nếu ai đó sửa code trong `packages/api-client` mà không thông qua OpenAPI.
+
+- _Cần bảo trì file OpenAPI YAML:_ Sử dụng cấu trúc chia nhỏ file OpenAPI (hoặc ref component) nếu file quá lớn.
+- _Tuyệt đối cấm sửa file generated bằng tay:_ Thêm script CI kiểm tra `pnpm check:openapi-drift` để phát hiện nếu ai đó sửa code trong `packages/api-client` mà không thông qua OpenAPI.
 
 ---
 

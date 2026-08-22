@@ -4,16 +4,16 @@ Web app cung cấp dịch vụ theo gói. Mỗi tenant/công ty chọn một gó
 
 ## 1. Bảng năng lực
 
-| Tính năng | Free | Standard | Premium | Enterprise |
-| --- | --- | --- | --- | --- |
-| Sử dụng ứng dụng | Có | Có | Có | Có |
-| Giới hạn sản phẩm | 80 | 800 | Không giới hạn | Không giới hạn |
-| Số nhà kho | 1 | 1 | Không giới hạn | Không giới hạn |
-| AI agent chat | Không | Không | Có | Có |
-| AI agent giọng nói | Không | Không | Có | Có |
-| OCR hóa đơn viết tay | Không | Không | Có | Có |
-| DB dùng chung | Có | Có | Có | Không |
-| DB riêng biệt | Không | Không | Không | Có |
+| Tính năng            | Free  | Standard | Premium        | Enterprise     |
+| -------------------- | ----- | -------- | -------------- | -------------- |
+| Sử dụng ứng dụng     | Có    | Có       | Có             | Có             |
+| Giới hạn sản phẩm    | 80    | 800      | Không giới hạn | Không giới hạn |
+| Số nhà kho           | 1     | 1        | Không giới hạn | Không giới hạn |
+| AI agent chat        | Không | Không    | Có             | Có             |
+| AI agent giọng nói   | Không | Không    | Có             | Có             |
+| OCR hóa đơn viết tay | Không | Không    | Có             | Có             |
+| DB dùng chung        | Có    | Có       | Có             | Không          |
+| DB riêng biệt        | Không | Không    | Không          | Có             |
 
 ## 2. Quyết định nghiệp vụ
 
@@ -36,12 +36,40 @@ Web app cung cấp dịch vụ theo gói. Mỗi tenant/công ty chọn một gó
 ## 4. Config định hướng
 
 ```ts
-type Plan = 'free' | 'standard' | 'premium' | 'enterprise'
+type Plan = "free" | "standard" | "premium" | "enterprise";
 
 const PLAN_CONFIG = {
-  free:       { productLimit: 80,   warehouseLimit: 1,    hasAIAgent: false, hasVoice: false, hasInvoiceOCR: false, databaseMode: 'shared' },
-  standard:   { productLimit: 800,  warehouseLimit: 1,    hasAIAgent: false, hasVoice: false, hasInvoiceOCR: false, databaseMode: 'shared' },
-  premium:    { productLimit: null, warehouseLimit: null, hasAIAgent: true,  hasVoice: true,  hasInvoiceOCR: true,  databaseMode: 'shared' },
-  enterprise: { productLimit: null, warehouseLimit: null, hasAIAgent: true,  hasVoice: true,  hasInvoiceOCR: true,  databaseMode: 'dedicated' },
-} as const
+  free: {
+    productLimit: 80,
+    warehouseLimit: 1,
+    hasAIAgent: false,
+    hasVoice: false,
+    hasInvoiceOCR: false,
+    databaseMode: "shared",
+  },
+  standard: {
+    productLimit: 800,
+    warehouseLimit: 1,
+    hasAIAgent: false,
+    hasVoice: false,
+    hasInvoiceOCR: false,
+    databaseMode: "shared",
+  },
+  premium: {
+    productLimit: null,
+    warehouseLimit: null,
+    hasAIAgent: true,
+    hasVoice: true,
+    hasInvoiceOCR: true,
+    databaseMode: "shared",
+  },
+  enterprise: {
+    productLimit: null,
+    warehouseLimit: null,
+    hasAIAgent: true,
+    hasVoice: true,
+    hasInvoiceOCR: true,
+    databaseMode: "dedicated",
+  },
+} as const;
 ```

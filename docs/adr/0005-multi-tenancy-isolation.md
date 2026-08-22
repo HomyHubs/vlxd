@@ -15,6 +15,7 @@
 Hệ thống `vlxd` vận hành theo mô hình SaaS B2B phục vụ đồng thời hàng nghìn cửa hàng và doanh nghiệp vật liệu xây dựng (Tenants). Rủi ro rò rỉ dữ liệu giữa các tenant (Cross-Tenant Data Leakage) — ví dụ cửa hàng A nhìn thấy giá bán, khách hàng hoặc công nợ của cửa hàng B — là lỗi nghiêm trọng nhất ở cấp độ an ninh và uy tín kinh doanh.
 
 Cần một chiến lược phân lập dữ liệu đa thuê bao đảm bảo:
+
 - Chi phí hạ tầng tối ưu cho các gói Free, Standard, Premium (chia sẻ DB dùng chung).
 - Bảo mật tầng sâu (Defense-in-depth) chống rò rỉ dữ liệu ngay cả khi lập trình viên quên thêm điều kiện `WHERE tenant_id = ...`.
 - Hỗ trợ triển khai Cơ sở dữ liệu riêng biệt (Dedicated DB) cho khách hàng gói Enterprise theo cam kết bảo mật.
@@ -45,6 +46,7 @@ Cần một chiến lược phân lập dữ liệu đa thuê bao đảm bảo:
 **Chọn Option C: Mô hình Lai (Hybrid Multi-Tenancy): Shared Database với Tenant Discriminator Column + PostgreSQL RLS, mở rộng Dedicated DB cho Enterprise.**
 
 ### Cơ chế bảo vệ 3 lớp (Defense-in-Depth):
+
 1. **Lớp 1 — Request Context Middleware:**
    - Mọi request sau khi xác thực session sẽ giải mã ra `tenant_id` của user và gắn vào Fastify Request Context.
 2. **Lớp 2 — Repository Query Filtering:**
@@ -63,13 +65,15 @@ Cần một chiến lược phân lập dữ liệu đa thuê bao đảm bảo:
 ## 6. Consequences
 
 ### Positive Consequences
+
 - **An toàn tuyệt đối:** Ngay cả khi có sơ suất thiếu `WHERE tenant_id` trong code, database RLS vẫn chặn không cho query trả về dữ liệu của tenant khác.
 - **Tối ưu chi phí:** Hàng nghìn tenant nhỏ có thể chạy mượt mà trên một cụm Supabase Postgres chung với connection pool hiệu quả (PgBouncer).
 - **Đáp ứng yêu cầu Enterprise:** Dễ dàng định tuyến (route) connection sang Dedicated DB nếu tenant thuộc gói Enterprise.
 
 ### Negative Consequences & Mitigations
-- *Cần đánh Index trên `tenant_id`:* Mọi bảng nghiệp vụ bắt buộc phải có Composite Index bắt đầu bằng `tenant_id` (vd: `INDEX(tenant_id, created_at)` hoặc `UNIQUE(tenant_id, sku)`).
-- *Overhead thiết lập session variable RLS:* Chỉ áp dụng cho các query nhạy cảm hoặc bọc tự động qua Kysely Plugin/Middleware.
+
+- _Cần đánh Index trên `tenant_id`:_ Mọi bảng nghiệp vụ bắt buộc phải có Composite Index bắt đầu bằng `tenant_id` (vd: `INDEX(tenant_id, created_at)` hoặc `UNIQUE(tenant_id, sku)`).
+- _Overhead thiết lập session variable RLS:_ Chỉ áp dụng cho các query nhạy cảm hoặc bọc tự động qua Kysely Plugin/Middleware.
 
 ---
 
