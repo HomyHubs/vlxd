@@ -10,19 +10,19 @@
 ## 1. Bảng tóm tắt danh mục quyết định
 
 | ID | Quyết định | Phân loại | Trạng thái | Owner | Trigger / Milestone | Blocker cho Feature |
-| --- | --- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | **DEC-001** | Platform Admin vs Tenant Admin Scope | Kiến trúc / Auth | `Open` (Assumption) | CEO / Architect | M1 (TASK-009, 010a) | `auth`, `role-management`, `service-plan` |
 | **DEC-002** | Branch & Multi-Warehouse Scope | Nghiệp vụ / Core | `Open` (Assumption) | CEO / Ops Lead | M2 (TASK-014a, 015), M4 (TASK-025) | `warehouse`, `inventory`, `yard-map` |
-| **DEC-003** | Thời điểm Reserve và Trừ Tồn kho | Nghiệp vụ / Ledger | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016a, 018a) | `inventory`, `order`, `pos` |
+| **DEC-003** | Thời điểm Reserve và Trừ Tồn kho | Nghiệp vụ / Ledger | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016c, 018c) | `inventory`, `order`, `pos` |
 | **DEC-004** | Cho phép Xuất âm & Xử lý Đơn đặt trước (Backorder) | Nghiệp vụ / Kho | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-016b, 018b) | `inventory`, `order` |
-| **DEC-005** | State Machine và Vòng đời Đơn hàng | Nghiệp vụ / Bán hàng | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-018a, 018c) | `order`, `invoice`, `pos` |
+| **DEC-005** | State Machine và Vòng đời Đơn hàng | Nghiệp vụ / Bán hàng | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-018b, 018c) | `order`, `invoice`, `pos` |
 | **DEC-006** | Chính sách Hủy chứng từ, Hoàn tác & Ghi sổ bù trừ | Nghiệp vụ / Ledger | `Accepted` | CEO / Accountant | M3 (TASK-016c, 018d) | `inventory`, `order`, `finance` |
-| **DEC-007** | Thanh toán từng phần & Quản lý Sổ nợ Công nợ | Nghiệp vụ / Tài chính | `Open` (Assumption) | CEO / Accountant | M3 (TASK-018e, 020a) | `order`, `customer`, `supplier`, `finance` |
-| **DEC-008** | Xử lý Thuế VAT trên Báo giá và Đơn hàng | Nghi vụ / Thuế | `Open` (Assumption) | CEO / Accountant | M3 (TASK-018b, 018e), M4 (TASK-024) | `product`, `order`, `invoice`, `settings` |
+| **DEC-007** | Thanh toán từng phần & Quản lý Sổ nợ Công nợ | Nghiệp vụ / Tài chính | `Open` (Assumption) | CEO / Accountant | M3 (TASK-020a, 020b) | `order`, `customer`, `supplier`, `finance` |
+| **DEC-008** | Xử lý Thuế VAT trên Báo giá và Đơn hàng | Nghi vụ / Thuế | `Open` (Assumption) | CEO / Accountant | M3 (TASK-018a, 018b), M4 (TASK-024) | `product`, `order`, `invoice`, `settings` |
 | **DEC-009** | Phương pháp Tính giá vốn Hàng tồn kho | Kế toán / Kho | `Open` (Assumption) | CEO / Accountant | M3 (TASK-016a, 021), M4 (TASK-022) | `inventory`, `purchase`, `report`, `finance` |
-| **DEC-010** | Phân cấp Phê duyệt Chiết khấu & Giảm giá | Nghiệp vụ / Bán hàng | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-018a, 018b) | `order`, `role-management` |
-| **DEC-011** | Kiểm soát Hạn mức Công nợ Khách hàng (Credit Limit) | Nghiệp vụ / Rủi ro | `Open` (Assumption) | CEO / Risk Lead | M2 (TASK-017), M3 (TASK-018a) | `customer`, `order` |
-| **DEC-012** | Quy trình Chuyển kho Nội bộ (Stock Transfer) | Nghiệp vụ / Kho | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016d) | `warehouse`, `inventory` |
+| **DEC-010** | Phân cấp Phê duyệt Chiết khấu & Giảm giá | Nghiệp vụ / Bán hàng | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-018d) | `order`, `role-management` |
+| **DEC-011** | Kiểm soát Hạn mức Công nợ Khách hàng (Credit Limit) | Nghiệp vụ / Rủi ro | `Open` (Assumption) | CEO / Risk Lead | M2 (TASK-017), M3 (TASK-020b) | `customer`, `order`, `finance` |
+| **DEC-012** | Quy trình Chuyển kho Nội bộ (Stock Transfer) | Nghiệp vụ / Kho | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016b, 016c) | `warehouse`, `inventory` |
 | **DEC-013** | Chính sách Lưu trữ, Soft-delete & Archive Dữ liệu | Kỹ thuật / DB | `Open` (Assumption) | Architect | M1 (TASK-008a) | Toàn bộ các module, `platform`, `db` |
 
 ---
@@ -69,7 +69,7 @@
 - **Recommendation:** Option B bảo đảm tính chính xác tuyệt đối, chuẩn hóa vòng đời bán hàng thống nhất qua 1 pipeline, loại trừ hoàn toàn nguy cơ rò rỉ (leak) hoặc trừ trùng lặp (double-deduction).
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Triển khai theo Option B. Tồn kho trong Sổ cái (`inventory_ledger`) ghi nhận theo từng sự kiện biến động (RESERVE, UNRESERVE, EXPORT, IMPORT).
-- **Blocker:** M3 (`TASK-016a`, `TASK-018a`).
+- **Blocker:** M3 (`TASK-016c`, `TASK-018c`).
 
 ---
 
@@ -109,7 +109,7 @@
 - **Recommendation:** Triển khai Finite State Machine bất biến ở backend, trả mã lỗi `INVALID_STATE_TRANSITION` nếu vi phạm luồng chuyển đổi.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Áp dụng luồng 8 trạng thái và ma trận chuyển đổi tuần tự nghiêm ngặt trên.
-- **Blocker:** M3 (`TASK-018a`, `TASK-018c`).
+- **Blocker:** M3 (`TASK-018b`, `TASK-018c`).
 
 ---
 
@@ -135,7 +135,7 @@
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Triển khai Sổ nợ công nợ theo Option B. Cho phép 1 đơn hàng nhận nhiều phiếu thu (Partial Payment).
-- **Blocker:** M3 (`TASK-018e`, `TASK-020a`).
+- **Blocker:** M3 (`TASK-020a`, `TASK-020b`).
 
 ---
 
@@ -148,7 +148,7 @@
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Hỗ trợ cấu hình VAT theo từng sản phẩm và tính toán chi tiết thuế trên từng dòng đơn hàng khi xuất hóa đơn VAT.
-- **Blocker:** M3 (`TASK-018b`, `TASK-018e`), M4 (`TASK-024`).
+- **Blocker:** M3 (`TASK-018a`, `TASK-018b`), M4 (`TASK-024`).
 
 ---
 
@@ -178,7 +178,7 @@
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Triển khai hạn mức chiết khấu theo capabilities như Option B. Backend trả mã lỗi `DISCOUNT_LIMIT_EXCEEDED` nếu người dùng không có capability tương ứng.
-- **Blocker:** M3 (`TASK-018a`, `TASK-018b`).
+- **Blocker:** M3 (`TASK-018d`).
 
 ---
 
@@ -191,7 +191,7 @@
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Triển khai theo Option B. Khách hàng mới/khách lẻ có `credit_limit = 0` (bắt buộc thanh toán 100%). Nhà thầu được cấu hình hạn mức riêng.
-- **Blocker:** M2 (`TASK-017`), M3 (`TASK-018a`).
+- **Blocker:** M2 (`TASK-017`), M3 (`TASK-020b`).
 
 ---
 
@@ -209,7 +209,7 @@
 - **Recommendation:** Option B phản ánh đúng nghiệp vụ vận tải VLXD thực tế, loại trừ sai lệch kiểm kê và đảm bảo an toàn giao dịch cấp ledger.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Áp dụng quy trình Chuyển kho 2 bước (Xuất chuyển nguyên tử $\rightarrow$ Đang đi đường $\rightarrow$ Xác nhận nhập nguyên tử kèm ghi nhận hao hụt) theo Option B.
-- **Blocker:** M3 (`TASK-016d`).
+- **Blocker:** M3 (`TASK-016b`, `TASK-016c`).
 
 ---
 
@@ -241,17 +241,23 @@ graph TD
     end
 
     subgraph M3_CommerceFinance [Milestone M3: Commerce & Finance]
-        DEC003[DEC-003: Inventory Reserve Timing] --> F_InvLedger[Feature: Inventory Ledger (TASK-016a)]
-        DEC004[DEC-004: No-Negative Stock & Backorder] --> F_InvLedger
-        DEC004 --> F_Order[Feature: Sales Order (TASK-018a, 018b, 018c)]
-        DEC005[DEC-005: 8-State Order FSM] --> F_Order
-        DEC006[DEC-006: Reversal & Cancellation] --> F_Order
-        DEC008[DEC-008: VAT Calculation] --> F_Order
-        DEC010[DEC-010: Discount Approval Limit] --> F_Order
-        DEC009[DEC-009: Moving Weighted Average Cost] --> F_Purchase[Feature: Purchase & Receiving (TASK-021)]
-        DEC009 --> F_InvLedger
-        DEC012[DEC-012: 2-Step Stock Transfer] --> F_InvTransfer[Feature: Stock Transfer (TASK-016d)]
-        DEC007[DEC-007: Partial Payment & Debt Ledger] --> F_Finance[Feature: Debt & Payment (TASK-018e, 020a)]
+        DEC003[DEC-003: Inventory Reserve Timing] --> F_InvReserve[Feature: Ledger Reserve & Safety (TASK-016c)]
+        DEC003 --> F_OrderReserve[Feature: Order Reserve Integration (TASK-018c)]
+        DEC004[DEC-004: No-Negative Stock & Backorder] --> F_InvMove[Feature: Inventory Movements (TASK-016b)]
+        DEC004 --> F_OrderFSM[Feature: Order State Machine (TASK-018b)]
+        DEC005[DEC-005: 8-State Order FSM] --> F_OrderFSM
+        DEC005 --> F_OrderReserve
+        DEC006[DEC-006: Reversal & Cancellation] --> F_InvReserve
+        DEC006 --> F_OrderDiscount[Feature: Discount & Lifecycle (TASK-018d)]
+        DEC007[DEC-007: Partial Payment & Debt Ledger] --> F_Finance[Feature: Debt & Payment (TASK-020a, 020b)]
+        DEC008[DEC-008: VAT Calculation] --> F_Quotation[Feature: Quotation & Pricing (TASK-018a)]
+        DEC008 --> F_OrderFSM
+        DEC009[DEC-009: Moving Weighted Average Cost] --> F_InvBalance[Feature: Balance & Schema (TASK-016a)]
+        DEC009 --> F_Purchase[Feature: Purchase & Receiving (TASK-021)]
+        DEC010[DEC-010: Discount Approval Limit] --> F_OrderDiscount
+        DEC011 --> F_Finance
+        DEC012[DEC-012: 2-Step Stock Transfer] --> F_InvMove
+        DEC012 --> F_InvReserve
     end
 
     subgraph M4_HardeningReporting [Milestone M4: Operations, Hardening & Launch]
@@ -259,7 +265,6 @@ graph TD
         DEC008 --> F_Settings[Feature: Settings & Print Templates (TASK-024)]
         DEC002 --> F_Yard[Feature: Yard Map Hardening (TASK-025)]
     end
-```
 
 ---
 
@@ -271,4 +276,3 @@ graph TD
 2. **Nếu Human Owner điều chỉnh phương án khác giả định tạm thời:**
    - Cập nhật `Temporary Assumption` thành phương án mới.
    - Kiểm tra các task liên quan trong `docs/tasks/MVP-BACKLOG.md` để điều chỉnh requirement tương ứng trước khi code.
-

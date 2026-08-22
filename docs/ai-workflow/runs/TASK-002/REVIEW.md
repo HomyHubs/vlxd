@@ -10,9 +10,10 @@
   - Round 3 (PR #10): `195219154a922c07ef4d6444cc443ca6a634f057`
   - Round 4 (PR #10): `e1ad0d024b2d72ed364eac57762355e86e63503c`
   - Round 5 (PR #10): `abbf796255e48168077a95ccf2198a061e86a300`
-- Reviewed at (UTC): 2026-08-21T23:10:00Z
-- Review round: 5
-- Verdict: changes_required (Round 5) -> pending re-review
+  - Round 6 (PR #10): `b224ad87998ad5a35bb65254f82d1c6552b1730e`
+- Reviewed at (UTC): 2026-08-22T06:25:00Z
+- Review round: 6
+- Verdict: changes_required (Round 6) -> pending re-review
 
 ## Phạm vi đã kiểm tra
 
@@ -62,6 +63,11 @@
 - File/dòng: `docs/tasks/MVP-BACKLOG.md` (TASK-016), `docs/decision-backlog.md`
 - Trạng thái: resolved (đồng bộ tiêu chí nghiệm thu TASK-016 khớp 100% với hợp đồng chuyển kho 2 bước DEC-012, hợp nhất sạch sẽ base branch `origin/dev`, giải quyết toàn bộ xung đột).
 
+### FINDING-006 — [ROUND 6] Đồng bộ ma trận ánh xạ Blocker theo M3 subtask decomposition trong MVP-BACKLOG.md
+- Severity: BLOCKER
+- File/dòng: `docs/decision-backlog.md` (DEC-003, DEC-004, DEC-005, DEC-007, DEC-008, DEC-010, DEC-011, DEC-012, Section 3)
+- Trạng thái: resolved (khớp 100% các mapping blocker với subtasks chi tiết của M3: DEC-003 -> TASK-016c/018c, DEC-004 -> TASK-016b/018b, DEC-005 -> TASK-018b/018c, DEC-007 -> TASK-020a/020b, DEC-008 -> TASK-018a/018b/024, DEC-010 -> TASK-018d, DEC-011 -> TASK-017/020b, DEC-012 -> TASK-016b/016c; đồng thời dọn sạch nội dung trùng lặp và sửa chuẩn format UTF-8).
+
 ## Acceptance criteria
 
 | Criterion | Pass/Fail/Not verified | Evidence |
@@ -82,4 +88,4 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: Đã khắc phục triệt để các phát hiện của Round 5, hợp nhất sạch sẽ với `dev`, sẵn sàng đưa SHA mới vào re-review để nhận phê duyệt chính thức `APPROVED_TO_MERGE`.
+- Lý do kết luận: Đã khắc phục triệt để các phát hiện của Round 6, làm sạch hoàn toàn nội dung và định dạng UTF-8, sẵn sàng đưa SHA mới vào re-review để nhận phê duyệt chính thức `APPROVED_TO_MERGE`.
