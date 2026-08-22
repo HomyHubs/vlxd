@@ -419,6 +419,7 @@ Một UI feature chỉ được coi là xong khi:
 - [x] TASK-003 — Hoàn thiện Requirements MVP chi tiết cho 10 capability (`docs/requirements/*.md`).
 - [x] TASK-004 — Viết 9 ADR kiến trúc production chuẩn MADR (`docs/adr/`).
 - [x] TASK-005 — Scaffold monorepo skeleton (`apps/web`, `apps/api`, `packages/*`) và quality baseline (PR #13).
+- [x] TASK-006 — GitHub Actions CI + secret/dependency scan baseline (PR #14).
 - [x] Làm rõ cấu trúc repo tách `apps/web` và `apps/api`, mỗi bên chia `features/<feature>`.
 - [x] Thêm định hướng Role Management cho cửa hàng vật liệu xây dựng (`docs/requirements/role-management.md`).
 - [x] Chuẩn hóa yêu cầu gói dịch vụ ở mức root AGENTS và `docs/requirements/service-plans.md`.
@@ -428,8 +429,8 @@ Một UI feature chỉ được coi là xong khi:
 
 ### Đang làm
 
-- [ ] `TASK-006` (M0): GitHub Actions CI + secret/dependency scan baseline.
+- [ ] `TASK-006b` (M0): Staging smoke deploy.
 
 ### Bước tiếp theo
 
-- [ ] `TASK-007` (M0): OpenAPI drift detection toolchain.
+- [ ] `TASK-007` (M1): OpenAPI foundation và generated client.
