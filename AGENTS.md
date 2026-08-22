@@ -364,7 +364,7 @@ Frontend chịu trách nhiệm dịch:
 pnpm check
 ```
 
-Gate gồm format, lint, typecheck, test, build, OpenAPI drift, bundle budget, secret scan.
+Quality gate M0 baseline gồm: format check, lint, typecheck, test, build. Các gate mở rộng (OpenAPI drift generator, bundle budget, secret scan CI) được triển khai tiếp theo tại TASK-006 và TASK-007.
 
 ---
 

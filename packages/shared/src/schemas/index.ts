@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ErrorCode } from "../errors/index.js";
+import { ErrorCode, type ErrorCodeType } from "../errors/index.js";
 
 export const PaginationQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
@@ -30,10 +30,12 @@ export const DateStringSchema = z
   .datetime({ offset: true })
   .describe("ISO 8601 UTC timestamp");
 
+const errorCodes = Object.values(ErrorCode) as [ErrorCodeType, ...ErrorCodeType[]];
+
 export const ErrorEnvelopeSchema = z.object({
   success: z.literal(false),
   error: z.object({
-    code: z.enum(Object.values(ErrorCode) as [string, ...string[]]),
+    code: z.enum(errorCodes),
     message: z.string(),
     details: z.record(z.string(), z.unknown()).optional(),
     requestId: z.string().optional(),

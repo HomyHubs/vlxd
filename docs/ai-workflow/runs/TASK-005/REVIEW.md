@@ -6,9 +6,10 @@
 - PR reviewed: [#13](https://github.com/HomyHubs/vlxd/pull/13)
 - Reviewed commits:
   - Round 1 (PR #13): `194c552a68f8005e4ca517ef1e3194f0ba2fc468`
-- Reviewed at (UTC): 2026-08-22T13:52:00Z
-- Review round: 1
-- Verdict: changes_required (Round 1) -> pending re-review (Round 2)
+  - Round 2 (PR #13): `99ebf7ee49c74337d409d40004f11e92662367db`
+- Reviewed at (UTC): 2026-08-22T14:05:00Z
+- Review round: 2
+- Verdict: changes_required (Round 2) -> pending re-review (Round 3)
 
 ## Phạm vi đã kiểm tra
 
@@ -52,13 +53,25 @@
 
 - Severity: BLOCKER
 - File/dòng: `apps/api/package.json`, `packages/shared/package.json`, `packages/api-client/package.json`, `apps/web/package.json`, `e2e/package.json`
-- Trạng thái: resolved (tách `typecheck` sang dùng `tsc --noEmit` trên toàn bộ packages/apps để không ghi đè `dist/` hay `tsconfig.tsbuildinfo`, chỉ `build` mới emit build artifacts).
+- Trạng thái: resolved (tách `typecheck` sang dùng `tsc --noEmit` trên toàn bộ packages/apps).
 
 ### FINDING-004 — [ROUND 1] Hard-coded strings trong web shell vi phạm quy tắc i18n
 
 - Severity: BLOCKER
 - File/dòng: `apps/web/src/App.tsx:36,42,60`, `apps/web/src/i18n/locales/*/common.json`
 - Trạng thái: resolved (chuyển 100% chuỗi UI sang translation keys trong `common.json` cho cả `vi` và `en`; cập nhật unit test `App.test.tsx` kiểm thử đầy đủ cả 2 ngôn ngữ).
+
+### FINDING-005 — [ROUND 2] Tranh chấp ghi `.tsbuildinfo` do composite project khi chạy song song
+
+- Severity: BLOCKER
+- File/dòng: `turbo.json:12-14`
+- Trạng thái: resolved (cấu hình `typecheck` trong `turbo.json` phụ thuộc tuần tự vào `build` qua `"dependsOn": ["^build", "build"]` để triệt tiêu hoàn toàn race condition ghi đè `.tsbuildinfo`).
+
+### FINDING-006 — [ROUND 2] Phạm vi Definition-of-Done tuyên bố vượt mức script thực thi
+
+- Severity: BLOCKER
+- File/dòng: `AGENTS.md:367`
+- Trạng thái: resolved (làm rõ trong `AGENTS.md` rằng M0 baseline bao gồm format, lint, typecheck, test, build; các gate mở rộng như OpenAPI drift, bundle budget, secret scan được xếp lộ trình tại TASK-006 & TASK-007).
 
 ## Acceptance criteria
 
@@ -83,4 +96,4 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: Cân nhắc bổ sung Playwright orchestration vào task UI sau.
-- Lý do kết luận: Đã giải quyết triệt để toàn bộ 4 blocking findings của Round 1, đồng bộ toolchain Node 24/Zod 4/Vitest 4, giải quyết race condition giữa build/typecheck qua `tsc --noEmit`, chuẩn hóa `pnpm check` và hoàn thiện 100% i18n cho web shell. Sẵn sàng đưa vào Round 2 re-review.
+- Lý do kết luận: Đã giải quyết triệt để toàn bộ 6 blocking findings qua 2 vòng review, cấu hình tuần tự hóa `build` -> `typecheck` trong `turbo.json` để loại bỏ 100% race condition `.tsbuildinfo`, chuẩn hóa mô tả Definition-of-Done trong `AGENTS.md` và giữ nguyên kiểu union cho ErrorCode trong Zod 4. Sẵn sàng đưa vào Round 3 re-review.
