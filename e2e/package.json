@@ -1,0 +1,19 @@
+{
+  "name": "@vlxd/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.1",
+    "@types/node": "^24.1.0",
+    "@vlxd/config-eslint": "workspace:*",
+    "@vlxd/config-ts": "workspace:*",
+    "eslint": "^9.21.0",
+    "typescript": "^5.8.2"
+  }
+}

@@ -24,8 +24,8 @@
 ## Commands reviewer đã chạy
 
 | Command | Kết quả/exit code | Ghi chú |
-| --- | --- | --- |
-| | | |
+| ------- | ----------------- | ------- |
+|         |                   |         |
 
 ## Findings
 
@@ -42,12 +42,12 @@
 ## Acceptance criteria
 
 | Criterion | Pass/Fail/Not verified | Evidence |
-| --- | --- | --- |
-| | | |
+| --------- | ---------------------- | -------- |
+|           |                        |          |
 
 ## Kiểm tra regression
 
-- 
+-
 
 ## Kết luận
 

@@ -6,21 +6,21 @@
 
 ## 1. Actors & Permissions
 
-| Chức danh / Title | Quyền hạn trên module Kho & Bãi | Khả năng thực hiện (Capabilities) |
-| --- | --- | --- |
-| **Chủ cửa hàng (Super Admin)** | Toàn quyền tạo kho/bãi, phân quyền quản lý kho, thiết lập cấu hình định mức kho. | `warehouse:create`, `warehouse:read`, `warehouse:update`, `warehouse:delete` |
-| **Quản lý chi nhánh (Support Admin)** | Quản lý thông tin kho thuộc chi nhánh mình phụ trách, tạo các ô/khu vực bãi chứa (Zone/Slot). | `warehouse:read`, `warehouse:update`, `warehouse:zone_manage` |
-| **Thủ kho (User)** | Xem sơ đồ bãi, xem danh sách ô chứa, chỉ định vị trí vật liệu khi bốc dỡ hàng vào bãi. | `warehouse:read`, `warehouse:zone_view` |
-| **Nhân viên bán hàng (User)** | Xem danh sách kho/bãi để chọn kho xuất hàng gần công trình của khách nhất. | `warehouse:read` |
+| Chức danh / Title                     | Quyền hạn trên module Kho & Bãi                                                               | Khả năng thực hiện (Capabilities)                                            |
+| ------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| **Chủ cửa hàng (Super Admin)**        | Toàn quyền tạo kho/bãi, phân quyền quản lý kho, thiết lập cấu hình định mức kho.              | `warehouse:create`, `warehouse:read`, `warehouse:update`, `warehouse:delete` |
+| **Quản lý chi nhánh (Support Admin)** | Quản lý thông tin kho thuộc chi nhánh mình phụ trách, tạo các ô/khu vực bãi chứa (Zone/Slot). | `warehouse:read`, `warehouse:update`, `warehouse:zone_manage`                |
+| **Thủ kho (User)**                    | Xem sơ đồ bãi, xem danh sách ô chứa, chỉ định vị trí vật liệu khi bốc dỡ hàng vào bãi.        | `warehouse:read`, `warehouse:zone_view`                                      |
+| **Nhân viên bán hàng (User)**         | Xem danh sách kho/bãi để chọn kho xuất hàng gần công trình của khách nhất.                    | `warehouse:read`                                                             |
 
 ---
 
 ## 2. Business Scope & Rules
 
 - **Phân loại địa điểm lưu trữ:**
-  - *Kho kín (Indoor Warehouse):* Lưu trữ xi măng, sơn, phụ kiện điện nước, gạch ốp lát (cần che mưa nắng).
-  - *Bãi lộ thiên (Outdoor Yard):* Lưu trữ cát xây tô, cát bê tông, đá $1 \times 2$, đá mi, gạch ống, ống cống bê tông.
-  - *Kho sắt thép (Steel Shed):* Có mái che, cần cẩu hoặc pa-lăng nâng hạ thép cây, thép cuộn.
+  - _Kho kín (Indoor Warehouse):_ Lưu trữ xi măng, sơn, phụ kiện điện nước, gạch ốp lát (cần che mưa nắng).
+  - _Bãi lộ thiên (Outdoor Yard):_ Lưu trữ cát xây tô, cát bê tông, đá $1 \times 2$, đá mi, gạch ống, ống cống bê tông.
+  - _Kho sắt thép (Steel Shed):_ Có mái che, cần cẩu hoặc pa-lăng nâng hạ thép cây, thép cuộn.
 - **Mô hình Chi nhánh & Kho (DEC-002):** Một Tenant sở hữu nhiều Chi nhánh; mỗi Chi nhánh quản lý 1 hoặc nhiều Kho/Bãi vật lý (quan hệ 1-N).
 - **Cấu trúc phân vùng bãi chứa (Yard Layout / Slotting):**
   - Kho/Bãi $\rightarrow$ Phân khu (Zone: Khu cát, Khu đá, Khu gạch...) $\rightarrow$ Ô bãi (Slot/Bin: Hộc cát vàng 01, Bãi gạch block A).
@@ -64,12 +64,12 @@ stateDiagram-v2
 
 ## 6. Failure & Edge Cases
 
-| Trường hợp | Phản hồi hệ thống | Mã lỗi backend |
-| --- | --- | --- |
-| Vượt số lượng kho của gói Free/Standard | Chặn tạo kho thứ 2, thông báo nâng cấp lên gói Premium | `WAREHOUSE_LIMIT_REACHED` |
-| Trùng mã kho trong tenant | Báo lỗi mã kho đã tồn tại | `WAREHOUSE_CODE_ALREADY_EXISTS` |
-| Đóng kho khi còn tồn kho | Chặn thao tác, hiển thị danh sách vật tư còn tồn | `WAREHOUSE_CONTAINS_STOCK` |
-| Gán kho vào chi nhánh không tồn tại | Báo lỗi chi nhánh không hợp lệ | `BRANCH_NOT_FOUND` |
+| Trường hợp                              | Phản hồi hệ thống                                      | Mã lỗi backend                  |
+| --------------------------------------- | ------------------------------------------------------ | ------------------------------- |
+| Vượt số lượng kho của gói Free/Standard | Chặn tạo kho thứ 2, thông báo nâng cấp lên gói Premium | `WAREHOUSE_LIMIT_REACHED`       |
+| Trùng mã kho trong tenant               | Báo lỗi mã kho đã tồn tại                              | `WAREHOUSE_CODE_ALREADY_EXISTS` |
+| Đóng kho khi còn tồn kho                | Chặn thao tác, hiển thị danh sách vật tư còn tồn       | `WAREHOUSE_CONTAINS_STOCK`      |
+| Gán kho vào chi nhánh không tồn tại     | Báo lỗi chi nhánh không hợp lệ                         | `BRANCH_NOT_FOUND`              |
 
 ---
 

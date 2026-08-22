@@ -1,0 +1,14 @@
+node_modules
+dist
+build
+.turbo
+coverage
+prototype
+playwright-report
+test-results
+*.log
+.agents
+pnpm-lock.yaml
+repo.md
+*.tsbuildinfo
+*.d.ts

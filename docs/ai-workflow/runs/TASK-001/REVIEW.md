@@ -21,14 +21,15 @@
 
 ## Commands reviewer đã chạy
 
-| Command | Kết quả/exit code | Ghi chú |
-| --- | --- | --- |
-| `git diff dev...HEAD --stat` | Exit 0 | 38 files changed, 328 insertions(+), 71 deletions(-). Toàn bộ 30 files app/ được đổi tên thành prototype/legacy-app/ sạch sẽ |
-| `gh pr view 6` | Exit 0 | PR #6 mở thành công hướng vào nhánh base `dev` |
+| Command                      | Kết quả/exit code | Ghi chú                                                                                                                      |
+| ---------------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `git diff dev...HEAD --stat` | Exit 0            | 38 files changed, 328 insertions(+), 71 deletions(-). Toàn bộ 30 files app/ được đổi tên thành prototype/legacy-app/ sạch sẽ |
+| `gh pr view 6`               | Exit 0            | PR #6 mở thành công hướng vào nhánh base `dev`                                                                               |
 
 ## Findings
 
 ### FINDING-001 — [LOW] Đồng bộ file snapshot repo.md
+
 - Severity: LOW
 - File/dòng hoặc bằng chứng: `repo.md`
 - Tác động: `repo.md` chứa snapshot văn bản của toàn bộ repo, cần phản ánh đường dẫn `prototype/legacy-app/` thay cho `app/`.
@@ -39,13 +40,13 @@
 
 ## Acceptance criteria
 
-| Criterion | Pass/Fail/Not verified | Evidence |
-| --- | --- | --- |
-| Không còn khẳng định sai “chưa có code” trong tài liệu | Pass | `AGENTS.md`, `README.md` đã cập nhật rõ ràng |
-| Agent sau không nhầm lẫn prototype với production | Pass | `prototype/legacy-app/README.md` đã gắn cảnh báo Read-Only, `AGENTS.md` mục 1 & 2 phân định rõ |
-| Bảng feature inventory đầy đủ, phân loại rõ implemented/demo/missing | Pass | `docs/requirements/prototype-feature-inventory.md` đối soát 20 module chi tiết |
-| Toàn bộ liên kết tài liệu không bị hỏng (no broken links) | Pass | `docs/README.md`, `AGENTS.md`, `README.md`, `docs/tasks/CURRENT.md` đồng bộ 100% |
-| Không copy prototype vào production | Pass | Không tạo code giả trong `apps/`, giữ nguyên bản prototype để tham khảo |
+| Criterion                                                            | Pass/Fail/Not verified | Evidence                                                                                       |
+| -------------------------------------------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------- |
+| Không còn khẳng định sai “chưa có code” trong tài liệu               | Pass                   | `AGENTS.md`, `README.md` đã cập nhật rõ ràng                                                   |
+| Agent sau không nhầm lẫn prototype với production                    | Pass                   | `prototype/legacy-app/README.md` đã gắn cảnh báo Read-Only, `AGENTS.md` mục 1 & 2 phân định rõ |
+| Bảng feature inventory đầy đủ, phân loại rõ implemented/demo/missing | Pass                   | `docs/requirements/prototype-feature-inventory.md` đối soát 20 module chi tiết                 |
+| Toàn bộ liên kết tài liệu không bị hỏng (no broken links)            | Pass                   | `docs/README.md`, `AGENTS.md`, `README.md`, `docs/tasks/CURRENT.md` đồng bộ 100%               |
+| Không copy prototype vào production                                  | Pass                   | Không tạo code giả trong `apps/`, giữ nguyên bản prototype để tham khảo                        |
 
 ## Kiểm tra regression
 

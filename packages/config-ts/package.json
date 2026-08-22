@@ -1,0 +1,10 @@
+{
+  "name": "@vlxd/config-ts",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "base.json",
+    "react.json",
+    "node.json"
+  ]
+}

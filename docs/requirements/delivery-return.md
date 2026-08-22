@@ -6,12 +6,12 @@
 
 ## 1. Actors & Permissions
 
-| Chức danh / Title | Quyền hạn trên module Giao & Trả hàng | Khả năng thực hiện (Capabilities) |
-| --- | --- | --- |
-| **Chủ cửa hàng / Quản lý chi nhánh** | Toàn quyền điều phối xe, duyệt phiếu hoàn trả hàng, xử lý bồi thường đổ vỡ/hao hụt. | `delivery:manage`, `delivery:read`, `return:approve`, `return:read` |
-| **Thủ kho (User)** | Xuất hàng lên xe tải, ký phiếu xuất bãi, nhận hàng trả về nhập lại kho. | `delivery:dispatch`, `return:receive_stock` |
-| **Tài xế / Nhân viên giao hàng (User)** | Xem danh sách chuyến xe cần chạy, cập nhật trạng thái đã tới công trình, xác nhận khách ký nhận/chụp ảnh biên bản giao hàng. | `delivery:update_status`, `delivery:upload_proof` |
-| **Nhân viên bán hàng (User)** | Lập yêu cầu đổi trả hàng cho khách, theo dõi trạng thái giao hàng của các đơn mình phụ trách. | `delivery:read`, `return:create` |
+| Chức danh / Title                       | Quyền hạn trên module Giao & Trả hàng                                                                                        | Khả năng thực hiện (Capabilities)                                   |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **Chủ cửa hàng / Quản lý chi nhánh**    | Toàn quyền điều phối xe, duyệt phiếu hoàn trả hàng, xử lý bồi thường đổ vỡ/hao hụt.                                          | `delivery:manage`, `delivery:read`, `return:approve`, `return:read` |
+| **Thủ kho (User)**                      | Xuất hàng lên xe tải, ký phiếu xuất bãi, nhận hàng trả về nhập lại kho.                                                      | `delivery:dispatch`, `return:receive_stock`                         |
+| **Tài xế / Nhân viên giao hàng (User)** | Xem danh sách chuyến xe cần chạy, cập nhật trạng thái đã tới công trình, xác nhận khách ký nhận/chụp ảnh biên bản giao hàng. | `delivery:update_status`, `delivery:upload_proof`                   |
+| **Nhân viên bán hàng (User)**           | Lập yêu cầu đổi trả hàng cho khách, theo dõi trạng thái giao hàng của các đơn mình phụ trách.                                | `delivery:read`, `return:create`                                    |
 
 ---
 
@@ -35,6 +35,7 @@
 ## 3. State Machine & Lifecycle
 
 ### Vòng đời Chuyến Giao Hàng (Delivery Trip)
+
 ```mermaid
 stateDiagram-v2
     [*] --> ASSIGNED: Điều phối xe & Gán tài xế
@@ -46,6 +47,7 @@ stateDiagram-v2
 ```
 
 ### Vòng đời Phiếu Trả Hàng (Sales Return)
+
 ```mermaid
 stateDiagram-v2
     [*] --> DRAFT: Nhân viên lập phiếu đề xuất trả hàng
@@ -78,11 +80,11 @@ stateDiagram-v2
 
 ## 6. Failure & Edge Cases
 
-| Trường hợp | Phản hồi hệ thống | Mã lỗi backend |
-| --- | --- | --- |
-| Trả hàng nhiều hơn số lượng đã mua | Chặn tạo phiếu trả hàng, thông báo vượt khối lượng đã giao | `RETURN_QUANTITY_EXCEEDS_DELIVERED` |
-| Xe giao hàng bị công trình từ chối nhận | Chuyển chuyến sang `FAILED`, lập phiếu nhập hàng hồi bãi | `DELIVERY_REJECTED_BY_CUSTOMER` |
-| Tạo chuyến giao hàng vượt số lượng còn lại của đơn | Báo lỗi vượt khối lượng còn lại cần giao | `DISPATCH_QUANTITY_EXCEEDED` |
+| Trường hợp                                         | Phản hồi hệ thống                                          | Mã lỗi backend                      |
+| -------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------- |
+| Trả hàng nhiều hơn số lượng đã mua                 | Chặn tạo phiếu trả hàng, thông báo vượt khối lượng đã giao | `RETURN_QUANTITY_EXCEEDS_DELIVERED` |
+| Xe giao hàng bị công trình từ chối nhận            | Chuyển chuyến sang `FAILED`, lập phiếu nhập hàng hồi bãi   | `DELIVERY_REJECTED_BY_CUSTOMER`     |
+| Tạo chuyến giao hàng vượt số lượng còn lại của đơn | Báo lỗi vượt khối lượng còn lại cần giao                   | `DISPATCH_QUANTITY_EXCEEDED`        |
 
 ---
 

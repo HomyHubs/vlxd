@@ -23,29 +23,29 @@
 
 ### Mục tiêu
 
-- 
+-
 
 ### Ngoài phạm vi
 
-- 
+-
 
 ## Kế hoạch trước khi sửa
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Giả định và quyết định
 
 | Thời điểm | Nội dung | Căn cứ | Ảnh hưởng |
-| --- | --- | --- | --- |
-| | | | |
+| --------- | -------- | ------ | --------- |
+|           |          |        |           |
 
 ## Thay đổi đã thực hiện
 
 | File/khu vực | Thay đổi | Lý do |
-| --- | --- | --- |
-| | | |
+| ------------ | -------- | ----- |
+|              |          |       |
 
 ## Migration/contract/generated artifacts
 
@@ -57,8 +57,8 @@
 ## Kiểm tra đã chạy
 
 | Command | Kết quả/exit code | Ghi chú |
-| --- | --- | --- |
-| | | |
+| ------- | ----------------- | ------- |
+|         |                   |         |
 
 Không ghi `pass` nếu command chưa chạy. Nếu không chạy được, ghi lý do và phạm vi chưa xác minh.
 
@@ -73,13 +73,13 @@ Không ghi `pass` nếu command chưa chạy. Nếu không chạy được, ghi 
 
 ## Rủi ro và nợ còn lại
 
-- 
+-
 
 ## Feedback đã xử lý
 
 | Review finding | Cách sửa | Commit/test bằng chứng |
-| --- | --- | --- |
-| | | |
+| -------------- | -------- | ---------------------- |
+|                |          |                        |
 
 ## Kết quả bàn giao
 

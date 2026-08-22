@@ -15,6 +15,7 @@
 Hệ thống quản lý vật liệu xây dựng `vlxd` bao gồm cả ứng dụng giao diện người dùng (Frontend Web App), dịch vụ xử lý nghiệp vụ trung tâm (Backend REST API), và các thư viện dùng chung (Zod validation schemas, domain types, generated API client, cấu hình tooling lint/format).
 
 Nếu phát triển theo mô hình multi-repo (tách repo riêng cho frontend, backend và shared packages):
+
 - Rất khó đồng bộ hợp đồng API và schema validation khi có thay đổi nghiệp vụ.
 - Tăng chi phí CI/CD, quản lý phiên bản (versioning) và phát hành packages nội bộ qua private registry (như Verdaccio hay npm private).
 - Khó thực hiện các atomic PR (1 PR thay đổi cả schema, backend route, và frontend component).
@@ -45,6 +46,7 @@ Do đó, cần một cấu trúc monorepo tinh gọn, tốc độ cao, tiết ki
 **Chọn Option B: Sử dụng pnpm 11.x workspace kết hợp Turborepo.**
 
 Cấu trúc thư mục chuẩn hóa:
+
 ```text
 repo/
 ├── pnpm-workspace.yaml
@@ -66,17 +68,19 @@ repo/
 ## 6. Consequences
 
 ### Positive Consequences
+
 - **Zero Phantom Dependencies:** pnpm symlink structure đảm bảo project chỉ import được các dependency đã khai báo trong `package.json`.
 - **Type Sharing:** `apps/api` và `apps/web` đều có thể import trực tiếp `@vlxd/shared` để dùng chung Zod schema và validation logic.
 - **Tốc độ build vượt trội:** Tận dụng cache của Turbo cho lint, typecheck và unit test.
 
 ### Negative Consequences & Mitigations
-- *Phức tạp khi setup tooling ban đầu:* Đã có `packages/config-*` chuẩn hóa cấu hình cho toàn bộ workspace.
-- *Yêu cầu cài đặt pnpm:* Ghim phiên bản Node qua `.nvmrc` và quản lý phiên bản pnpm qua `packageManager` trong root `package.json`.
+
+- _Phức tạp khi setup tooling ban đầu:_ Đã có `packages/config-*` chuẩn hóa cấu hình cho toàn bộ workspace.
+- _Yêu cầu cài đặt pnpm:_ Ghim phiên bản Node qua `.nvmrc` và quản lý phiên bản pnpm qua `packageManager` trong root `package.json`.
 
 ---
 
 ## 7. Compliance & Enforcement
 
 - Mọi package nội bộ phải đặt scope `@vlxd/*` (vd: `@vlxd/shared`, `@vlxd/api-client`).
-- CI pipeline chạy `pnpm -r check` để kiểm tra toàn bộ workspace trước khi merge.
+- CI pipeline và developer chạy `pnpm check` để kiểm tra toàn bộ workspace trước khi merge.

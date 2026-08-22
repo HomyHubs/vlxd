@@ -50,24 +50,24 @@
 
 ## Giả định và quyết định
 
-| Thời điểm | Nội dung | Căn cứ | Ảnh hưởng |
-| --- | --- | --- | --- |
+| Thời điểm  | Nội dung                                                                              | Căn cứ                                                                                            | Ảnh hưởng                                                                                        |
+| ---------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | 2026-08-21 | Di chuyển `app/` sang `prototype/legacy-app/` bằng `git mv` thay vì giữ nguyên ở root | Task packet MVP-BACKLOG.md ưu tiên cô lập để tránh nhầm lẫn giữa prototype và production monorepo | Giữ 100% lịch sử git của 30 files prototype, cấu trúc thư mục root sạch sẽ sẵn sàng cho scaffold |
-| 2026-08-21 | Đặt bảng feature inventory trong `docs/requirements/prototype-feature-inventory.md` | Giữ tài liệu có cấu trúc tại `docs/requirements/` theo AGENTS.md | Là cơ sở đối soát yêu cầu chi tiết cho các task M1–M4 |
+| 2026-08-21 | Đặt bảng feature inventory trong `docs/requirements/prototype-feature-inventory.md`   | Giữ tài liệu có cấu trúc tại `docs/requirements/` theo AGENTS.md                                  | Là cơ sở đối soát yêu cầu chi tiết cho các task M1–M4                                            |
 
 ## Thay đổi đã thực hiện
 
-| File/khu vực | Thay đổi | Lý do |
-| --- | --- | --- |
-| `app/` → `prototype/legacy-app/` | `git mv` 30 files sang `prototype/legacy-app/` | Cô lập mã nguồn prototype ra khỏi root |
-| `prototype/legacy-app/README.md` | Bổ sung banner cảnh báo Read-Only / Reference Only | Tránh nhầm lẫn prototype là code production |
-| `docs/requirements/prototype-feature-inventory.md` | Tạo mới bảng đối soát 20 hạng mục tính năng (implemented / demo-only / missing) | Nguồn sự thật phân tích khoảng cách tính năng giữa prototype và production |
-| `AGENTS.md` | Đính chính trạng thái repo, thêm `prototype/legacy-app/` vào sơ đồ, cập nhật tiến độ | Đảm bảo agent AI sau nắm đúng thực trạng |
-| `README.md` | Cập nhật tổng quan dự án, trạng thái repo, liên kết tài liệu | Cung cấp thông tin chuẩn cho người xem repo |
-| `docs/README.md` | Cập nhật bản đồ tài liệu đầy đủ | Dẫn chiếu đến các tài liệu requirements, tasks và ai-workflow |
-| `docs/ai-workflow/runs/TASK-001/EXECUTION.md` | Tạo execution log | Theo dõi quá trình thực thi theo quy trình 2-bot |
-| `docs/ai-workflow/runs/TASK-001/REVIEW.md` | Tạo review log | Chuẩn bị hồ sơ cho Bot 2 review |
-| `docs/tasks/CURRENT.md` | Cập nhật trạng thái `TASK-001` sang `ready_for_review` | Cập nhật bảng task active |
+| File/khu vực                                       | Thay đổi                                                                             | Lý do                                                                      |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| `app/` → `prototype/legacy-app/`                   | `git mv` 30 files sang `prototype/legacy-app/`                                       | Cô lập mã nguồn prototype ra khỏi root                                     |
+| `prototype/legacy-app/README.md`                   | Bổ sung banner cảnh báo Read-Only / Reference Only                                   | Tránh nhầm lẫn prototype là code production                                |
+| `docs/requirements/prototype-feature-inventory.md` | Tạo mới bảng đối soát 20 hạng mục tính năng (implemented / demo-only / missing)      | Nguồn sự thật phân tích khoảng cách tính năng giữa prototype và production |
+| `AGENTS.md`                                        | Đính chính trạng thái repo, thêm `prototype/legacy-app/` vào sơ đồ, cập nhật tiến độ | Đảm bảo agent AI sau nắm đúng thực trạng                                   |
+| `README.md`                                        | Cập nhật tổng quan dự án, trạng thái repo, liên kết tài liệu                         | Cung cấp thông tin chuẩn cho người xem repo                                |
+| `docs/README.md`                                   | Cập nhật bản đồ tài liệu đầy đủ                                                      | Dẫn chiếu đến các tài liệu requirements, tasks và ai-workflow              |
+| `docs/ai-workflow/runs/TASK-001/EXECUTION.md`      | Tạo execution log                                                                    | Theo dõi quá trình thực thi theo quy trình 2-bot                           |
+| `docs/ai-workflow/runs/TASK-001/REVIEW.md`         | Tạo review log                                                                       | Chuẩn bị hồ sơ cho Bot 2 review                                            |
+| `docs/tasks/CURRENT.md`                            | Cập nhật trạng thái `TASK-001` sang `ready_for_review`                               | Cập nhật bảng task active                                                  |
 
 ## Migration/contract/generated artifacts
 
@@ -78,10 +78,10 @@
 
 ## Kiểm tra đã chạy
 
-| Command | Kết quả/exit code | Ghi chú |
-| --- | --- | --- |
-| `git status` | Exit 0 | 30 files renamed cleanly via `git mv`, các file docs được thêm/sửa chính xác |
-| `git log -n 5 --oneline` | Exit 0 | Lịch sử commit rõ ràng, base từ `dev` tại commit `11e6507` |
+| Command                  | Kết quả/exit code | Ghi chú                                                                      |
+| ------------------------ | ----------------- | ---------------------------------------------------------------------------- |
+| `git status`             | Exit 0            | 30 files renamed cleanly via `git mv`, các file docs được thêm/sửa chính xác |
+| `git log -n 5 --oneline` | Exit 0            | Lịch sử commit rõ ràng, base từ `dev` tại commit `11e6507`                   |
 
 ## Self-review
 
@@ -98,9 +98,9 @@
 
 ## Feedback đã xử lý
 
-| Review finding | Cách sửa | Commit/test bằng chứng |
-| --- | --- | --- |
-| (Chưa có feedback — chờ Bot 2 review) | — | — |
+| Review finding                        | Cách sửa | Commit/test bằng chứng |
+| ------------------------------------- | -------- | ---------------------- |
+| (Chưa có feedback — chờ Bot 2 review) | —        | —                      |
 
 ## Kết quả bàn giao
 

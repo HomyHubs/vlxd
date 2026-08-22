@@ -6,12 +6,12 @@
 
 ## 1. Actors & Permissions
 
-| Chức danh / Title | Quyền hạn trên module Tài chính | Khả năng thực hiện (Capabilities) |
-| --- | --- | --- |
-| **Chủ cửa hàng (Super Admin)** | Toàn quyền xem sổ cái tài chính, duyệt phiếu chi lớn, xóa/sửa bút toán nhầm lẫn có audit, xem dòng tiền. | `finance:manage`, `finance:read_ledger`, `finance:payment_approve_unlimited`, `finance:debt_adjust` |
-| **Kế toán bán hàng / Công nợ (Support Admin)** | Lập phiếu thu tiền mặt/ngân hàng, lập phiếu chi thanh toán NCC, đối soát công nợ khách hàng, xuất báo cáo nợ. | `finance:receipt_create`, `finance:payment_create`, `finance:debt_read`, `finance:debt_reconcile` |
-| **Thu ngân (User)** | Lập phiếu thu tiền đơn hàng tại quầy (tiền mặt / VietQR), in biên lai thu tiền. | `finance:receipt_create_pos` |
-| **Nhân viên bán hàng (User)** | Xem số nợ hiện tại của khách hàng mình phụ trách để đốc thúc thu hồi công nợ. | `finance:debt_read_customer` |
+| Chức danh / Title                              | Quyền hạn trên module Tài chính                                                                               | Khả năng thực hiện (Capabilities)                                                                   |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **Chủ cửa hàng (Super Admin)**                 | Toàn quyền xem sổ cái tài chính, duyệt phiếu chi lớn, xóa/sửa bút toán nhầm lẫn có audit, xem dòng tiền.      | `finance:manage`, `finance:read_ledger`, `finance:payment_approve_unlimited`, `finance:debt_adjust` |
+| **Kế toán bán hàng / Công nợ (Support Admin)** | Lập phiếu thu tiền mặt/ngân hàng, lập phiếu chi thanh toán NCC, đối soát công nợ khách hàng, xuất báo cáo nợ. | `finance:receipt_create`, `finance:payment_create`, `finance:debt_read`, `finance:debt_reconcile`   |
+| **Thu ngân (User)**                            | Lập phiếu thu tiền đơn hàng tại quầy (tiền mặt / VietQR), in biên lai thu tiền.                               | `finance:receipt_create_pos`                                                                        |
+| **Nhân viên bán hàng (User)**                  | Xem số nợ hiện tại của khách hàng mình phụ trách để đốc thúc thu hồi công nợ.                                 | `finance:debt_read_customer`                                                                        |
 
 ---
 
@@ -40,6 +40,7 @@
 ## 3. State Machine & Lifecycle
 
 ### Vòng đời Phiếu Thu / Phiếu Chi (Payment Transaction)
+
 ```mermaid
 stateDiagram-v2
     [*] --> DRAFT: Lập phiếu thu/chi
@@ -75,11 +76,11 @@ stateDiagram-v2
 
 ## 6. Failure & Edge Cases
 
-| Trường hợp | Phản hồi hệ thống | Mã lỗi backend |
-| --- | --- | --- |
-| Thu vượt quá số nợ của đơn hàng | Cảnh báo thu thừa, gợi ý chuyển tiền thừa vào tài khoản trả trước của khách | `PAYMENT_EXCEEDS_ORDER_BALANCE` |
-| Hủy phiếu thu đã ghi sổ kế toán | Chặn xóa trực tiếp, yêu cầu lập phiếu đảo bù trừ có ghi chú lý do | `CANNOT_HARD_DELETE_POSTED_PAYMENT` |
-| Nhập số tiền thu $\le 0$ | Báo lỗi validation số tiền không hợp lệ | `INVALID_PAYMENT_AMOUNT` |
+| Trường hợp                      | Phản hồi hệ thống                                                           | Mã lỗi backend                      |
+| ------------------------------- | --------------------------------------------------------------------------- | ----------------------------------- |
+| Thu vượt quá số nợ của đơn hàng | Cảnh báo thu thừa, gợi ý chuyển tiền thừa vào tài khoản trả trước của khách | `PAYMENT_EXCEEDS_ORDER_BALANCE`     |
+| Hủy phiếu thu đã ghi sổ kế toán | Chặn xóa trực tiếp, yêu cầu lập phiếu đảo bù trừ có ghi chú lý do           | `CANNOT_HARD_DELETE_POSTED_PAYMENT` |
+| Nhập số tiền thu $\le 0$        | Báo lỗi validation số tiền không hợp lệ                                     | `INVALID_PAYMENT_AMOUNT`            |
 
 ---
 

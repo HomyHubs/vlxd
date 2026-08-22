@@ -6,7 +6,7 @@
 
 ## Output
 
-- 
+-
 
 ## Required records
 

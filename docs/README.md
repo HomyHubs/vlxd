@@ -5,12 +5,14 @@ Tài liệu thiết kế kiến trúc, yêu cầu nghiệp vụ và quy trình p
 ## 1. Yêu cầu sản phẩm & Nghiệp vụ (`docs/requirements/`)
 
 ### Nền tảng & Quản trị chung
+
 - `requirements/prototype-feature-inventory.md` — Bảng đối soát chi tiết tính năng giữa prototype AI Studio và production.
 - `requirements/role-management.md` — Thiết kế role, title, user và ma trận phân quyền.
 - `requirements/service-plans.md` — Phân tầng gói dịch vụ Free, Standard, Premium, Enterprise.
 - `requirements/i18n.md` — Quy chuẩn song ngữ Việt / Anh, mặc định tiếng Việt.
 
 ### Đặc tả Yêu cầu Nghiệp vụ theo Capability (TASK-003)
+
 - `requirements/product.md` — Quản lý Sản phẩm, vật liệu thô/xả đống, đơn vị tính quy đổi, bảng giá đa tầng.
 - `requirements/warehouse.md` — Quản lý Kho kín, bãi lộ thiên (Yard Map), phân khu Zone/Slot và sức chứa.
 - `requirements/inventory.md` — Sổ cái kho bất biến (`inventory_ledger`), kiểm kê, chuyển kho 2 bước, chặn xuất âm & backorder.

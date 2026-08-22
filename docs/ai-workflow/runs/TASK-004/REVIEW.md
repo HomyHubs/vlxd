@@ -21,26 +21,27 @@
 
 ## Commands reviewer đã chạy
 
-| Command | Kết quả/exit code | Ghi chú |
-| --- | --- | --- |
-| `git diff dev...HEAD --stat` | Exit 0 | 15 files changed, 953 insertions(+), 6 deletions(-). 9 files ADR được tạo hoàn chỉnh |
-| `gh pr view 11` | Exit 0 | PR #11 mở thành công hướng vào nhánh base `dev` |
+| Command                      | Kết quả/exit code | Ghi chú                                                                              |
+| ---------------------------- | ----------------- | ------------------------------------------------------------------------------------ |
+| `git diff dev...HEAD --stat` | Exit 0            | 15 files changed, 953 insertions(+), 6 deletions(-). 9 files ADR được tạo hoàn chỉnh |
+| `gh pr view 11`              | Exit 0            | PR #11 mở thành công hướng vào nhánh base `dev`                                      |
 
 ## Findings
 
 ### FINDING-001 — [NONE]
+
 - Severity: LOW
 - File/dòng hoặc bằng chứng: Không có vấn đề kỹ thuật hay mâu thuẫn kiến trúc.
 - Trạng thái: resolved
 
 ## Acceptance criteria
 
-| Criterion | Pass/Fail/Not verified | Evidence |
-| --- | --- | --- |
-| Đầy đủ 9 ADR kiến trúc cốt lõi | Pass | 9 files trong `docs/adr/` và `docs/adr/README.md` |
-| Cấu trúc MADR chuẩn xác và đầy đủ hệ quả | Pass | Mục 1 đến 7 trong từng ADR |
-| Không mâu thuẫn với AGENTS.md và Decision Backlog | Pass | Dẫn chiếu đồng bộ 100% |
-| Toàn bộ liên kết tài liệu không bị hỏng (no broken links) | Pass | `docs/README.md`, `AGENTS.md`, `CURRENT.md` đồng bộ 100% |
+| Criterion                                                 | Pass/Fail/Not verified | Evidence                                                 |
+| --------------------------------------------------------- | ---------------------- | -------------------------------------------------------- |
+| Đầy đủ 9 ADR kiến trúc cốt lõi                            | Pass                   | 9 files trong `docs/adr/` và `docs/adr/README.md`        |
+| Cấu trúc MADR chuẩn xác và đầy đủ hệ quả                  | Pass                   | Mục 1 đến 7 trong từng ADR                               |
+| Không mâu thuẫn với AGENTS.md và Decision Backlog         | Pass                   | Dẫn chiếu đồng bộ 100%                                   |
+| Toàn bộ liên kết tài liệu không bị hỏng (no broken links) | Pass                   | `docs/README.md`, `AGENTS.md`, `CURRENT.md` đồng bộ 100% |
 
 ## Kiểm tra regression
 

@@ -52,29 +52,29 @@
 
 ## Giả định và quyết định
 
-| Thời điểm | Nội dung | Căn cứ | Ảnh hưởng |
-| --- | --- | --- | --- |
+| Thời điểm  | Nội dung                                                                                        | Căn cứ                        | Ảnh hưởng                                                                                |
+| ---------- | ----------------------------------------------------------------------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------- |
 | 2026-08-22 | Chuẩn hóa 9 ADR theo chuẩn MADR với đầy đủ Context, Options, Decision, Consequences, Compliance | Yêu cầu TASK-004 và AGENTS.md | Đảm bảo mọi quyết định kiến trúc cốt lõi đều có căn cứ vững chắc trước khi scaffold code |
 
 ## Thay đổi đã thực hiện
 
-| File/khu vực | Thay đổi | Lý do |
-| --- | --- | --- |
-| `docs/adr/README.md` | Tạo mục lục và bản đồ ADR | Quản trị kiến trúc |
-| `docs/adr/0001-monorepo-structure.md` | ADR cấu trúc monorepo pnpm | Quyết định tooling & packages |
-| `docs/adr/0002-vertical-slice-architecture.md` | ADR tổ chức vertical slice feature | Quyết định cấu trúc code |
-| `docs/adr/0003-contract-first-openapi.md` | ADR phát triển contract-first OpenAPI | Quyết định API lifecycle |
-| `docs/adr/0004-database-and-data-access.md` | ADR Supabase Postgres, dbmate, Kysely | Quyết định CSDL & Data access |
-| `docs/adr/0005-multi-tenancy-isolation.md` | ADR phân lập đa thuê bao RLS | Quyết định bảo mật multi-tenancy |
-| `docs/adr/0006-auth-and-authorization.md` | ADR xác thực session & capability | Quyết định auth & permissions |
-| `docs/adr/0007-immutable-ledgers-and-state-machines.md` | ADR sổ cái bất biến & state machine | Quyết định ledger & FSM |
-| `docs/adr/0008-i18n-vietnamese-first.md` | ADR đa ngôn ngữ Vietnamese-First | Quyết định i18n |
-| `docs/adr/0009-service-plans-enforcement.md` | ADR rào chắn gói dịch vụ | Quyết định giới hạn gói SaaS |
-| `docs/README.md` | Cập nhật bản đồ tài liệu mục 3 | Giữ bản đồ tài liệu nhất quán |
-| `AGENTS.md` | Cập nhật trạng thái tiến độ mục 10 | Phản ánh chính xác tiến độ repo |
-| `docs/ai-workflow/runs/TASK-004/EXECUTION.md` | Tạo execution log | Theo dõi quá trình thực thi |
-| `docs/ai-workflow/runs/TASK-004/REVIEW.md` | Tạo review log | Chuẩn bị hồ sơ cho Bot 2 review |
-| `docs/tasks/CURRENT.md` | Cập nhật trạng thái `TASK-004` sang `ready_for_review` | Cập nhật bảng task active |
+| File/khu vực                                            | Thay đổi                                               | Lý do                            |
+| ------------------------------------------------------- | ------------------------------------------------------ | -------------------------------- |
+| `docs/adr/README.md`                                    | Tạo mục lục và bản đồ ADR                              | Quản trị kiến trúc               |
+| `docs/adr/0001-monorepo-structure.md`                   | ADR cấu trúc monorepo pnpm                             | Quyết định tooling & packages    |
+| `docs/adr/0002-vertical-slice-architecture.md`          | ADR tổ chức vertical slice feature                     | Quyết định cấu trúc code         |
+| `docs/adr/0003-contract-first-openapi.md`               | ADR phát triển contract-first OpenAPI                  | Quyết định API lifecycle         |
+| `docs/adr/0004-database-and-data-access.md`             | ADR Supabase Postgres, dbmate, Kysely                  | Quyết định CSDL & Data access    |
+| `docs/adr/0005-multi-tenancy-isolation.md`              | ADR phân lập đa thuê bao RLS                           | Quyết định bảo mật multi-tenancy |
+| `docs/adr/0006-auth-and-authorization.md`               | ADR xác thực session & capability                      | Quyết định auth & permissions    |
+| `docs/adr/0007-immutable-ledgers-and-state-machines.md` | ADR sổ cái bất biến & state machine                    | Quyết định ledger & FSM          |
+| `docs/adr/0008-i18n-vietnamese-first.md`                | ADR đa ngôn ngữ Vietnamese-First                       | Quyết định i18n                  |
+| `docs/adr/0009-service-plans-enforcement.md`            | ADR rào chắn gói dịch vụ                               | Quyết định giới hạn gói SaaS     |
+| `docs/README.md`                                        | Cập nhật bản đồ tài liệu mục 3                         | Giữ bản đồ tài liệu nhất quán    |
+| `AGENTS.md`                                             | Cập nhật trạng thái tiến độ mục 10                     | Phản ánh chính xác tiến độ repo  |
+| `docs/ai-workflow/runs/TASK-004/EXECUTION.md`           | Tạo execution log                                      | Theo dõi quá trình thực thi      |
+| `docs/ai-workflow/runs/TASK-004/REVIEW.md`              | Tạo review log                                         | Chuẩn bị hồ sơ cho Bot 2 review  |
+| `docs/tasks/CURRENT.md`                                 | Cập nhật trạng thái `TASK-004` sang `ready_for_review` | Cập nhật bảng task active        |
 
 ## Migration/contract/generated artifacts
 
@@ -82,10 +82,10 @@
 
 ## Kiểm tra đã chạy
 
-| Command | Kết quả/exit code | Ghi chú |
-| --- | --- | --- |
-| `git status` | Exit 0 | 14 files thay đổi/thêm mới sạch sẽ |
-| `git log -n 3 --oneline` | Exit 0 | Base commit từ `dev` tại commit `0619625` |
+| Command                  | Kết quả/exit code | Ghi chú                                   |
+| ------------------------ | ----------------- | ----------------------------------------- |
+| `git status`             | Exit 0            | 14 files thay đổi/thêm mới sạch sẽ        |
+| `git log -n 3 --oneline` | Exit 0            | Base commit từ `dev` tại commit `0619625` |
 
 ## Self-review
 

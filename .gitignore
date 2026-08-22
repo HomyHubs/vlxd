@@ -1,4 +1,10 @@
 node_modules/
+dist/
+build/
+.turbo/
+coverage/
+playwright-report/
+test-results/
 *.db
 *.db-journal
 *.log
@@ -7,3 +13,5 @@ node_modules/
 .DS_Store
 Thumbs.db
 .agents/
+tsconfig.tsbuildinfo
+repo.md

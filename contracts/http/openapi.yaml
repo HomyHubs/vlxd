@@ -1,0 +1,61 @@
+openapi: 3.1.0
+info:
+  title: VLXD Management API
+  version: 0.1.0
+  description: OpenAPI 3.1 contract specification for vlxd backend service.
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns backend service health status, version, and timestamp.
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - timestamp
+                  - version
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+                    example: 0.1.0
+components:
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Invalid input parameters
+            details:
+              type: object
+              additionalProperties: true
+            requestId:
+              type: string
+              example: req-12345

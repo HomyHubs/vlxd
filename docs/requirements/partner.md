@@ -6,30 +6,30 @@
 
 ## 1. Actors & Permissions
 
-| Chức danh / Title | Quyền hạn trên module Đối tác | Khả năng thực hiện (Capabilities) |
-| --- | --- | --- |
-| **Chủ cửa hàng (Super Admin)** | Toàn quyền quản trị danh sách khách hàng & NCC, phê duyệt nâng hạn mức nợ (Credit Limit), xóa/gộp đối tác. | `partner:create`, `partner:read`, `partner:update`, `partner:delete`, `partner:credit_limit_manage` |
-| **Kế toán công nợ (Support Admin)** | Xem lịch sử mua/bán, quản lý hạn mức nợ, theo dõi tuổi nợ, khóa nợ khách hàng quá hạn. | `partner:create`, `partner:read`, `partner:update`, `partner:credit_view` |
-| **Nhân viên bán hàng (User)** | Thêm mới khách hàng, tra cứu thông tin liên hệ, xem số dư nợ hiện tại và hạn mức nợ khi lên đơn. | `partner:create`, `partner:read` |
-| **Nhân viên mua hàng (User)** | Thêm mới nhà cung cấp, tra cứu bảng giá và thông tin tài khoản ngân hàng nhà cung cấp. | `partner:create`, `partner:read` |
+| Chức danh / Title                   | Quyền hạn trên module Đối tác                                                                              | Khả năng thực hiện (Capabilities)                                                                   |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **Chủ cửa hàng (Super Admin)**      | Toàn quyền quản trị danh sách khách hàng & NCC, phê duyệt nâng hạn mức nợ (Credit Limit), xóa/gộp đối tác. | `partner:create`, `partner:read`, `partner:update`, `partner:delete`, `partner:credit_limit_manage` |
+| **Kế toán công nợ (Support Admin)** | Xem lịch sử mua/bán, quản lý hạn mức nợ, theo dõi tuổi nợ, khóa nợ khách hàng quá hạn.                     | `partner:create`, `partner:read`, `partner:update`, `partner:credit_view`                           |
+| **Nhân viên bán hàng (User)**       | Thêm mới khách hàng, tra cứu thông tin liên hệ, xem số dư nợ hiện tại và hạn mức nợ khi lên đơn.           | `partner:create`, `partner:read`                                                                    |
+| **Nhân viên mua hàng (User)**       | Thêm mới nhà cung cấp, tra cứu bảng giá và thông tin tài khoản ngân hàng nhà cung cấp.                     | `partner:create`, `partner:read`                                                                    |
 
 ---
 
 ## 2. Business Scope & Rules
 
 - **Phân loại Khách hàng ngành VLXD:**
-  - *Khách lẻ:* Mua vật tư sửa nhà, thanh toán tiền mặt/chuyển khoản ngay, `credit_limit = 0`.
-  - *Nhà thầu cá nhân / Cai thầu:* Thường xuyên lấy hàng theo công trình, mua nợ gối đầu theo đợt nghiệm thu, có hạn mức nợ vừa (vd 50tr – 200tr).
-  - *Công ty xây dựng / Doanh nghiệp:* Lấy hàng khối lượng lớn, có hợp đồng kinh tế, thanh toán định kỳ theo tháng, yêu cầu hóa đơn VAT, hạn mức nợ lớn (vd 500tr – vài tỷ).
+  - _Khách lẻ:_ Mua vật tư sửa nhà, thanh toán tiền mặt/chuyển khoản ngay, `credit_limit = 0`.
+  - _Nhà thầu cá nhân / Cai thầu:_ Thường xuyên lấy hàng theo công trình, mua nợ gối đầu theo đợt nghiệm thu, có hạn mức nợ vừa (vd 50tr – 200tr).
+  - _Công ty xây dựng / Doanh nghiệp:_ Lấy hàng khối lượng lớn, có hợp đồng kinh tế, thanh toán định kỳ theo tháng, yêu cầu hóa đơn VAT, hạn mức nợ lớn (vd 500tr – vài tỷ).
 - **Phân loại Nhà cung cấp:**
-  - *Nhà máy sản xuất:* Nhà máy Xi măng (Hà Tiên, Holcim), Nhà máy Thép (Hòa Phát, Pomina), Nhà máy Gạch men.
-  - *Đại lý cấp 1 / Nhà phân phối vùng:* Cung cấp sơn, phụ kiện điện nước, thiết bị vệ sinh.
-  - *Chủ mỏ / Bến bãi cát đá:* Cung cấp cát sông, đá xây dựng theo chuyến sà lan/xe ben.
+  - _Nhà máy sản xuất:_ Nhà máy Xi măng (Hà Tiên, Holcim), Nhà máy Thép (Hòa Phát, Pomina), Nhà máy Gạch men.
+  - _Đại lý cấp 1 / Nhà phân phối vùng:_ Cung cấp sơn, phụ kiện điện nước, thiết bị vệ sinh.
+  - _Chủ mỏ / Bến bãi cát đá:_ Cung cấp cát sông, đá xây dựng theo chuyến sà lan/xe ben.
 - **Hạn mức công nợ & Thời hạn nợ (DEC-011):**
   - Mỗi đối tác được thiết lập 2 thông số rủi ro:
     1. `credit_limit`: Số tiền nợ tối đa được phép ghi nợ (VND).
     2. `payment_term_days`: Số ngày được phép nợ kể từ ngày xuất hàng (vd 15 ngày, 30 ngày, 45 ngày).
-  - *Cơ chế chặn vượt hạn mức (Strict Credit Check):* Khi $\text{Tổng nợ hiện tại} + \text{Giá trị đơn hàng mới} > \text{credit_limit}$, hệ thống **chặn hoàn tất đơn hàng** và yêu cầu quyền Quản lý/Chủ cửa hàng duyệt ngoại lệ (`partner:credit_override`).
+  - _Cơ chế chặn vượt hạn mức (Strict Credit Check):_ Khi $\text{Tổng nợ hiện tại} + \text{Giá trị đơn hàng mới} > \text{credit_limit}$, hệ thống **chặn hoàn tất đơn hàng** và yêu cầu quyền Quản lý/Chủ cửa hàng duyệt ngoại lệ (`partner:credit_override`).
 - **Địa chỉ công trình (Delivery Addresses):** Một khách hàng có thể có nhiều địa chỉ giao hàng (công trình Nhà phố Quận 2, Biệt thự Thảo Điền, Nhà xưởng Bình Dương...). Khi tạo đơn, nhân viên chọn đúng công trình để giao hàng.
 
 ---
@@ -67,12 +67,12 @@ stateDiagram-v2
 
 ## 6. Failure & Edge Cases
 
-| Trường hợp | Phản hồi hệ thống | Mã lỗi backend |
-| --- | --- | --- |
-| Tạo đơn vượt hạn mức nợ cho phép | Chặn tạo đơn, yêu cầu cấp trên duyệt ghi đè hoặc thu hồi bớt nợ cũ | `CREDIT_LIMIT_EXCEEDED` |
-| Khách hàng đang bị khóa nợ (`SUSPENDED`) | Chặn tạo đơn mua nợ mới, chỉ cho phép thanh toán tiền mặt 100% | `PARTNER_ACCOUNT_SUSPENDED` |
-| Trùng số điện thoại khách hàng trong tenant | Cảnh báo trùng lặp và gợi ý mở hồ sơ khách hàng đã có | `PARTNER_PHONE_ALREADY_EXISTS` |
-| Xóa đối tác còn dư nợ | Chặn xóa, hiển thị chi tiết số nợ chưa thanh toán | `PARTNER_HAS_OUTSTANDING_DEBT` |
+| Trường hợp                                  | Phản hồi hệ thống                                                  | Mã lỗi backend                 |
+| ------------------------------------------- | ------------------------------------------------------------------ | ------------------------------ |
+| Tạo đơn vượt hạn mức nợ cho phép            | Chặn tạo đơn, yêu cầu cấp trên duyệt ghi đè hoặc thu hồi bớt nợ cũ | `CREDIT_LIMIT_EXCEEDED`        |
+| Khách hàng đang bị khóa nợ (`SUSPENDED`)    | Chặn tạo đơn mua nợ mới, chỉ cho phép thanh toán tiền mặt 100%     | `PARTNER_ACCOUNT_SUSPENDED`    |
+| Trùng số điện thoại khách hàng trong tenant | Cảnh báo trùng lặp và gợi ý mở hồ sơ khách hàng đã có              | `PARTNER_PHONE_ALREADY_EXISTS` |
+| Xóa đối tác còn dư nợ                       | Chặn xóa, hiển thị chi tiết số nợ chưa thanh toán                  | `PARTNER_HAS_OUTSTANDING_DEBT` |
 
 ---
 

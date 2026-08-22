@@ -6,12 +6,12 @@
 
 ## 1. Actors & Permissions
 
-| Chức danh / Title | Quyền hạn trên module Mua hàng | Khả năng thực hiện (Capabilities) |
-| --- | --- | --- |
-| **Chủ cửa hàng (Super Admin)** | Duyệt đơn mua hàng giá trị lớn, đàm phán hợp đồng cung ứng, xem tổng chi phí mua hàng. | `purchase:create`, `purchase:read`, `purchase:approve_unlimited`, `purchase:cancel` |
-| **Quản lý chi nhánh (Support Admin)** | Lập và duyệt đơn mua hàng bổ sung tồn kho cho chi nhánh, theo dõi tiến độ giao hàng từ NCC. | `purchase:create`, `purchase:read`, `purchase:approve`, `purchase:receive` |
-| **Nhân viên mua hàng (User)** | Tạo đơn đề xuất mua hàng (PO), theo dõi giá nhập từ các nhà cung cấp, liên hệ đặt hàng. | `purchase:create`, `purchase:read` |
-| **Thủ kho (User)** | Kiểm đếm và thực hiện thủ tục nhập kho khi xe hàng của NCC chở tới bãi. | `purchase:read`, `purchase:receive_stock` |
+| Chức danh / Title                     | Quyền hạn trên module Mua hàng                                                              | Khả năng thực hiện (Capabilities)                                                   |
+| ------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **Chủ cửa hàng (Super Admin)**        | Duyệt đơn mua hàng giá trị lớn, đàm phán hợp đồng cung ứng, xem tổng chi phí mua hàng.      | `purchase:create`, `purchase:read`, `purchase:approve_unlimited`, `purchase:cancel` |
+| **Quản lý chi nhánh (Support Admin)** | Lập và duyệt đơn mua hàng bổ sung tồn kho cho chi nhánh, theo dõi tiến độ giao hàng từ NCC. | `purchase:create`, `purchase:read`, `purchase:approve`, `purchase:receive`          |
+| **Nhân viên mua hàng (User)**         | Tạo đơn đề xuất mua hàng (PO), theo dõi giá nhập từ các nhà cung cấp, liên hệ đặt hàng.     | `purchase:create`, `purchase:read`                                                  |
+| **Thủ kho (User)**                    | Kiểm đếm và thực hiện thủ tục nhập kho khi xe hàng của NCC chở tới bãi.                     | `purchase:read`, `purchase:receive_stock`                                           |
 
 ---
 
@@ -68,11 +68,11 @@ stateDiagram-v2
 
 ## 6. Failure & Edge Cases
 
-| Trường hợp | Phản hồi hệ thống | Mã lỗi backend |
-| --- | --- | --- |
-| Nhập kho số lượng lớn hơn số lượng còn lại của PO | Chặn nhập vượt, yêu cầu tạo đơn bổ sung hoặc sửa PO | `PO_RECEIVE_QUANTITY_EXCEEDED` |
-| Hủy đơn PO đã phát sinh phiếu nhập kho | Chặn hủy trực tiếp, yêu cầu xử lý phiếu xuất trả NCC | `CANNOT_CANCEL_RECEIVED_PO` |
-| Nhập giá mua bằng $0$ | Báo lỗi validation giá mua hàng không hợp lệ | `INVALID_PURCHASE_PRICE` |
+| Trường hợp                                        | Phản hồi hệ thống                                    | Mã lỗi backend                 |
+| ------------------------------------------------- | ---------------------------------------------------- | ------------------------------ |
+| Nhập kho số lượng lớn hơn số lượng còn lại của PO | Chặn nhập vượt, yêu cầu tạo đơn bổ sung hoặc sửa PO  | `PO_RECEIVE_QUANTITY_EXCEEDED` |
+| Hủy đơn PO đã phát sinh phiếu nhập kho            | Chặn hủy trực tiếp, yêu cầu xử lý phiếu xuất trả NCC | `CANNOT_CANCEL_RECEIVED_PO`    |
+| Nhập giá mua bằng $0$                             | Báo lỗi validation giá mua hàng không hợp lệ         | `INVALID_PURCHASE_PRICE`       |
 
 ---
 

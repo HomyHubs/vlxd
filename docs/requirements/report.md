@@ -6,12 +6,12 @@
 
 ## 1. Actors & Permissions
 
-| Chức danh / Title | Quyền hạn trên module Báo cáo | Khả năng thực hiện (Capabilities) |
-| --- | --- | --- |
-| **Chủ cửa hàng (Super Admin)** | Toàn quyền xem mọi báo cáo tài chính, doanh thu, lợi nhuận gộp toàn hệ thống, hiệu suất từng chi nhánh. | `report:read_all`, `report:financial_view`, `report:margin_view`, `report:export` |
-| **Quản lý chi nhánh (Support Admin)** | Xem báo cáo doanh số, tồn kho, công nợ thuộc phạm vi chi nhánh mình quản lý. | `report:read_branch`, `report:export` |
-| **Kế toán bán hàng (Support Admin)** | Xem báo cáo doanh thu, sổ chi tiết công nợ, đối soát hóa đơn, báo cáo thuế. | `report:read_accounting`, `report:export` |
-| **Nhân viên bán hàng (User)** | Xem báo cáo doanh số cá nhân, số lượng đơn hàng đã bán trong tháng. | `report:read_own_sales` |
+| Chức danh / Title                     | Quyền hạn trên module Báo cáo                                                                           | Khả năng thực hiện (Capabilities)                                                 |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Chủ cửa hàng (Super Admin)**        | Toàn quyền xem mọi báo cáo tài chính, doanh thu, lợi nhuận gộp toàn hệ thống, hiệu suất từng chi nhánh. | `report:read_all`, `report:financial_view`, `report:margin_view`, `report:export` |
+| **Quản lý chi nhánh (Support Admin)** | Xem báo cáo doanh số, tồn kho, công nợ thuộc phạm vi chi nhánh mình quản lý.                            | `report:read_branch`, `report:export`                                             |
+| **Kế toán bán hàng (Support Admin)**  | Xem báo cáo doanh thu, sổ chi tiết công nợ, đối soát hóa đơn, báo cáo thuế.                             | `report:read_accounting`, `report:export`                                         |
+| **Nhân viên bán hàng (User)**         | Xem báo cáo doanh số cá nhân, số lượng đơn hàng đã bán trong tháng.                                     | `report:read_own_sales`                                                           |
 
 ---
 
@@ -61,11 +61,11 @@
 
 ## 5. Failure & Edge Cases
 
-| Trường hợp | Phản hồi hệ thống | Mã lỗi backend |
-| --- | --- | --- |
-| Nhân viên cố tình gọi API báo cáo lợi nhuận | Chặn truy cập, trả lỗi 403 Forbidden | `INSUFFICIENT_REPORT_PERMISSIONS` |
-| Chọn khoảng thời gian báo cáo không hợp lệ (Ngày bắt đầu > Ngày kết thúc) | Báo lỗi khoảng thời gian không hợp lệ | `INVALID_DATE_RANGE` |
-| Báo cáo khoảng thời gian quá lớn ($> 5$ năm) trên môi trường realtime | Yêu cầu thu hẹp khoảng thời gian hoặc xuất báo cáo nền | `REPORT_RANGE_TOO_LARGE` |
+| Trường hợp                                                                | Phản hồi hệ thống                                      | Mã lỗi backend                    |
+| ------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------------- |
+| Nhân viên cố tình gọi API báo cáo lợi nhuận                               | Chặn truy cập, trả lỗi 403 Forbidden                   | `INSUFFICIENT_REPORT_PERMISSIONS` |
+| Chọn khoảng thời gian báo cáo không hợp lệ (Ngày bắt đầu > Ngày kết thúc) | Báo lỗi khoảng thời gian không hợp lệ                  | `INVALID_DATE_RANGE`              |
+| Báo cáo khoảng thời gian quá lớn ($> 5$ năm) trên môi trường realtime     | Yêu cầu thu hẹp khoảng thời gian hoặc xuất báo cáo nền | `REPORT_RANGE_TOO_LARGE`          |
 
 ---
 

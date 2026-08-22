@@ -22,27 +22,28 @@
 
 ## Commands reviewer đã chạy
 
-| Command | Kết quả/exit code | Ghi chú |
-| --- | --- | --- |
-| `git diff dev...HEAD --stat` | Exit 0 | 15 files changed, 1324 insertions(+), 5 deletions(-). 10 files requirements được tạo hoàn chỉnh |
-| `gh pr view 9` | Exit 0 | PR #9 mở thành công hướng vào nhánh base `dev` |
+| Command                      | Kết quả/exit code | Ghi chú                                                                                         |
+| ---------------------------- | ----------------- | ----------------------------------------------------------------------------------------------- |
+| `git diff dev...HEAD --stat` | Exit 0            | 15 files changed, 1324 insertions(+), 5 deletions(-). 10 files requirements được tạo hoàn chỉnh |
+| `gh pr view 9`               | Exit 0            | PR #9 mở thành công hướng vào nhánh base `dev`                                                  |
 
 ## Findings
 
 ### FINDING-001 — [NONE]
+
 - Severity: LOW
 - File/dòng hoặc bằng chứng: Không có vấn đề kỹ thuật hay mâu thuẫn nghiệp vụ.
 - Trạng thái: resolved
 
 ## Acceptance criteria
 
-| Criterion | Pass/Fail/Not verified | Evidence |
-| --- | --- | --- |
-| Đầy đủ 10 capability requirements cốt lõi | Pass | 10 files trong `docs/requirements/` |
-| Acceptance criteria quan sát và kiểm thử được | Pass | Mục 10 trong mỗi file requirement định nghĩa rõ ràng |
-| Không trộn implementation detail vào business requirement | Pass | Tài liệu tập trung vào Business rules, Invariants, State machines |
-| Khớp nối chặt chẽ với Decision Backlog | Pass | Dẫn chiếu đầy đủ DEC-001 đến DEC-013 |
-| Toàn bộ liên kết tài liệu không bị hỏng (no broken links) | Pass | `docs/README.md`, `AGENTS.md`, `CURRENT.md` đồng bộ 100% |
+| Criterion                                                 | Pass/Fail/Not verified | Evidence                                                          |
+| --------------------------------------------------------- | ---------------------- | ----------------------------------------------------------------- |
+| Đầy đủ 10 capability requirements cốt lõi                 | Pass                   | 10 files trong `docs/requirements/`                               |
+| Acceptance criteria quan sát và kiểm thử được             | Pass                   | Mục 10 trong mỗi file requirement định nghĩa rõ ràng              |
+| Không trộn implementation detail vào business requirement | Pass                   | Tài liệu tập trung vào Business rules, Invariants, State machines |
+| Khớp nối chặt chẽ với Decision Backlog                    | Pass                   | Dẫn chiếu đầy đủ DEC-001 đến DEC-013                              |
+| Toàn bộ liên kết tài liệu không bị hỏng (no broken links) | Pass                   | `docs/README.md`, `AGENTS.md`, `CURRENT.md` đồng bộ 100%          |
 
 ## Kiểm tra regression
 

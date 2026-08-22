@@ -15,6 +15,7 @@
 Hệ thống quản lý vật liệu xây dựng `vlxd` yêu cầu tính toàn vẹn dữ liệu cực kỳ khắt khe: Sổ cái tồn kho bất biến (Inventory Ledger), Sổ nợ kép (Debt Ledger), kiểm soát xuất âm (No-negative stock), khóa dòng (Row-Level Locking) và các giao dịch tài chính ACID.
 
 Các vấn đề thường gặp với các ORM thế hệ cũ (TypeORM, Prisma, Sequelize):
+
 - Tạo ra các câu lệnh SQL tự động cồng kềnh, N+1 query tiềm ẩn và khó tối ưu hóa hiệu năng cho các truy vấn phức tạp.
 - Khó kiểm soát trực tiếp các tính năng mạnh mẽ của PostgreSQL (như Partial Indexes, Generated Columns, Trigger, Advisory Locks, CTEs).
 - Hệ thống migration của một số ORM tự động sinh code khó kiểm soát, khó rollback an toàn (non-reversible).
@@ -35,14 +36,14 @@ Cần một kiến trúc cơ sở dữ liệu mạnh mẽ, công cụ migration 
 ## 4. Considered Options
 
 - **Database Engine:**
-  - *Option A: MySQL / MariaDB:* Hỗ trợ tốt, nhưng tính năng Row-level security, JSONB và CTE yếu hơn PostgreSQL.
-  - *Option B: PostgreSQL do Supabase cung cấp (Chọn):* Hệ quản trị CSDL quan hệ mạnh mẽ nhất hiện nay, hỗ trợ RLS, JSONB tối ưu, ACID tuyệt đối, sẵn sàng mở rộng cho Enterprise DB riêng.
+  - _Option A: MySQL / MariaDB:_ Hỗ trợ tốt, nhưng tính năng Row-level security, JSONB và CTE yếu hơn PostgreSQL.
+  - _Option B: PostgreSQL do Supabase cung cấp (Chọn):_ Hệ quản trị CSDL quan hệ mạnh mẽ nhất hiện nay, hỗ trợ RLS, JSONB tối ưu, ACID tuyệt đối, sẵn sàng mở rộng cho Enterprise DB riêng.
 - **Migration Tool:**
-  - *Option A: Prisma Migrate:* Sinh migration tự động, nhưng cú pháp schema riêng (DSL), khó viết SQL nâng cao.
-  - *Option B: dbmate (Chọn):* Công cụ migration độc lập, siêu nhẹ, viết bằng SQL thuần túy, hỗ trợ transactional migrations và bắt buộc có cả block `-- migrate:up` và `-- migrate:down`.
+  - _Option A: Prisma Migrate:_ Sinh migration tự động, nhưng cú pháp schema riêng (DSL), khó viết SQL nâng cao.
+  - _Option B: dbmate (Chọn):_ Công cụ migration độc lập, siêu nhẹ, viết bằng SQL thuần túy, hỗ trợ transactional migrations và bắt buộc có cả block `-- migrate:up` và `-- migrate:down`.
 - **Data Access Layer:**
-  - *Option A: Prisma Client / TypeORM:* ORM nặng, sinh query phức tạp, tốn tài nguyên.
-  - *Option B: Kysely trên `pg` driver (Chọn):* Type-safe SQL query builder cho TypeScript, zero-overhead runtime, syntax khớp 1-1 với SQL, autocomplete hoàn hảo dựa trên DB schema interfaces.
+  - _Option A: Prisma Client / TypeORM:_ ORM nặng, sinh query phức tạp, tốn tài nguyên.
+  - _Option B: Kysely trên `pg` driver (Chọn):_ Type-safe SQL query builder cho TypeScript, zero-overhead runtime, syntax khớp 1-1 với SQL, autocomplete hoàn hảo dựa trên DB schema interfaces.
 
 ---
 
@@ -51,6 +52,7 @@ Cần một kiến trúc cơ sở dữ liệu mạnh mẽ, công cụ migration 
 **Chọn bộ giải pháp: Supabase PostgreSQL + dbmate (SQL Migration) + Kysely Data Access.**
 
 ### Quy ước triển khai:
+
 1. **Migrations (`db/migrations/`):**
    - Mọi thay đổi cấu trúc bảng, index, trigger đều phải được viết trong file `.sql` có timestamp.
    - Luôn luôn có cả phần `-- migrate:up` và `-- migrate:down` để đảm bảo rollback an toàn 100%.
@@ -64,13 +66,15 @@ Cần một kiến trúc cơ sở dữ liệu mạnh mẽ, công cụ migration 
 ## 6. Consequences
 
 ### Positive Consequences
+
 - **Kiểm soát tuyệt đối SQL:** Kỹ sư nhìn thấy chính xác câu lệnh SQL chạy trên database, dễ dàng EXPLAIN ANALYZE và thêm index tối ưu.
 - **An toàn giao dịch:** Hỗ trợ transaction đầy đủ: `db.transaction().execute(async (trx) => { ... })`.
 - **Reversible Migrations:** Bất kỳ migration nào gặp sự cố trên môi trường staging/production đều có thể rollback ngay lập tức qua `dbmate rollback`.
 
 ### Negative Consequences & Mitigations
-- *Phải tự viết SQL migration:* Kỹ sư cần nắm vững SQL DDL tiêu chuẩn. Đã có hướng dẫn viết migration mẫu trong `db/README.md`.
-- *Cần đồng bộ type sau khi migrate:* Tích hợp lệnh `pnpm db:migrate && pnpm db:codegen` vào quy trình local development.
+
+- _Phải tự viết SQL migration:_ Kỹ sư cần nắm vững SQL DDL tiêu chuẩn. Đã có hướng dẫn viết migration mẫu trong `db/README.md`.
+- _Cần đồng bộ type sau khi migrate:_ Tích hợp lệnh `pnpm db:migrate && pnpm db:codegen` vào quy trình local development.
 
 ---
 

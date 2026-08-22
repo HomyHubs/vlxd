@@ -54,30 +54,30 @@
 
 ## Giả định và quyết định
 
-| Thời điểm | Nội dung | Căn cứ | Ảnh hưởng |
-| --- | --- | --- | --- |
-| 2026-08-22 | Tuân thủ 100% các quyết định và giả định trong `docs/decision-backlog.md` (DEC-001 đến DEC-013) | Decision Backlog là nguồn sự thật đã được chốt/giả định trong TASK-002 | Toàn bộ 10 capability khớp nối liền mạch, không mâu thuẫn |
-| 2026-08-22 | Chuẩn hóa cấu trúc 11 mục tiêu chuẩn cho từng tài liệu | Yêu cầu kiểm thử được của MVP-BACKLOG.md | Dễ dàng chuyển dịch sang OpenAPI schema (TASK-007) và Test cases |
+| Thời điểm  | Nội dung                                                                                        | Căn cứ                                                                 | Ảnh hưởng                                                        |
+| ---------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| 2026-08-22 | Tuân thủ 100% các quyết định và giả định trong `docs/decision-backlog.md` (DEC-001 đến DEC-013) | Decision Backlog là nguồn sự thật đã được chốt/giả định trong TASK-002 | Toàn bộ 10 capability khớp nối liền mạch, không mâu thuẫn        |
+| 2026-08-22 | Chuẩn hóa cấu trúc 11 mục tiêu chuẩn cho từng tài liệu                                          | Yêu cầu kiểm thử được của MVP-BACKLOG.md                               | Dễ dàng chuyển dịch sang OpenAPI schema (TASK-007) và Test cases |
 
 ## Thay đổi đã thực hiện
 
-| File/khu vực | Thay đổi | Lý do |
-| --- | --- | --- |
-| `docs/requirements/product.md` | Tạo tài liệu đặc tả sản phẩm & đơn vị quy đổi | Hoàn thành capability product |
-| `docs/requirements/warehouse.md` | Tạo tài liệu đặc tả kho bãi & sơ đồ bãi chứa | Hoàn thành capability warehouse |
-| `docs/requirements/inventory.md` | Tạo tài liệu đặc tả sổ cái kho & điều chuyển | Hoàn thành capability inventory |
-| `docs/requirements/partner.md` | Tạo tài liệu đặc tả khách hàng & NCC & hạn mức nợ | Hoàn thành capability partner |
-| `docs/requirements/sales-order.md` | Tạo tài liệu đặc tả bán hàng POS & đơn hàng & reserve | Hoàn thành capability sales order |
-| `docs/requirements/delivery-return.md` | Tạo tài liệu đặc tả giao hàng & đổi trả | Hoàn thành capability delivery/return |
-| `docs/requirements/finance-debt.md` | Tạo tài liệu đặc tả thu chi, sổ nợ & thanh toán từng phần | Hoàn thành capability finance/debt |
-| `docs/requirements/purchase.md` | Tạo tài liệu đặc tả mua hàng & nhập kho NCC | Hoàn thành capability purchase |
-| `docs/requirements/report.md` | Tạo tài liệu đặc tả báo cáo doanh thu, lợi nhuận, tuổi nợ | Hoàn thành capability report |
-| `docs/requirements/audit.md` | Tạo tài liệu đặc tả nhật ký kiểm toán bất biến | Hoàn thành capability audit |
-| `docs/README.md` | Cập nhật bản đồ tài liệu liên kết 14 files requirement | Giữ bản đồ tài liệu nhất quán |
-| `AGENTS.md` | Cập nhật trạng thái tiến độ mục 10 | Phản ánh chính xác tiến độ repo |
-| `docs/ai-workflow/runs/TASK-003/EXECUTION.md` | Tạo execution log | Theo dõi quá trình thực thi |
-| `docs/ai-workflow/runs/TASK-003/REVIEW.md` | Tạo review log | Chuẩn bị hồ sơ cho Bot 2 review |
-| `docs/tasks/CURRENT.md` | Cập nhật trạng thái `TASK-003` sang `ready_for_review` | Cập nhật bảng task active |
+| File/khu vực                                  | Thay đổi                                                  | Lý do                                 |
+| --------------------------------------------- | --------------------------------------------------------- | ------------------------------------- |
+| `docs/requirements/product.md`                | Tạo tài liệu đặc tả sản phẩm & đơn vị quy đổi             | Hoàn thành capability product         |
+| `docs/requirements/warehouse.md`              | Tạo tài liệu đặc tả kho bãi & sơ đồ bãi chứa              | Hoàn thành capability warehouse       |
+| `docs/requirements/inventory.md`              | Tạo tài liệu đặc tả sổ cái kho & điều chuyển              | Hoàn thành capability inventory       |
+| `docs/requirements/partner.md`                | Tạo tài liệu đặc tả khách hàng & NCC & hạn mức nợ         | Hoàn thành capability partner         |
+| `docs/requirements/sales-order.md`            | Tạo tài liệu đặc tả bán hàng POS & đơn hàng & reserve     | Hoàn thành capability sales order     |
+| `docs/requirements/delivery-return.md`        | Tạo tài liệu đặc tả giao hàng & đổi trả                   | Hoàn thành capability delivery/return |
+| `docs/requirements/finance-debt.md`           | Tạo tài liệu đặc tả thu chi, sổ nợ & thanh toán từng phần | Hoàn thành capability finance/debt    |
+| `docs/requirements/purchase.md`               | Tạo tài liệu đặc tả mua hàng & nhập kho NCC               | Hoàn thành capability purchase        |
+| `docs/requirements/report.md`                 | Tạo tài liệu đặc tả báo cáo doanh thu, lợi nhuận, tuổi nợ | Hoàn thành capability report          |
+| `docs/requirements/audit.md`                  | Tạo tài liệu đặc tả nhật ký kiểm toán bất biến            | Hoàn thành capability audit           |
+| `docs/README.md`                              | Cập nhật bản đồ tài liệu liên kết 14 files requirement    | Giữ bản đồ tài liệu nhất quán         |
+| `AGENTS.md`                                   | Cập nhật trạng thái tiến độ mục 10                        | Phản ánh chính xác tiến độ repo       |
+| `docs/ai-workflow/runs/TASK-003/EXECUTION.md` | Tạo execution log                                         | Theo dõi quá trình thực thi           |
+| `docs/ai-workflow/runs/TASK-003/REVIEW.md`    | Tạo review log                                            | Chuẩn bị hồ sơ cho Bot 2 review       |
+| `docs/tasks/CURRENT.md`                       | Cập nhật trạng thái `TASK-003` sang `ready_for_review`    | Cập nhật bảng task active             |
 
 ## Migration/contract/generated artifacts
 
@@ -85,10 +85,10 @@
 
 ## Kiểm tra đã chạy
 
-| Command | Kết quả/exit code | Ghi chú |
-| --- | --- | --- |
-| `git status` | Exit 0 | 14 files thay đổi/thêm mới sạch sẽ |
-| `git log -n 3 --oneline` | Exit 0 | Base commit từ `dev` tại commit `dd49661` |
+| Command                  | Kết quả/exit code | Ghi chú                                   |
+| ------------------------ | ----------------- | ----------------------------------------- |
+| `git status`             | Exit 0            | 14 files thay đổi/thêm mới sạch sẽ        |
+| `git log -n 3 --oneline` | Exit 0            | Base commit từ `dev` tại commit `dd49661` |
 
 ## Self-review
 

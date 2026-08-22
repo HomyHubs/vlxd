@@ -6,12 +6,12 @@
 
 ## 1. Actors & Permissions
 
-| Chức danh / Title | Quyền hạn trên module Sản phẩm | Khả năng thực hiện (Capabilities) |
-| --- | --- | --- |
-| **Chủ cửa hàng (Super Admin)** | Toàn quyền cấu hình sản phẩm, giá vốn, giá bán, duyệt điều chỉnh giá hàng loạt. | `product:create`, `product:read`, `product:update`, `product:delete`, `product:price_update`, `product:unit_convert` |
-| **Quản lý chi nhánh (Support Admin)** | Thêm mới, chỉnh sửa thông tin mô tả, xem giá vốn/giá bán, cấu hình định mức tồn kho tối thiểu. | `product:create`, `product:read`, `product:update`, `product:unit_convert` |
-| **Nhân viên bán hàng (User)** | Xem danh sách sản phẩm, giá bán theo nhóm khách, quy đổi đơn vị tính, tồn kho khả dụng để báo giá. | `product:read` (Ẩn giá vốn trừ khi được cấp quyền), `product:unit_convert` |
-| **Thủ kho (User)** | Xem thông tin sản phẩm, đơn vị tính, quy cách bốc xếp, vị trí bãi/kho. | `product:read` |
+| Chức danh / Title                     | Quyền hạn trên module Sản phẩm                                                                     | Khả năng thực hiện (Capabilities)                                                                                    |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Chủ cửa hàng (Super Admin)**        | Toàn quyền cấu hình sản phẩm, giá vốn, giá bán, duyệt điều chỉnh giá hàng loạt.                    | `product:create`, `product:read`, `product:update`, `product:delete`, `product:price_update`, `product:unit_convert` |
+| **Quản lý chi nhánh (Support Admin)** | Thêm mới, chỉnh sửa thông tin mô tả, xem giá vốn/giá bán, cấu hình định mức tồn kho tối thiểu.     | `product:create`, `product:read`, `product:update`, `product:unit_convert`                                           |
+| **Nhân viên bán hàng (User)**         | Xem danh sách sản phẩm, giá bán theo nhóm khách, quy đổi đơn vị tính, tồn kho khả dụng để báo giá. | `product:read` (Ẩn giá vốn trừ khi được cấp quyền), `product:unit_convert`                                           |
+| **Thủ kho (User)**                    | Xem thông tin sản phẩm, đơn vị tính, quy cách bốc xếp, vị trí bãi/kho.                             | `product:read`                                                                                                       |
 
 ---
 
@@ -26,9 +26,9 @@
     - Gạch: $1 \text{ m}^2 \leftrightarrow N \text{ viên}$ (tùy theo loại gạch ống 4 lỗ, 6 lỗ, gạch block).
     - Thép cây: $1 \text{ cây } (11.7m) \leftrightarrow M \text{ kg}$ (theo barem tiêu chuẩn Việt Nam TCVN).
 - **Quản lý giá đa tầng:**
-  - *Giá vốn:* Tự động cập nhật theo phương pháp Bình quân gia quyền liên hoàn (DEC-009).
-  - *Giá bán lẻ:* Giá niêm yết chuẩn cho khách mua nhỏ lẻ.
-  - *Giá bán thầu / sỉ:* Giá ưu đãi cho thầu thợ, công ty xây dựng.
+  - _Giá vốn:_ Tự động cập nhật theo phương pháp Bình quân gia quyền liên hoàn (DEC-009).
+  - _Giá bán lẻ:_ Giá niêm yết chuẩn cho khách mua nhỏ lẻ.
+  - _Giá bán thầu / sỉ:_ Giá ưu đãi cho thầu thợ, công ty xây dựng.
 - **Lịch sử biến động giá:** Mỗi lần thay đổi giá bán hoặc giá nhập phải ghi nhận thời điểm, giá cũ, giá mới, người thực hiện và lý do.
 
 ---
@@ -68,12 +68,12 @@ stateDiagram-v2
 
 ## 6. Failure & Edge Cases
 
-| Trường hợp | Phản hồi hệ thống | Mã lỗi backend |
-| --- | --- | --- |
-| Trùng mã SKU trong tenant | Chặn lưu, thông báo mã SKU đã tồn tại | `PRODUCT_SKU_ALREADY_EXISTS` |
-| Vượt giới hạn sản phẩm của gói dịch vụ | Chặn tạo mới, yêu cầu nâng cấp gói | `PRODUCT_LIMIT_REACHED` |
-| Tỷ lệ quy đổi $\le 0$ | Báo lỗi validation công thức quy đổi | `INVALID_UNIT_CONVERSION_RATE` |
-| Xóa sản phẩm đang có tồn kho $> 0$ | Chặn xóa, yêu cầu xuất hết tồn kho hoặc điều chỉnh trước | `PRODUCT_HAS_ACTIVE_INVENTORY` |
+| Trường hợp                             | Phản hồi hệ thống                                        | Mã lỗi backend                 |
+| -------------------------------------- | -------------------------------------------------------- | ------------------------------ |
+| Trùng mã SKU trong tenant              | Chặn lưu, thông báo mã SKU đã tồn tại                    | `PRODUCT_SKU_ALREADY_EXISTS`   |
+| Vượt giới hạn sản phẩm của gói dịch vụ | Chặn tạo mới, yêu cầu nâng cấp gói                       | `PRODUCT_LIMIT_REACHED`        |
+| Tỷ lệ quy đổi $\le 0$                  | Báo lỗi validation công thức quy đổi                     | `INVALID_UNIT_CONVERSION_RATE` |
+| Xóa sản phẩm đang có tồn kho $> 0$     | Chặn xóa, yêu cầu xuất hết tồn kho hoặc điều chỉnh trước | `PRODUCT_HAS_ACTIVE_INVENTORY` |
 
 ---
 

@@ -13,6 +13,7 @@
 ## 2. Context & Problem Statement
 
 Trong các ứng dụng quản lý kho hàng và tài chính truyền thống, việc cập nhật trực tiếp số dư (ví dụ: `UPDATE products SET stock = stock - 5`) hoặc cập nhật trực tiếp công nợ là một sai lầm kiến trúc tai hại:
+
 - Khi có sự cố sai lệch số liệu (Discrepancy), hoàn toàn không thể truy vết được số tồn hoặc số nợ đó bị thay đổi bởi giao dịch nào, vào lúc nào, bởi ai.
 - Thao tác xóa cứng record (`DELETE FROM orders`) làm mất hoàn toàn chứng từ kiểm toán, gây rủi ro thất thoát hàng trăm triệu đồng vật tư và tiền bạc.
 - Không kiểm soát được trạng thái đơn hàng khi các tiến trình xử lý song song diễn ra (như vừa hủy đơn vừa xuất hàng).
@@ -47,16 +48,20 @@ Cần một kiến trúc Sổ cái Bất biến (Immutable Append-Only Ledger) v
 **Chọn Option C: Áp dụng Sổ cái Bất biến cho Kho và Công nợ kết hợp với Finite State Machine cho Đơn hàng & Vận chuyển.**
 
 ### 1. Sổ cái Kho Bất biến (`inventory_ledger`):
+
 - Các loại sự kiện: `IMPORT`, `EXPORT`, `RESERVE`, `UNRESERVE`, `TRANSFER_OUT`, `TRANSFER_IN`, `TRANSFER_SHRINKAGE`, `STOCK_ADJUSTMENT`, `RETURN_IMPORT`.
 - Cấm tuyệt đối câu lệnh `UPDATE` hoặc `DELETE` trên bảng `inventory_ledger`.
 - Mọi điều chỉnh hoặc hủy phiếu đều sinh dòng giao dịch bù trừ (Reverse Entry).
 
 ### 2. Sổ cái Công nợ Kép (`debt_ledger`):
+
 - Quản lý theo cơ chế ghi nợ (`DEBIT`) và ghi có (`CREDIT`).
 - Dư nợ = $\sum \text{DEBIT} - \sum \text{CREDIT}$.
 
 ### 3. Finite State Machine (FSM):
+
 Áp dụng mô hình 8 trạng thái và sự kiện trừ kho duy nhất (Single Deduction Point):
+
 - Đơn giao hàng tận nơi: Trừ kho thực tế (`on_hand -= qty, reserved -= qty`) duy nhất tại thời điểm chuyển sang `DELIVERING`.
 - Đơn bán lẻ tại quầy / POS: Trừ kho thực tế (`on_hand -= qty, reserved -= qty`) duy nhất tại thời điểm chuyển sang `COMPLETED`.
 
@@ -81,12 +86,14 @@ stateDiagram-v2
 ## 6. Consequences
 
 ### Positive Consequences
+
 - **Kiểm toán Hoàn hảo:** Bất kỳ lúc nào cũng có thể kiểm tra: $\text{Số dư hiện tại} = \sum \text{Dòng ledger}$. Sai lệch được phát hiện ngay lập tức.
 - **Không sợ mất dữ liệu:** Xóa nhầm hoặc thao tác sai đều có thể truy vết và lập bút toán đảo dấu để cân bằng lại sổ sách.
 - **An toàn Concurrency:** Dễ dàng khóa dòng trên bảng balance để đảm bảo transaction ACID.
 
 ### Negative Consequences & Mitigations
-- *Dung lượng bảng ledger tăng theo thời gian:* Thiết lập Partitioning theo thời gian (theo năm) trên PostgreSQL cho các bảng `inventory_ledger` và `debt_ledger`.
+
+- _Dung lượng bảng ledger tăng theo thời gian:_ Thiết lập Partitioning theo thời gian (theo năm) trên PostgreSQL cho các bảng `inventory_ledger` và `debt_ledger`.
 
 ---
 

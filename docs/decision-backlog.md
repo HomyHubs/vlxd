@@ -9,21 +9,21 @@
 
 ## 1. Bảng tóm tắt danh mục quyết định
 
-| ID | Quyết định | Phân loại | Trạng thái | Owner | Trigger / Milestone | Blocker cho Feature |
-| --- | --- | --- | --- | --- | --- | --- |
-| **DEC-001** | Platform Admin vs Tenant Admin Scope | Kiến trúc / Auth | `Open` (Assumption) | CEO / Architect | M1 (TASK-009, 010a) | `auth`, `role-management`, `service-plan` |
-| **DEC-002** | Branch & Multi-Warehouse Scope | Nghiệp vụ / Core | `Open` (Assumption) | CEO / Ops Lead | M2 (TASK-014a, 015), M4 (TASK-025) | `warehouse`, `inventory`, `yard-map` |
-| **DEC-003** | Thời điểm Reserve và Trừ Tồn kho | Nghiệp vụ / Ledger | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016c, 018c) | `inventory`, `order`, `pos` |
-| **DEC-004** | Cho phép Xuất âm & Xử lý Đơn đặt trước (Backorder) | Nghiệp vụ / Kho | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-016b, 018b) | `inventory`, `order` |
-| **DEC-005** | State Machine và Vòng đời Đơn hàng | Nghiệp vụ / Bán hàng | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-018b, 018c) | `order`, `invoice`, `pos` |
-| **DEC-006** | Chính sách Hủy chứng từ, Hoàn tác & Ghi sổ bù trừ | Nghiệp vụ / Ledger | `Accepted` | CEO / Accountant | M3 (TASK-016c, 018d) | `inventory`, `order`, `finance` |
-| **DEC-007** | Thanh toán từng phần & Quản lý Sổ nợ Công nợ | Nghiệp vụ / Tài chính | `Open` (Assumption) | CEO / Accountant | M3 (TASK-020a, 020b) | `order`, `customer`, `supplier`, `finance` |
-| **DEC-008** | Xử lý Thuế VAT trên Báo giá và Đơn hàng | Nghi vụ / Thuế | `Open` (Assumption) | CEO / Accountant | M3 (TASK-018a, 018b), M4 (TASK-024) | `product`, `order`, `invoice`, `settings` |
-| **DEC-009** | Phương pháp Tính giá vốn Hàng tồn kho | Kế toán / Kho | `Open` (Assumption) | CEO / Accountant | M3 (TASK-016a, 021), M4 (TASK-022) | `inventory`, `purchase`, `report`, `finance` |
-| **DEC-010** | Phân cấp Phê duyệt Chiết khấu & Giảm giá | Nghiệp vụ / Bán hàng | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-018d) | `order`, `role-management` |
-| **DEC-011** | Kiểm soát Hạn mức Công nợ Khách hàng (Credit Limit) | Nghiệp vụ / Rủi ro | `Open` (Assumption) | CEO / Risk Lead | M2 (TASK-017), M3 (TASK-018b) | `customer`, `order` |
-| **DEC-012** | Quy trình Chuyển kho Nội bộ (Stock Transfer) | Nghiệp vụ / Kho | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016b, 016c) | `warehouse`, `inventory` |
-| **DEC-013** | Chính sách Lưu trữ, Soft-delete & Archive Dữ liệu | Kỹ thuật / DB | `Open` (Assumption) | Architect | M1 (TASK-008a) | Toàn bộ các module, `platform`, `db` |
+| ID          | Quyết định                                          | Phân loại             | Trạng thái          | Owner                | Trigger / Milestone                 | Blocker cho Feature                          |
+| ----------- | --------------------------------------------------- | --------------------- | ------------------- | -------------------- | ----------------------------------- | -------------------------------------------- |
+| **DEC-001** | Platform Admin vs Tenant Admin Scope                | Kiến trúc / Auth      | `Open` (Assumption) | CEO / Architect      | M1 (TASK-009, 010a)                 | `auth`, `role-management`, `service-plan`    |
+| **DEC-002** | Branch & Multi-Warehouse Scope                      | Nghiệp vụ / Core      | `Open` (Assumption) | CEO / Ops Lead       | M2 (TASK-014a, 015), M4 (TASK-025)  | `warehouse`, `inventory`, `yard-map`         |
+| **DEC-003** | Thời điểm Reserve và Trừ Tồn kho                    | Nghiệp vụ / Ledger    | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016c, 018c)                | `inventory`, `order`, `pos`                  |
+| **DEC-004** | Cho phép Xuất âm & Xử lý Đơn đặt trước (Backorder)  | Nghiệp vụ / Kho       | `Open` (Assumption) | CEO / Sales Lead     | M3 (TASK-016b, 018b)                | `inventory`, `order`                         |
+| **DEC-005** | State Machine và Vòng đời Đơn hàng                  | Nghiệp vụ / Bán hàng  | `Open` (Assumption) | CEO / Sales Lead     | M3 (TASK-018b, 018c)                | `order`, `invoice`, `pos`                    |
+| **DEC-006** | Chính sách Hủy chứng từ, Hoàn tác & Ghi sổ bù trừ   | Nghiệp vụ / Ledger    | `Accepted`          | CEO / Accountant     | M3 (TASK-016c, 018d)                | `inventory`, `order`, `finance`              |
+| **DEC-007** | Thanh toán từng phần & Quản lý Sổ nợ Công nợ        | Nghiệp vụ / Tài chính | `Open` (Assumption) | CEO / Accountant     | M3 (TASK-020a, 020b)                | `order`, `customer`, `supplier`, `finance`   |
+| **DEC-008** | Xử lý Thuế VAT trên Báo giá và Đơn hàng             | Nghi vụ / Thuế        | `Open` (Assumption) | CEO / Accountant     | M3 (TASK-018a, 018b), M4 (TASK-024) | `product`, `order`, `invoice`, `settings`    |
+| **DEC-009** | Phương pháp Tính giá vốn Hàng tồn kho               | Kế toán / Kho         | `Open` (Assumption) | CEO / Accountant     | M3 (TASK-016a, 021), M4 (TASK-022)  | `inventory`, `purchase`, `report`, `finance` |
+| **DEC-010** | Phân cấp Phê duyệt Chiết khấu & Giảm giá            | Nghiệp vụ / Bán hàng  | `Open` (Assumption) | CEO / Sales Lead     | M3 (TASK-018d)                      | `order`, `role-management`                   |
+| **DEC-011** | Kiểm soát Hạn mức Công nợ Khách hàng (Credit Limit) | Nghiệp vụ / Rủi ro    | `Open` (Assumption) | CEO / Risk Lead      | M2 (TASK-017), M3 (TASK-018b)       | `customer`, `order`                          |
+| **DEC-012** | Quy trình Chuyển kho Nội bộ (Stock Transfer)        | Nghiệp vụ / Kho       | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016b, 016c)                | `warehouse`, `inventory`                     |
+| **DEC-013** | Chính sách Lưu trữ, Soft-delete & Archive Dữ liệu   | Kỹ thuật / DB         | `Open` (Assumption) | Architect            | M1 (TASK-008a)                      | Toàn bộ các module, `platform`, `db`         |
 
 ---
 
@@ -33,8 +33,8 @@
 
 - **Bối cảnh:** Cần phân tách rõ quyền hạn giữa đội ngũ quản trị nền tảng SaaS (`vlxd`) và người dùng quản trị cửa hàng/doanh nghiệp thuê bao.
 - **Các phương án:**
-  - *Option A:* Gộp chung 1 bảng role, dùng flag `is_superadmin` trên bảng `users`.
-  - *Option B (Chọn):* Tách biệt rõ ràng ở cấp dữ liệu: Platform Super Admin quản trị tenant, billing, hạn mức gói; Tenant Admin (Chủ cửa hàng) chỉ quản trị người dùng, chi nhánh, phân quyền trong phạm vi tenant của mình.
+  - _Option A:_ Gộp chung 1 bảng role, dùng flag `is_superadmin` trên bảng `users`.
+  - _Option B (Chọn):_ Tách biệt rõ ràng ở cấp dữ liệu: Platform Super Admin quản trị tenant, billing, hạn mức gói; Tenant Admin (Chủ cửa hàng) chỉ quản trị người dùng, chi nhánh, phân quyền trong phạm vi tenant của mình.
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Backend enforce phân quyền theo capability và tenant isolation. Super admin ở cấp Tenant quản lý nhân sự và cửa hàng của mình; Platform Admin quản trị hệ thống SaaS.
@@ -46,8 +46,8 @@
 
 - **Bối cảnh:** Cửa hàng vật liệu xây dựng thường có bãi chứa chính, bãi phụ và các cửa hàng/chi nhánh bán lẻ.
 - **Các phương án:**
-  - *Option A (Đơn giản):* Mỗi chi nhánh chỉ có duy nhất 1 kho vật lý (quan hệ 1-1).
-  - *Option B (Linh hoạt):* Một công ty (Tenant) có nhiều Chi nhánh; mỗi Chi nhánh sở hữu hoặc liên kết 1 hoặc nhiều Kho/Bãi vật liệu (quan hệ 1-N).
+  - _Option A (Đơn giản):_ Mỗi chi nhánh chỉ có duy nhất 1 kho vật lý (quan hệ 1-1).
+  - _Option B (Linh hoạt):_ Một công ty (Tenant) có nhiều Chi nhánh; mỗi Chi nhánh sở hữu hoặc liên kết 1 hoặc nhiều Kho/Bãi vật liệu (quan hệ 1-N).
 - **Recommendation:** Option B để phản ánh đúng thực tế cửa hàng VLXD (1 chi nhánh có thể có bãi cát đá riêng và kho xi măng/sắt thép kế bên).
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Áp dụng mô hình Tenant $\rightarrow$ Chi nhánh (Branch) $\rightarrow$ Kho (Warehouse/Yard). Dữ liệu tồn kho được lưu và quản lý theo cấp độ từng Kho cụ thể. Gói Free/Standard giới hạn 1 kho; gói Premium/Enterprise không giới hạn.
@@ -59,8 +59,8 @@
 
 - **Bối cảnh:** Khi nhân viên tạo đơn hàng bán, tồn kho có bị trừ ngay hay chỉ giữ chỗ tạm thời?
 - **Các phương án:**
-  - *Option A:* Trừ tồn kho thực tế ngay khi tạo Đơn hàng ở trạng thái bất kỳ. (Rủi ro: Khách chưa lấy hàng hoặc hủy đơn sẽ làm sai lệch tồn thực tế tại bãi).
-  - *Option B (Chọn - Nhất quán toàn bộ các luồng bán):* Tách bạch giữa **Tồn thực tế (`on_hand`)** và **Tồn khả dụng (`available = on_hand - reserved`)**, luôn bảo đảm bất biến $0 \le \text{reserved} \le \text{on\_hand}$:
+  - _Option A:_ Trừ tồn kho thực tế ngay khi tạo Đơn hàng ở trạng thái bất kỳ. (Rủi ro: Khách chưa lấy hàng hoặc hủy đơn sẽ làm sai lệch tồn thực tế tại bãi).
+  - _Option B (Chọn - Nhất quán toàn bộ các luồng bán):_ Tách bạch giữa **Tồn thực tế (`on_hand`)** và **Tồn khả dụng (`available = on_hand - reserved`)**, luôn bảo đảm bất biến $0 \le \text{reserved} \le \text{on\_hand}$:
     - **Giữ chỗ (`RESERVE`):** Khi Đơn hàng chuyển sang `CONFIRMED`, hệ thống kiểm tra tồn khả dụng và tự động tăng `reserved += qty` (`available = on_hand - reserved`). Đơn ở trạng thái `BACKORDER` không thực hiện giữ chỗ.
     - **Sự kiện Trừ kho thực tế duy nhất (`EXPORT`):**
       - Đối với đơn giao hàng tận nơi: Trừ kho thực tế (`on_hand -= qty, reserved -= qty`) duy nhất tại thời điểm đơn hàng chuyển sang `DELIVERING` (hàng được bốc lên xe và xuất bãi).
@@ -77,9 +77,9 @@
 
 - **Bối cảnh:** Trong ngành VLXD, hàng cồng kềnh (cát, đá, xi măng) đôi khi giao thẳng từ nhà máy đến công trình của khách trước khi kịp nhập chứng từ vào phần mềm.
 - **Các phương án:**
-  - *Option A (Lỏng):* Cho phép xuất âm tồn kho thoải mái; cảnh báo sau. (Hệ quả: Rối loạn giá vốn bình quân và sai lệch kiểm kê).
-  - *Option B (Chặt):* Tuyệt đối không cho xuất âm (`Strict No-Negative Stock`).
-  - *Option C (Chọn - Cân bằng):* Mặc định chặn xuất âm trên sổ kho. Nếu tồn khả dụng không đủ đáp ứng, đơn hàng chuyển sang trạng thái "Đặt trước / Chờ hàng về" (`BACKORDER`). Khi phiếu nhập hàng (`IMPORT`) tương ứng được duyệt vào kho, hệ thống tự động phân bổ và chuyển đơn hàng sang `CONFIRMED` (nơi thực hiện `reserved += qty`).
+  - _Option A (Lỏng):_ Cho phép xuất âm tồn kho thoải mái; cảnh báo sau. (Hệ quả: Rối loạn giá vốn bình quân và sai lệch kiểm kê).
+  - _Option B (Chặt):_ Tuyệt đối không cho xuất âm (`Strict No-Negative Stock`).
+  - _Option C (Chọn - Cân bằng):_ Mặc định chặn xuất âm trên sổ kho. Nếu tồn khả dụng không đủ đáp ứng, đơn hàng chuyển sang trạng thái "Đặt trước / Chờ hàng về" (`BACKORDER`). Khi phiếu nhập hàng (`IMPORT`) tương ứng được duyệt vào kho, hệ thống tự động phân bổ và chuyển đơn hàng sang `CONFIRMED` (nơi thực hiện `reserved += qty`).
 - **Recommendation:** Option C.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Mặc định áp dụng Strict No-Negative Stock cho giao dịch kho thông thường; tích hợp trạng thái đơn `BACKORDER` vào State Machine chuẩn của đơn hàng.
@@ -117,8 +117,8 @@
 
 - **Bối cảnh:** Xử lý sai sót kế toán, kho bãi hoặc đơn hàng đã phát sinh giao dịch.
 - **Các phương án:**
-  - *Option A:* Xóa cứng record (`DELETE FROM orders...`). (Vi phạm kiểm toán, mất dấu vết tiền và hàng).
-  - *Option B (Chọn):* Tuyệt đối không xóa cứng giao dịch đã hoàn tất. Sử dụng cơ chế ghi sổ bù trừ (Reverse Transaction / Credit Note): Hủy đơn sẽ sinh phiếu nhập hoàn kho bù trừ và phiếu điều chỉnh công nợ, đồng thời ghi nhận Audit Log đầy đủ lý do hủy và người thực hiện.
+  - _Option A:_ Xóa cứng record (`DELETE FROM orders...`). (Vi phạm kiểm toán, mất dấu vết tiền và hàng).
+  - _Option B (Chọn):_ Tuyệt đối không xóa cứng giao dịch đã hoàn tất. Sử dụng cơ chế ghi sổ bù trừ (Reverse Transaction / Credit Note): Hủy đơn sẽ sinh phiếu nhập hoàn kho bù trừ và phiếu điều chỉnh công nợ, đồng thời ghi nhận Audit Log đầy đủ lý do hủy và người thực hiện.
 - **Recommendation:** Option B.
 - **Trạng thái:** `Accepted`.
 - **Ghi nhận quyết định:** Đã quy định tại `/AGENTS.md` (mục 4.1 & 9).
@@ -130,8 +130,8 @@
 
 - **Bối cảnh:** Khách hàng công trình xây dựng thường đặt cọc trước một phần, nhận hàng nhiều đợt và thanh toán gối đầu theo tiến độ.
 - **Các phương án:**
-  - *Option A:* Chỉ ghi nhận 1 trường `debt_amount` trên bảng `customers`. (Rất dễ sai lệch, không đối soát được nợ của từng đơn hàng).
-  - *Option B (Chọn):* Sổ cái công nợ kép (`debt_ledger`): Mỗi đơn hàng phát sinh một khoản nợ phải thu (Debit). Mỗi lần thanh toán tiền mặt/chuyển khoản sinh một phiếu thu (Credit) gán vào đơn hàng hoặc tài khoản khách hàng. Tổng nợ = $\sum \text{Debit} - \sum \text{Credit}$.
+  - _Option A:_ Chỉ ghi nhận 1 trường `debt_amount` trên bảng `customers`. (Rất dễ sai lệch, không đối soát được nợ của từng đơn hàng).
+  - _Option B (Chọn):_ Sổ cái công nợ kép (`debt_ledger`): Mỗi đơn hàng phát sinh một khoản nợ phải thu (Debit). Mỗi lần thanh toán tiền mặt/chuyển khoản sinh một phiếu thu (Credit) gán vào đơn hàng hoặc tài khoản khách hàng. Tổng nợ = $\sum \text{Debit} - \sum \text{Credit}$.
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Triển khai Sổ nợ công nợ theo Option B. Cho phép 1 đơn hàng nhận nhiều phiếu thu (Partial Payment).
@@ -143,8 +143,8 @@
 
 - **Bối cảnh:** Trong ngành VLXD, một số khách lẻ mua không lấy hóa đơn VAT, trong khi nhà thầu và doanh nghiệp bắt buộc phải có thuế VAT.
 - **Các phương án:**
-  - *Option A:* Giá bán toàn hệ thống mặc định chưa bao gồm thuế; cộng thêm % VAT ở cuối đơn.
-  - *Option B (Chọn):* Cấu hình thuế suất VAT linh hoạt theo từng mặt hàng (0%, 5%, 8%, 10%); đơn hàng hỗ trợ cờ `is_vat_invoice`. Giá bán có thể hiển thị trước thuế / sau thuế rõ ràng.
+  - _Option A:_ Giá bán toàn hệ thống mặc định chưa bao gồm thuế; cộng thêm % VAT ở cuối đơn.
+  - _Option B (Chọn):_ Cấu hình thuế suất VAT linh hoạt theo từng mặt hàng (0%, 5%, 8%, 10%); đơn hàng hỗ trợ cờ `is_vat_invoice`. Giá bán có thể hiển thị trước thuế / sau thuế rõ ràng.
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Hỗ trợ cấu hình VAT theo từng sản phẩm và tính toán chi tiết thuế trên từng dòng đơn hàng khi xuất hóa đơn VAT.
@@ -156,8 +156,8 @@
 
 - **Bối cảnh:** Giá vật liệu xây dựng (đặc biệt là sắt thép, cát đá) biến động liên tục theo ngày.
 - **Các phương án:**
-  - *Option A:* FIFO (Nhập trước xuất trước). (Phức tạp khi chuyển kho và tách lô đối với hàng xả đống như cát đá).
-  - *Option B (Chọn):* Bình quân gia quyền liên hoàn (Moving Weighted Average). Sau mỗi lần nhập kho, giá vốn được tính lại tự động:
+  - _Option A:_ FIFO (Nhập trước xuất trước). (Phức tạp khi chuyển kho và tách lô đối với hàng xả đống như cát đá).
+  - _Option B (Chọn):_ Bình quân gia quyền liên hoàn (Moving Weighted Average). Sau mỗi lần nhập kho, giá vốn được tính lại tự động:
     $$\text{Giá vốn mới} = \frac{(\text{Tồn cũ} \times \text{Giá vốn cũ}) + (\text{Số lượng nhập} \times \text{Giá nhập mới})}{\text{Tồn cũ} + \text{Số lượng nhập}}$$
 - **Recommendation:** Option B tối ưu cho ngành VLXD, dễ vận hành và độ chính xác tài chính cao.
 - **Trạng thái:** `Open` (Assumption).
@@ -170,8 +170,8 @@
 
 - **Bối cảnh:** Ngăn ngừa tình trạng nhân viên tự ý giảm giá quá sâu gây thất thoát lợi nhuận.
 - **Các phương án:**
-  - *Option A:* Bất kỳ nhân viên nào cũng được quyền nhập % giảm giá tùy ý.
-  - *Option B (Chọn):* Phân tầng hạn mức chiết khấu theo capability thẩm quyền (không hard-code theo title):
+  - _Option A:_ Bất kỳ nhân viên nào cũng được quyền nhập % giảm giá tùy ý.
+  - _Option B (Chọn):_ Phân tầng hạn mức chiết khấu theo capability thẩm quyền (không hard-code theo title):
     - Capability `sales.discount.tier1` (mặc định gán nhân viên bán hàng): Chiết khấu tối đa **$\le 3\%$**.
     - Capability `sales.discount.tier2` (mặc định gán quản lý cửa hàng / chi nhánh): Chiết khấu tối đa **$\le 10\%$**.
     - Capability `sales.discount.override` (mặc định gán chủ cửa hàng / super admin): Chiết khấu vượt quá $10\%$ (yêu cầu phê duyệt Approval OTP / Xác nhận trực tiếp).
@@ -186,8 +186,8 @@
 
 - **Bối cảnh:** Quản lý rủi ro nợ xấu đối với các nhà thầu xây dựng mua nợ khối lượng lớn.
 - **Các phương án:**
-  - *Option A:* Chỉ hiển thị cảnh báo đỏ trên giao diện khi khách vượt hạn mức nợ, vẫn cho phép tạo đơn tiếp.
-  - *Option B (Chọn - Kiểm soát chặt):* Khi tổng nợ hiện tại + giá trị đơn mới $>$ `credit_limit`, hệ thống chặn hoàn tất đơn hàng và yêu cầu capability `customer.credit.override` duyệt ghi đè.
+  - _Option A:_ Chỉ hiển thị cảnh báo đỏ trên giao diện khi khách vượt hạn mức nợ, vẫn cho phép tạo đơn tiếp.
+  - _Option B (Chọn - Kiểm soát chặt):_ Khi tổng nợ hiện tại + giá trị đơn mới $>$ `credit_limit`, hệ thống chặn hoàn tất đơn hàng và yêu cầu capability `customer.credit.override` duyệt ghi đè.
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Triển khai theo Option B. Khách hàng mới/khách lẻ có `credit_limit = 0` (bắt buộc thanh toán 100%). Nhà thầu được cấu hình hạn mức riêng. Cho phép duyệt ghi đè khi user sở hữu capability `customer.credit.override`.
@@ -199,8 +199,8 @@
 
 - **Bối cảnh:** Điều chuyển vật liệu giữa bãi chính và các chi nhánh bán lẻ cần phản ánh chính xác thời gian vận chuyển trên đường, đối soát hao hụt và đảm bảo tính toàn vẹn số liệu kế toán kho.
 - **Các phương án:**
-  - *Option A (1 bước):* Trừ kho xuất và cộng ngay vào kho nhập trong 1 giao dịch database duy nhất. (Nhược điểm: Không phản ánh thời gian hàng đang trên xe vận chuyển, dễ thất thoát nếu có sự cố dọc đường, không đối soát được trách nhiệm tài xế).
-  - *Option B (2 bước - Chọn):* Quy trình Chuyển kho 2 bước độc lập với đảm bảo Giao dịch nguyên tử (Atomic Transactions) & Bất biến bảo toàn tồn kho (Inventory Conservation):
+  - _Option A (1 bước):_ Trừ kho xuất và cộng ngay vào kho nhập trong 1 giao dịch database duy nhất. (Nhược điểm: Không phản ánh thời gian hàng đang trên xe vận chuyển, dễ thất thoát nếu có sự cố dọc đường, không đối soát được trách nhiệm tài xế).
+  - _Option B (2 bước - Chọn):_ Quy trình Chuyển kho 2 bước độc lập với đảm bảo Giao dịch nguyên tử (Atomic Transactions) & Bất biến bảo toàn tồn kho (Inventory Conservation):
     - **Bước 1 — Xuất chuyển (`DISPATCH`):** Thực thi 1 Atomic DB Transaction: Trừ tồn kho nguồn (`source_on_hand -= qty`) và ghi nhận vào trạng thái đang đi đường (`in_transit += qty`), sinh bút toán xuất chuyển trên `inventory_ledger`.
     - **Bước 2 — Xác nhận nhập (`RECEIVE`):** Thực thi 1 Atomic DB Transaction: Trừ hàng đang chuyển (`in_transit -= qty`), cộng tồn kho đích theo số lượng thực nhận (`destination_on_hand += received_qty`). Nếu phát sinh chênh lệch hao hụt (`shrinkage_qty = qty - received_qty > 0`), hệ thống tự động sinh bút toán hao hụt chuyển kho (`TRANSFER_SHRINKAGE`) trên `inventory_ledger`.
     - **Bất biến Bảo toàn Tồn kho (Inventory Conservation Invariant):** Tại mọi thời điểm $t$, hệ thống luôn bảo đảm:
@@ -217,8 +217,8 @@
 
 - **Bối cảnh:** Đảm bảo toàn vẹn dữ liệu kế toán, hóa đơn và lịch sử giao dịch nhiều năm.
 - **Các phương án:**
-  - *Option A:* Cho phép xóa record vật lý sau khi đơn hoàn tất. (Cấm tuyệt đối theo quy chuẩn AGENTS.md).
-  - *Option B (Chọn):* Toàn bộ bảng dữ liệu master data và giao dịch (`products`, `warehouses`, `customers`, `suppliers`, `orders`, `invoices`, `ledger`) áp dụng Soft-delete (`deleted_at`, `is_archived`). Dữ liệu giao dịch kế toán/kho được lưu trữ vĩnh viễn trong MVP; chiến lược chuyển dữ liệu lịch sử trên 2 năm sang bảng lưu trữ lạnh (Cold Archive) được định hướng cho giai đoạn vận hành sau MVP (Post-MVP).
+  - _Option A:_ Cho phép xóa record vật lý sau khi đơn hoàn tất. (Cấm tuyệt đối theo quy chuẩn AGENTS.md).
+  - _Option B (Chọn):_ Toàn bộ bảng dữ liệu master data và giao dịch (`products`, `warehouses`, `customers`, `suppliers`, `orders`, `invoices`, `ledger`) áp dụng Soft-delete (`deleted_at`, `is_archived`). Dữ liệu giao dịch kế toán/kho được lưu trữ vĩnh viễn trong MVP; chiến lược chuyển dữ liệu lịch sử trên 2 năm sang bảng lưu trữ lạnh (Cold Archive) được định hướng cho giai đoạn vận hành sau MVP (Post-MVP).
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Áp dụng cơ chế Soft-delete (`deleted_at`, `is_archived`) ở cấp độ schema DB cho master data và transactions trong MVP; Cold Archive được hoãn lại sau MVP.

@@ -6,11 +6,11 @@
 
 ## 1. Actors & Permissions
 
-| Chức danh / Title | Quyền hạn trên module Kiểm toán | Khả năng thực hiện (Capabilities) |
-| --- | --- | --- |
-| **Chủ cửa hàng (Super Admin)** | Xem toàn bộ nhật ký thao tác hệ thống, lọc theo người dùng/thời gian/loại hành động, xuất báo cáo kiểm toán. | `audit:read_all`, `audit:export` |
-| **Kiểm soát nội bộ / Auditor (Support Admin)** | Xem nhật ký kiểm toán, đối soát lịch sử thay đổi giá/hạn mức nợ/hủy đơn, phát hiện bất thường. | `audit:read`, `audit:export` |
-| **Nhân viên thông thường (User)** | Không có quyền xem nhật ký kiểm toán hệ thống. | `None` |
+| Chức danh / Title                              | Quyền hạn trên module Kiểm toán                                                                              | Khả năng thực hiện (Capabilities) |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| **Chủ cửa hàng (Super Admin)**                 | Xem toàn bộ nhật ký thao tác hệ thống, lọc theo người dùng/thời gian/loại hành động, xuất báo cáo kiểm toán. | `audit:read_all`, `audit:export`  |
+| **Kiểm soát nội bộ / Auditor (Support Admin)** | Xem nhật ký kiểm toán, đối soát lịch sử thay đổi giá/hạn mức nợ/hủy đơn, phát hiện bất thường.               | `audit:read`, `audit:export`      |
+| **Nhân viên thông thường (User)**              | Không có quyền xem nhật ký kiểm toán hệ thống.                                                               | `None`                            |
 
 ---
 
@@ -20,11 +20,11 @@
   - Mọi thao tác nhạy cảm, giao dịch tài chính, kho bãi hoặc thay đổi dữ liệu cấu hình đều phải được ghi nhận tự động vào bảng `audit_logs`.
   - Bảng `audit_logs` là **Append-only tuyệt đối**: Không có API hoặc quyền nào (kể cả Super Admin) được phép sửa (`UPDATE`) hoặc xóa (`DELETE`) các dòng nhật ký đã ghi.
 - **Danh mục sự kiện bắt buộc ghi nhận Audit Log:**
-  1. *Xác thực & Người dùng:* Đăng nhập, Đăng xuất thất bại liên tiếp (chống Brute-force), Đổi mật khẩu, Gán quyền/Role.
-  2. *Sản phẩm & Giá:* Tạo sản phẩm, Thay đổi giá bán, Thay đổi giá vốn thủ công, Xóa mềm sản phẩm.
-  3. *Tồn kho & Kho bãi:* Nhập kho, Xuất kho, Điều chuyển kho, Duyệt phiếu kiểm kê điều chỉnh tồn.
-  4. *Bán hàng & Đơn hàng:* Tạo đơn, Duyệt đơn, Duyệt chiết khấu vượt thẩm quyền, Hủy đơn hàng, Duyệt trả hàng.
-  5. *Tài chính & Công nợ:* Ghi nhận phiếu thu/chi, Điều chỉnh số dư nợ, Duyệt ghi đè hạn mức nợ (Credit Limit Override).
+  1. _Xác thực & Người dùng:_ Đăng nhập, Đăng xuất thất bại liên tiếp (chống Brute-force), Đổi mật khẩu, Gán quyền/Role.
+  2. _Sản phẩm & Giá:_ Tạo sản phẩm, Thay đổi giá bán, Thay đổi giá vốn thủ công, Xóa mềm sản phẩm.
+  3. _Tồn kho & Kho bãi:_ Nhập kho, Xuất kho, Điều chuyển kho, Duyệt phiếu kiểm kê điều chỉnh tồn.
+  4. _Bán hàng & Đơn hàng:_ Tạo đơn, Duyệt đơn, Duyệt chiết khấu vượt thẩm quyền, Hủy đơn hàng, Duyệt trả hàng.
+  5. _Tài chính & Công nợ:_ Ghi nhận phiếu thu/chi, Điều chỉnh số dư nợ, Duyệt ghi đè hạn mức nợ (Credit Limit Override).
 - **Cấu trúc một bản ghi Audit Log:**
   - `id`: UUID định danh duy nhất.
   - `tenant_id`: ID của Tenant.
@@ -68,9 +68,9 @@
 
 ## 5. Failure & Edge Cases
 
-| Trường hợp | Phản hồi hệ thống | Mã lỗi backend |
-| --- | --- | --- |
-| Người dùng gửi request sửa đổi audit log | Chặn tuyệt đối, trả lỗi 403 / Không có endpoint | `ACTION_NOT_SUPPORTED` |
+| Trường hợp                                      | Phản hồi hệ thống                                              | Mã lỗi backend           |
+| ----------------------------------------------- | -------------------------------------------------------------- | ------------------------ |
+| Người dùng gửi request sửa đổi audit log        | Chặn tuyệt đối, trả lỗi 403 / Không có endpoint                | `ACTION_NOT_SUPPORTED`   |
 | Lỗi ghi audit log khi thực hiện giao dịch chính | Giao dịch chính bị Rollback để đảm bảo tính toàn vẹn kiểm toán | `AUDIT_LOG_WRITE_FAILED` |
 
 ---

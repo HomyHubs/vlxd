@@ -6,12 +6,12 @@
 
 ## 1. Actors & Permissions
 
-| Chức danh / Title | Quyền hạn trên module Tồn kho | Khả năng thực hiện (Capabilities) |
-| --- | --- | --- |
-| **Chủ cửa hàng (Super Admin)** | Toàn quyền xem sổ cái, duyệt phiếu kiểm kê điều chỉnh chênh lệch lớn, cấu hình quy tắc xuất kho. | `inventory:read_ledger`, `inventory:audit_adjust`, `inventory:transfer`, `inventory:configure` |
-| **Quản lý chi nhánh (Support Admin)** | Xem tồn kho các kho thuộc chi nhánh, lập và duyệt phiếu nhập/xuất kho, duyệt kiểm kê định kỳ. | `inventory:read`, `inventory:import`, `inventory:export`, `inventory:stock_take`, `inventory:transfer` |
-| **Thủ kho (User)** | Thực hiện phiếu nhập kho nhà cung cấp, xuất kho giao hàng, kiểm đếm tồn thực tế, nhận hàng chuyển kho. | `inventory:read`, `inventory:import_execute`, `inventory:export_execute`, `inventory:count` |
-| **Nhân viên bán hàng (User)** | Tra cứu tồn kho khả dụng (`available = on_hand - reserved`) theo từng kho để tư vấn khách. | `inventory:read_available` |
+| Chức danh / Title                     | Quyền hạn trên module Tồn kho                                                                          | Khả năng thực hiện (Capabilities)                                                                      |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| **Chủ cửa hàng (Super Admin)**        | Toàn quyền xem sổ cái, duyệt phiếu kiểm kê điều chỉnh chênh lệch lớn, cấu hình quy tắc xuất kho.       | `inventory:read_ledger`, `inventory:audit_adjust`, `inventory:transfer`, `inventory:configure`         |
+| **Quản lý chi nhánh (Support Admin)** | Xem tồn kho các kho thuộc chi nhánh, lập và duyệt phiếu nhập/xuất kho, duyệt kiểm kê định kỳ.          | `inventory:read`, `inventory:import`, `inventory:export`, `inventory:stock_take`, `inventory:transfer` |
+| **Thủ kho (User)**                    | Thực hiện phiếu nhập kho nhà cung cấp, xuất kho giao hàng, kiểm đếm tồn thực tế, nhận hàng chuyển kho. | `inventory:read`, `inventory:import_execute`, `inventory:export_execute`, `inventory:count`            |
+| **Nhân viên bán hàng (User)**         | Tra cứu tồn kho khả dụng (`available = on_hand - reserved`) theo từng kho để tư vấn khách.             | `inventory:read_available`                                                                             |
 
 ---
 
@@ -30,8 +30,8 @@
     $$\text{Giá vốn mới} = \frac{(\text{On Hand cũ} \times \text{Giá vốn cũ}) + (\text{Số lượng nhập} \times \text{Giá nhập})}{ \text{On Hand cũ} + \text{Số lượng nhập} }$$
   - Giá vốn này được ghi nhận vào dòng giao dịch xuất kho để phục vụ tính giá vốn hàng bán (COGS) và báo cáo lợi nhuận gộp.
 - **Quy trình Chuyển kho 2 bước (DEC-012):**
-  - *Bước 1 (Xuất chuyển):* Kho A tạo phiếu xuất chuyển $\rightarrow$ Trừ tồn kho A $\rightarrow$ Hàng ghi nhận vào trạng thái Đang vận chuyển (`IN_TRANSIT`).
-  - *Bước 2 (Nhập nhận):* Xe hàng tới Kho B $\rightarrow$ Thủ kho B kiểm đếm số lượng thực tế $\rightarrow$ Nhập kho B $\rightarrow$ Kết thúc `IN_TRANSIT`. Nếu có hao hụt (vd cát đá rơi vãi), ghi nhận phiếu hao hụt điều chỉnh.
+  - _Bước 1 (Xuất chuyển):_ Kho A tạo phiếu xuất chuyển $\rightarrow$ Trừ tồn kho A $\rightarrow$ Hàng ghi nhận vào trạng thái Đang vận chuyển (`IN_TRANSIT`).
+  - _Bước 2 (Nhập nhận):_ Xe hàng tới Kho B $\rightarrow$ Thủ kho B kiểm đếm số lượng thực tế $\rightarrow$ Nhập kho B $\rightarrow$ Kết thúc `IN_TRANSIT`. Nếu có hao hụt (vd cát đá rơi vãi), ghi nhận phiếu hao hụt điều chỉnh.
 - **Kiểm kê & Điều chỉnh tồn (Stock Take):**
   - Hỗ trợ kiểm kê định kỳ theo danh mục hoặc theo kho/bãi.
   - So sánh tồn sổ sách vs tồn thực tế $\rightarrow$ Sinh phiếu điều chỉnh chênh lệch (`STOCK_ADJUSTMENT`) có ghi rõ nguyên nhân (Hao hụt tự nhiên, gãy vỡ, sai sót bốc xếp).
@@ -41,6 +41,7 @@
 ## 3. State Machine & Lifecycle
 
 ### Vòng đời Phiếu Chuyển Kho (Stock Transfer)
+
 ```mermaid
 stateDiagram-v2
     [*] --> DRAFT: Tạo phiếu chuyển kho
@@ -78,12 +79,12 @@ stateDiagram-v2
 
 ## 6. Failure & Edge Cases
 
-| Trường hợp | Phản hồi hệ thống | Mã lỗi backend |
-| --- | --- | --- |
-| Xuất kho số lượng lớn hơn tồn thực tế | Chặn xuất kho, thông báo không đủ hàng tồn | `INSUFFICIENT_INVENTORY` |
-| Hủy phiếu nhập kho đã xuất bán hết | Chặn hủy trực tiếp, yêu cầu xử lý bù trừ công nợ và kiểm kê | `CANNOT_CANCEL_CONSUMED_IMPORT` |
-| Chuyển kho giữa 2 kho thuộc 2 tenant khác nhau | Chặn tuyệt đối, trả lỗi không cùng tenant | `CROSS_TENANT_TRANSFER_FORBIDDEN` |
-| Nhập kho với giá nhập âm | Báo lỗi validation dữ liệu giá nhập | `INVALID_UNIT_COST` |
+| Trường hợp                                     | Phản hồi hệ thống                                           | Mã lỗi backend                    |
+| ---------------------------------------------- | ----------------------------------------------------------- | --------------------------------- |
+| Xuất kho số lượng lớn hơn tồn thực tế          | Chặn xuất kho, thông báo không đủ hàng tồn                  | `INSUFFICIENT_INVENTORY`          |
+| Hủy phiếu nhập kho đã xuất bán hết             | Chặn hủy trực tiếp, yêu cầu xử lý bù trừ công nợ và kiểm kê | `CANNOT_CANCEL_CONSUMED_IMPORT`   |
+| Chuyển kho giữa 2 kho thuộc 2 tenant khác nhau | Chặn tuyệt đối, trả lỗi không cùng tenant                   | `CROSS_TENANT_TRANSFER_FORBIDDEN` |
+| Nhập kho với giá nhập âm                       | Báo lỗi validation dữ liệu giá nhập                         | `INVALID_UNIT_COST`               |
 
 ---
 

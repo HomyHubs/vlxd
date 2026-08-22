@@ -13,6 +13,7 @@
 ## 2. Context & Problem Statement
 
 Mô hình kiến trúc truyền thống dạng phân tầng ngang (Layered / Horizontal Architecture) như gom toàn bộ `controllers/`, `services/`, `repositories/`, `models/` vào các thư mục toàn cục (global directories) thường dẫn tới các vấn đề nghiêm trọng khi hệ thống mở rộng:
+
 - Thay đổi một tính năng (vd: thêm trường vào Đơn hàng) đòi hỏi phải nhảy qua 5–7 thư mục khác nhau trên cây dự án.
 - Dễ sinh ra các "God Service" ôm đồm logic của nhiều nghiệp vụ khác nhau.
 - Ranh giới giữa các module bị mờ nhạt, dẫn tới việc import chéo tùy tiện và coupling cao.
@@ -42,6 +43,7 @@ Cần một kiến trúc tổ chức mã nguồn giúp gom toàn bộ các thàn
 **Chọn Option B: Áp dụng kiến trúc Vertical Slice Feature cho cả `apps/api` và `apps/web`.**
 
 ### Cấu trúc Backend Slice (`apps/api/src/features/<feature>/`)
+
 ```text
 apps/api/src/features/inventory/
 ├── AGENTS.md        # Tài liệu & ghi chú trạng thái riêng của feature
@@ -54,6 +56,7 @@ apps/api/src/features/inventory/
 ```
 
 ### Cấu trúc Frontend Slice (`apps/web/src/features/<feature>/`)
+
 ```text
 apps/web/src/features/inventory/
 ├── AGENTS.md
@@ -70,13 +73,15 @@ apps/web/src/features/inventory/
 ## 6. Consequences
 
 ### Positive Consequences
+
 - **Local Reasoning:** Mọi thứ liên quan đến một nghiệp vụ nằm trọn vẹn trong một thư mục.
 - **Strict Boundaries:** Import chéo giữa các feature chỉ được phép thông qua `features/<other-feature>/index.ts`.
 - **Dễ refactor & xóa bỏ:** Xóa hoặc nâng cấp một feature chỉ cần tác động vào đúng một thư mục.
 
 ### Negative Consequences & Mitigations
-- *Trùng lặp một số logic tiện ích nhỏ:* Đưa các tiện ích thuần túy (date format, money format, crypto) vào `packages/shared` hoặc `platform/`.
-- *Quy tắc đóng gói cần kiểm soát:* Cấu hình ESLint `no-restricted-imports` để chặn import vào file nội bộ của feature khác (chỉ cho phép import qua `index.ts`).
+
+- _Trùng lặp một số logic tiện ích nhỏ:_ Đưa các tiện ích thuần túy (date format, money format, crypto) vào `packages/shared` hoặc `platform/`.
+- _Quy tắc đóng gói cần kiểm soát:_ Cấu hình ESLint `no-restricted-imports` để chặn import vào file nội bộ của feature khác (chỉ cho phép import qua `index.ts`).
 
 ---
 

@@ -13,6 +13,7 @@
 ## 2. Context & Problem Statement
 
 Trong hệ thống quản lý doanh nghiệp vật liệu xây dựng, phân quyền và kiểm soát quyền truy cập là nền tảng cốt lõi:
+
 - Cần kiểm soát chặt chẽ ai được duyệt chiết khấu, ai được xuất kho, ai được sửa giá vốn, ai được xem báo cáo lợi nhuận.
 - Các mô hình phân quyền dựa trên JWT Stateless (Client lưu token) thường gặp vấn đề: Khó thu hồi quyền tức thời khi nhân viên bị khóa tài khoản hoặc chuyển vai trò (chờ JWT hết hạn mới có hiệu lực); kích thước token lớn khi nhét nhiều claim quyền; rủi ro rò rỉ token qua XSS nếu lưu `localStorage`.
 - Hard-code quyền theo chức danh kinh doanh (`if (user.title === 'Giám đốc')`) là một anti-pattern khiến hệ thống bị cứng nhắc và không thể tùy biến quyền cho các cửa hàng khác nhau.
@@ -46,11 +47,13 @@ Cần một kiến trúc xác thực an toàn tuyệt đối, có thể thu hồ
 **Chọn Option B: Sử dụng Server-Side Opaque Sessions kết hợp Cơ chế Phân quyền theo Capability (Capability-Based Authorization).**
 
 ### 1. Cơ chế Xác thực (Authentication):
+
 - Đăng nhập thành công $\rightarrow$ Backend sinh chuỗi `session_token` ngẫu nhiên (64 ký tự hex) $\rightarrow$ Lưu vào bảng `sessions` (có `user_id`, `tenant_id`, `ip`, `user_agent`, `expires_at`).
 - Backend gửi cookie về client: `Set-Cookie: vlxd_session=...; HttpOnly; Secure; SameSite=Lax; Path=/`.
 - Mỗi request gửi lên $\rightarrow$ Fastify Auth Hook truy vấn session từ database/cache $\rightarrow$ Xác thực danh tính.
 
 ### 2. Mô hình Phân quyền 3 Tầng (Authorization Model):
+
 ```mermaid
 graph LR
     User[Người dùng / User] --> Title[Chức danh / Title: Kế toán, Thủ kho, Sales...]
@@ -62,7 +65,7 @@ graph LR
 - **Backend Route Guard:** Backend kiểm tra theo Capability:
   ```typescript
   // Fastify route guard
-  fastify.get('/products', { preHandler: [requirePermission('product.item.read')] }, handler);
+  fastify.get("/products", { preHandler: [requirePermission("product.item.read")] }, handler);
   ```
 
 ---
@@ -70,12 +73,14 @@ graph LR
 ## 6. Consequences
 
 ### Positive Consequences
+
 - **An toàn XSS & CSRF:** Cookie `HttpOnly` ngăn ngừa JavaScript truy cập token; `SameSite=Lax` chặn hầu hết các cuộc tấn công CSRF.
 - **Instant Revocation:** Đổi mật khẩu hoặc vô hiệu hóa user sẽ lập tức hủy toàn bộ session của user đó trên mọi thiết bị.
 - **Linh hoạt phân quyền:** Cửa hàng có thể điều chỉnh quyền chi tiết cho từng nhân viên mà không cần sửa code.
 
 ### Negative Consequences & Mitigations
-- *Database query trên mỗi request:* Cache session trong bộ nhớ đệm (hoặc Redis) và set TTL hợp lý để giảm tải database.
+
+- _Database query trên mỗi request:_ Cache session trong bộ nhớ đệm (hoặc Redis) và set TTL hợp lý để giảm tải database.
 
 ---
 
