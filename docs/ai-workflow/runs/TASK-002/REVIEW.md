@@ -12,9 +12,10 @@
   - Round 5 (PR #10): `abbf796255e48168077a95ccf2198a061e86a300`
   - Round 6 (PR #10): `b224ad87998ad5a35bb65254f82d1c6552b1730e`
   - Round 7 (PR #10): `dfddf596f37d93eae74a81c820401e925a4b596e`
-- Reviewed at (UTC): 2026-08-22T06:35:00Z
-- Review round: 7
-- Verdict: changes_required (Round 7) -> pending re-review
+  - Round 8 (PR #10): `11fc9d41cfc3859c9e3b70e68e53d78b9a4f3b94`
+- Reviewed at (UTC): 2026-08-22T06:50:00Z
+- Review round: 8
+- Verdict: changes_required (Round 8) -> pending re-review
 
 ## Phạm vi đã kiểm tra
 
@@ -74,6 +75,11 @@
 - File/dòng: `docs/requirements/sales-order.md`, `docs/adr/0007-immutable-ledgers-and-state-machines.md`, `docs/decision-backlog.md`
 - Trạng thái: resolved (đồng bộ FSM 8 trạng thái, điểm trừ kho duy nhất tại DELIVERING/COMPLETED, capability chiết khấu trên sales-order.md và ADR-0007; sửa DEC-011 trỏ đúng TASK-017 & TASK-018b; đóng fence Mermaid và sửa bảng tóm tắt 7 cột).
 
+### FINDING-008 — [ROUND 8] Chuẩn hóa toàn bộ định danh Capability sang dot notation `<module>.<resource>.<action>` và bổ sung `TRANSFER_SHRINKAGE` vào ADR-0007
+- Severity: BLOCKER
+- File/dòng: `docs/requirements/sales-order.md`, `docs/decision-backlog.md`, `docs/adr/0006-auth-and-authorization.md`, `docs/adr/0007-immutable-ledgers-and-state-machines.md`
+- Trạng thái: resolved (chuẩn hóa 100% các capability sang dot notation `<module>.<resource>.<action>` khớp với `role-management.md:50-63`; đồng bộ `customer.credit.override` trong DEC-011 và `sales-order.md`; bổ sung `TRANSFER_SHRINKAGE` vào danh mục sự kiện `inventory_ledger` trong ADR-0007).
+
 ## Acceptance criteria
 
 | Criterion | Pass/Fail/Not verified | Evidence |
@@ -94,4 +100,4 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: Đã khắc phục triệt để các phát hiện của Round 7, đồng bộ toàn diện giữa Decision Backlog, Requirements và ADRs, sẵn sàng đưa SHA mới vào re-review để nhận phê duyệt chính thức `APPROVED_TO_MERGE`.
+- Lý do kết luận: Đã khắc phục triệt để các phát hiện của Round 8, chuẩn hóa toàn diện định danh Capability theo chuẩn dot notation `<module>.<resource>.<action>` trên mọi tài liệu requirements và ADRs, sẵn sàng đưa SHA mới vào re-review để nhận phê duyệt chính thức `APPROVED_TO_MERGE`.

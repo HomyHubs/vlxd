@@ -8,10 +8,10 @@
 
 | Chức danh / Title | Quyền hạn trên module Bán hàng | Khả năng thực hiện (Capabilities) |
 | --- | --- | --- |
-| **Chủ cửa hàng (Super Admin)** | Toàn quyền tạo đơn, sửa đơn, duyệt chiết khấu đặc biệt $> 10\%$, duyệt hạn mức nợ, hủy đơn hàng đã chốt, xem lợi nhuận đơn. | `order:create`, `order:read`, `order:update`, `order:cancel`, `sales.discount.override`, `customer:credit_override`, `order:margin_view` |
-| **Quản lý chi nhánh (Support Admin)** | Duyệt đơn hàng, duyệt chiết khấu $\le 10\%$, duyệt ngoại lệ hạn mức nợ, xem báo cáo bán hàng chi nhánh. | `order:create`, `order:read`, `order:confirm`, `sales.discount.tier2`, `customer:credit_override`, `order:cancel` |
-| **Nhân viên bán hàng (User)** | Tạo báo giá, tạo đơn hàng, áp dụng chiết khấu $\le 3\%$, in phiếu đặt hàng, theo dõi tiến độ giao hàng. | `order:create`, `order:read`, `sales.discount.tier1`, `order:quote_create` |
-| **Thu ngân (User)** | Thu tiền đơn hàng (tiền mặt/chuyển khoản VietQR), in hóa đơn bán lẻ/phiếu thu tiền. | `order:read`, `order:payment_collect` |
+| **Chủ cửa hàng (Super Admin)** | Toàn quyền tạo đơn, sửa đơn, duyệt chiết khấu đặc biệt $> 10\%$, duyệt hạn mức nợ, hủy đơn hàng đã chốt, xem lợi nhuận đơn. | `sales.order.create`, `sales.order.read`, `sales.order.update`, `sales.order.cancel`, `sales.discount.override`, `customer.credit.override`, `sales.order.view_margin` |
+| **Quản lý chi nhánh (Support Admin)** | Duyệt đơn hàng, duyệt chiết khấu $\le 10\%$, duyệt ngoại lệ hạn mức nợ, xem báo cáo bán hàng chi nhánh. | `sales.order.create`, `sales.order.read`, `sales.order.confirm`, `sales.discount.tier2`, `customer.credit.override`, `sales.order.cancel` |
+| **Nhân viên bán hàng (User)** | Tạo báo giá, tạo đơn hàng, áp dụng chiết khấu $\le 3\%$, in phiếu đặt hàng, theo dõi tiến độ giao hàng. | `sales.order.create`, `sales.order.read`, `sales.discount.tier1`, `sales.quote.create` |
+| **Thu ngân (User)** | Thu tiền đơn hàng (tiền mặt/chuyển khoản VietQR), in hóa đơn bán lẻ/phiếu thu tiền. | `sales.order.read`, `sales.payment.collect` |
 
 ---
 
@@ -35,7 +35,7 @@
   - Capability `sales.discount.tier2` (mặc định gán quản lý cửa hàng): Chiết khấu tối đa **$\le 10\%$**.
   - Capability `sales.discount.override` (mặc định gán chủ cửa hàng / super admin): Chiết khấu vượt quá $10\%$ (yêu cầu phê duyệt Approval OTP / Xác nhận trực tiếp).
 - **Kiểm soát Hạn mức Công nợ Khách hàng (DEC-011):**
-  - Khi tổng nợ hiện tại + giá trị đơn mới $>$ `credit_limit`, hệ thống chặn xác nhận đơn (`CONFIRMED`) và yêu cầu capability `customer:credit_override` duyệt ghi đè.
+  - Khi tổng nợ hiện tại + giá trị đơn mới $>$ `credit_limit`, hệ thống chặn xác nhận đơn (`CONFIRMED`) và yêu cầu capability `customer.credit.override` duyệt ghi đè.
 - **Xử lý Thuế VAT (DEC-008):**
   - Mỗi dòng sản phẩm trên đơn hàng có cấu hình thuế suất riêng ($0\%, 5\%, 8\%, 10\%$).
   - Đơn hàng tính toán rõ: $\text{Tổng tiền trước thuế} + \text{Tổng tiền thuế VAT} - \text{Chiết khấu} + \text{Phí vận chuyển/bốc xếp} = \text{Tổng thanh toán}$.

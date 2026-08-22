@@ -47,7 +47,7 @@ Cần một kiến trúc Sổ cái Bất biến (Immutable Append-Only Ledger) v
 **Chọn Option C: Áp dụng Sổ cái Bất biến cho Kho và Công nợ kết hợp với Finite State Machine cho Đơn hàng & Vận chuyển.**
 
 ### 1. Sổ cái Kho Bất biến (`inventory_ledger`):
-- Các loại sự kiện: `IMPORT`, `EXPORT`, `RESERVE`, `UNRESERVE`, `TRANSFER_OUT`, `TRANSFER_IN`, `STOCK_ADJUSTMENT`, `RETURN_IMPORT`.
+- Các loại sự kiện: `IMPORT`, `EXPORT`, `RESERVE`, `UNRESERVE`, `TRANSFER_OUT`, `TRANSFER_IN`, `TRANSFER_SHRINKAGE`, `STOCK_ADJUSTMENT`, `RETURN_IMPORT`.
 - Cấm tuyệt đối câu lệnh `UPDATE` hoặc `DELETE` trên bảng `inventory_ledger`.
 - Mọi điều chỉnh hoặc hủy phiếu đều sinh dòng giao dịch bù trừ (Reverse Entry).
 

@@ -187,10 +187,10 @@
 - **Bối cảnh:** Quản lý rủi ro nợ xấu đối với các nhà thầu xây dựng mua nợ khối lượng lớn.
 - **Các phương án:**
   - *Option A:* Chỉ hiển thị cảnh báo đỏ trên giao diện khi khách vượt hạn mức nợ, vẫn cho phép tạo đơn tiếp.
-  - *Option B (Chọn - Kiểm soát chặt):* Khi tổng nợ hiện tại + giá trị đơn mới $>$ `credit_limit`, hệ thống chặn hoàn tất đơn hàng và yêu cầu quyền Quản lý/Chủ cửa hàng duyệt ghi đè (`Override Credit Limit`).
+  - *Option B (Chọn - Kiểm soát chặt):* Khi tổng nợ hiện tại + giá trị đơn mới $>$ `credit_limit`, hệ thống chặn hoàn tất đơn hàng và yêu cầu capability `customer.credit.override` duyệt ghi đè.
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
-- **Temporary Assumption:** Triển khai theo Option B. Khách hàng mới/khách lẻ có `credit_limit = 0` (bắt buộc thanh toán 100%). Nhà thầu được cấu hình hạn mức riêng.
+- **Temporary Assumption:** Triển khai theo Option B. Khách hàng mới/khách lẻ có `credit_limit = 0` (bắt buộc thanh toán 100%). Nhà thầu được cấu hình hạn mức riêng. Cho phép duyệt ghi đè khi user sở hữu capability `customer.credit.override`.
 - **Blocker:** M2 (`TASK-017`), M3 (`TASK-018b`).
 
 ---

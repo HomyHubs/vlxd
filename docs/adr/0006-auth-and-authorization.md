@@ -55,14 +55,14 @@ Cần một kiến trúc xác thực an toàn tuyệt đối, có thể thu hồ
 graph LR
     User[Người dùng / User] --> Title[Chức danh / Title: Kế toán, Thủ kho, Sales...]
     Title --> RoleGroup[Role Group mặc định: Super Admin, System Admin, Support Admin, User]
-    RoleGroup --> Permissions[Tập hợp Capability: product:read, inventory:export, order:discount_staff...]
+    RoleGroup --> Permissions[Tập hợp Capability: product.item.read, inventory.stock.export, sales.discount.tier1...]
     User -. Custom Override .-> CustomPerms[Ghi đè Permission riêng cho từng User]
 ```
 
 - **Backend Route Guard:** Backend kiểm tra theo Capability:
   ```typescript
   // Fastify route guard
-  fastify.get('/products', { preHandler: [requirePermission('product:read')] }, handler);
+  fastify.get('/products', { preHandler: [requirePermission('product.item.read')] }, handler);
   ```
 
 ---
