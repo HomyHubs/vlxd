@@ -4,25 +4,25 @@
 
 - Milestone hiện tại: **M0 — Foundation guardrails**
 - Base branch: `dev`
-- Last updated: 2026-08-21
+- Last updated: 2026-08-22
 
 ## Bảng lane
 
-| Lane              | Task active | Tiêu đề                                       | Status                                  | PR                                              | Reviewer |
-| ----------------- | ----------- | --------------------------------------------- | --------------------------------------- | ----------------------------------------------- | -------- |
-| `LANE-CORE`       | `TASK-005`  | Scaffold monorepo skeleton & quality baseline | `ready_for_review`                      | [#13](https://github.com/HomyHubs/vlxd/pull/13) | chưa gán |
-| `LANE-CATALOG`    | —           | —                                             | `blocked` (chờ M1)                      | —                                               | —        |
-| `LANE-CRM`        | —           | —                                             | `blocked` (chờ TASK-013)                | —                                               | —        |
-| `LANE-COMMERCE`   | —           | —                                             | `blocked` (chờ M2)                      | —                                               | —        |
-| `LANE-PLATFORMUI` | —           | —                                             | `blocked` (chờ TASK-007 + TASK-010b)    | —                                               | —        |
-| `LANE-QUALITY`    | —           | —                                             | `blocked` (chạy tăng dần theo UI slice) | —                                               | —        |
+| Lane              | Task active | Tiêu đề                                             | Status                                  | PR  | Reviewer |
+| ----------------- | ----------- | --------------------------------------------------- | --------------------------------------- | --- | -------- |
+| `LANE-CORE`       | `TASK-006`  | GitHub Actions CI + secret/dependency scan baseline | `todo`                                  | —   | chưa gán |
+| `LANE-CATALOG`    | —           | —                                                   | `blocked` (chờ M1)                      | —   | —        |
+| `LANE-CRM`        | —           | —                                                   | `blocked` (chờ TASK-013)                | —   | —        |
+| `LANE-COMMERCE`   | —           | —                                                   | `blocked` (chờ M2)                      | —   | —        |
+| `LANE-PLATFORMUI` | —           | —                                                   | `blocked` (chờ TASK-007 + TASK-010b)    | —   | —        |
+| `LANE-QUALITY`    | —           | —                                                   | `blocked` (chạy tăng dần theo UI slice) | —   | —        |
 
 ### Chi tiết task active
 
-- **`TASK-005` · `LANE-CORE`**
-  - Task packet: `docs/tasks/MVP-BACKLOG.md#task-005--scaffold-monorepo-skeleton--quality-baseline`
-  - Prerequisite: `TASK-004` (accepted & merged via [#11](https://github.com/HomyHubs/vlxd/pull/11))
-  - Implementer PR: [#13](https://github.com/HomyHubs/vlxd/pull/13)
+- **`TASK-006` · `LANE-CORE`**
+  - Task packet: `docs/tasks/MVP-BACKLOG.md#task-006--github-actions-ci--secretdependency-scan-baseline`
+  - Prerequisite: `TASK-005` (accepted & merged via [#13](https://github.com/HomyHubs/vlxd/pull/13))
+  - Implementer PR: chưa mở
   - Reviewer: chưa gán
 
 ## Quy tắc cập nhật
