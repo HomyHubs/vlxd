@@ -427,8 +427,8 @@ Một UI feature chỉ được coi là xong khi:
 
 ### Đang làm
 
-- [ ] `TASK-004`: Review và merge PR ADRs kiến trúc production.
+- [ ] `TASK-005` (M0): Scaffold monorepo skeleton (`apps/web`, `apps/api`, `packages/*`) và quality baseline.
 
 ### Bước tiếp theo
 
-- [ ] `TASK-005` (M0): Scaffold monorepo skeleton (`apps/web`, `apps/api`, `packages/*`) và quality baseline.
+- [ ] `TASK-006` (M0): Thiết lập database migration engine (dbmate) và Supabase local tooling baseline.
