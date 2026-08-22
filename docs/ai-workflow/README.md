@@ -2,6 +2,8 @@
 
 Tài liệu này là quy trình bắt buộc để hai AI bot triển khai và review repo `HomyHubs/vlxd` trên GitHub. Mục tiêu là để trạng thái sống trong file và lịch sử Git, không phụ thuộc chat context.
 
+> **Biến thể tự động hóa:** Nếu muốn **Codex CLI tự gọi ChatGPT Web** để review sau khi hoàn tất task (tự dán yêu cầu, đợi kết quả, tự sửa theo review đến khi hết lỗi), xem `docs/ai-workflow/codex-cli-autoreview.md` và prompt `docs/ai-workflow/prompts/reviewer-web.md`. Biến thể đó vẫn tuân thủ toàn bộ quy trình, trạng thái và template mô tả ở dưới.
+
 ## 1. Mô hình được chọn
 
 Mỗi task đi qua một vòng lặp có kiểm soát:
@@ -99,7 +101,7 @@ Bot 1 không được:
 4. Ghi finding vào `REVIEW.md` theo mức độ:
    - `BLOCKER`: sai contract, mất dữ liệu, auth/tenant bypass, secret hoặc không build.
    - `HIGH`: sai nghiệp vụ chính, thiếu migration/test quan trọng, concurrency issue.
-   - `MEDIUM`: edge case, maintainability, accessibility hoặc observability đáng kể.
+   - `MEDIUM`: edge case, maintainability, accessibility ho特c observability đáng kể.
    - `LOW`: cải thiện nhỏ, naming, tài liệu.
 5. Mỗi finding phải có: bằng chứng file/dòng, tác động, cách tái hiện và yêu cầu sửa.
 6. Nếu còn `BLOCKER`/`HIGH`, đặt `changes_requested`.
