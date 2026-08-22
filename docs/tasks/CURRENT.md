@@ -8,14 +8,14 @@
 
 ## Bảng lane
 
-| Lane              | Task active | Tiêu đề                                       | Status             | PR                                            | Reviewer |
-| ----------------- | ----------- | --------------------------------------------- | ------------------ | --------------------------------------------- | -------- |
-| `LANE-CORE`       | `TASK-005`  | Scaffold monorepo skeleton & quality baseline | `ready_for_review` | [#13](https://github.com/HomyHubs/vlxd/pull/13) | chưa gán |
-| `LANE-CATALOG`    | —           | —                                             | `blocked` (chờ M1) | —                                             | —        |
-| `LANE-CRM`        | —           | —                                             | `blocked` (chờ TASK-013) | —                                       | —        |
-| `LANE-COMMERCE`   | —           | —                                             | `blocked` (chờ M2) | —                                             | —        |
-| `LANE-PLATFORMUI` | —           | —                                             | `blocked` (chờ TASK-007 + TASK-010b) | —                   | —        |
-| `LANE-QUALITY`    | —           | —                                             | `blocked` (chạy tăng dần theo UI slice) | —                | —        |
+| Lane              | Task active | Tiêu đề                                       | Status                                  | PR                                              | Reviewer |
+| ----------------- | ----------- | --------------------------------------------- | --------------------------------------- | ----------------------------------------------- | -------- |
+| `LANE-CORE`       | `TASK-005`  | Scaffold monorepo skeleton & quality baseline | `ready_for_review`                      | [#13](https://github.com/HomyHubs/vlxd/pull/13) | chưa gán |
+| `LANE-CATALOG`    | —           | —                                             | `blocked` (chờ M1)                      | —                                               | —        |
+| `LANE-CRM`        | —           | —                                             | `blocked` (chờ TASK-013)                | —                                               | —        |
+| `LANE-COMMERCE`   | —           | —                                             | `blocked` (chờ M2)                      | —                                               | —        |
+| `LANE-PLATFORMUI` | —           | —                                             | `blocked` (chờ TASK-007 + TASK-010b)    | —                                               | —        |
+| `LANE-QUALITY`    | —           | —                                             | `blocked` (chạy tăng dần theo UI slice) | —                                               | —        |
 
 ### Chi tiết task active
 
