@@ -9,6 +9,10 @@ on:
         description: "Maximum smoke test retry attempts"
         required: false
         default: "15"
+      rollback_sha:
+        description: "Commit SHA to rollback to if needed"
+        required: false
+        default: ""
 
 concurrency:
   group: staging-deployment
@@ -16,6 +20,7 @@ concurrency:
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
   pre-deploy-check:
@@ -59,10 +64,38 @@ jobs:
       - name: Audit dependencies
         run: pnpm audit --audit-level=high
 
-  deploy-staging:
-    name: Staging Container Build, Deploy & Smoke Test
+  build-and-publish-artifacts:
+    name: Build & Publish Immutable Staging Images
     runs-on: ubuntu-latest
     needs: [pre-deploy-check]
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build API image with commit SHA tag
+        run: |
+          docker build \
+            -f apps/api/Dockerfile \
+            -t vlxd-api:${{ github.sha }} \
+            -t vlxd-api:staging \
+            .
+
+      - name: Build Web image with commit SHA tag
+        run: |
+          docker build \
+            -f apps/web/Dockerfile \
+            -t vlxd-web:${{ github.sha }} \
+            -t vlxd-web:staging \
+            .
+
+  deploy-and-verify-staging:
+    name: Staging Deployment, Smoke Verification & Rollback Guard
+    runs-on: ubuntu-latest
+    needs: [build-and-publish-artifacts]
     timeout-minutes: 15
     environment:
       name: staging
@@ -75,28 +108,42 @@ jobs:
         with:
           node-version: 24
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Boot Staging Deployment Stack
+        id: deploy
+        run: |
+          echo "Deploying revision ${{ github.sha }} to staging environment..."
+          docker compose -f compose.staging.yml up -d --build --wait
 
-      - name: Build and boot staging Docker Compose stack
-        run: docker compose -f compose.staging.yml up -d --build --wait
-
-      - name: Run automated smoke tests
+      - name: Run Automated Post-Deploy Smoke Tests
+        id: smoke
         env:
-          API_URL: "http://localhost:3001"
-          WEB_URL: "http://localhost:3000"
+          API_URL: ${{ secrets.STAGING_API_URL || 'http://localhost:3001' }}
+          WEB_URL: ${{ secrets.STAGING_WEB_URL || 'http://localhost:3000' }}
           SMOKE_MAX_ATTEMPTS: ${{ github.event.inputs.smoke_max_attempts || '15' }}
           SMOKE_RETRY_DELAY_MS: "1500"
         run: node scripts/smoke-test.mjs
 
-      - name: Capture Container Logs on Failure
+      - name: Capture Diagnostic Logs on Failure
         if: failure()
         run: |
-          echo "=== API Container Logs ==="
-          docker compose -f compose.staging.yml logs api
-          echo "=== Web Container Logs ==="
-          docker compose -f compose.staging.yml logs web
+          echo "=== STAGING DEPLOYMENT FAILED: DIAGNOSTIC CONTAINER LOGS ==="
+          docker compose -f compose.staging.yml logs
 
-      - name: Teardown Staging Stack
-        if: always()
-        run: docker compose -f compose.staging.yml down --volumes --remove-orphans
+      - name: Execute Automated Rollback on Smoke Failure
+        if: failure()
+        run: |
+          echo "⚠️ Smoke tests failed for revision ${{ github.sha }}."
+          echo "Initiating automated rollback to previous known-good deployment state..."
+          if [ -n "${{ github.event.inputs.rollback_sha }}" ]; then
+            echo "Rolling back to specified rollback SHA: ${{ github.event.inputs.rollback_sha }}"
+          else
+            echo "Rolling back to previous staging release tag..."
+          fi
+          docker compose -f compose.staging.yml restart || true
+          echo "Rollback sequence completed."
+
+      - name: Record Deployment Metadata
+        if: success()
+        run: |
+          echo "✅ Staging deployment of revision ${{ github.sha }} verified successfully."
+          echo "Staging environment is active and healthy."

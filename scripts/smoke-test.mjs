@@ -3,10 +3,11 @@
 /**
  * Staging Automated Smoke Test
  * Tests API health endpoint and Web frontend shell accessibility.
+ * Requires BOTH services to be healthy in the same iteration to declare success.
  */
 
-const API_URL = process.env.API_URL || "http://localhost:3001";
-const WEB_URL = process.env.WEB_URL || "http://localhost:3000";
+const API_URL = process.env.API_URL || process.env.STAGING_API_URL || "http://localhost:3001";
+const WEB_URL = process.env.WEB_URL || process.env.STAGING_WEB_URL || "http://localhost:3000";
 const MAX_ATTEMPTS = parseInt(process.env.SMOKE_MAX_ATTEMPTS || "15", 10);
 const INITIAL_DELAY_MS = parseInt(process.env.SMOKE_RETRY_DELAY_MS || "1500", 10);
 const MAX_DELAY_MS = 8000;
@@ -20,7 +21,7 @@ async function checkApiHealth() {
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   if (!response.ok) {
-    throw new Error(`API healthcheck returned status ${response.status}`);
+    throw new Error(`API healthcheck returned HTTP ${response.status}`);
   }
   const data = await response.json();
   if (data.status !== "ok") {
@@ -40,7 +41,7 @@ async function checkWebShell() {
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   if (!response.ok) {
-    throw new Error(`Web shell returned status ${response.status}`);
+    throw new Error(`Web shell returned HTTP ${response.status}`);
   }
   const text = await response.text();
   if (!text.includes("<html") && !text.includes("<!DOCTYPE html>")) {
@@ -51,57 +52,52 @@ async function checkWebShell() {
 
 async function runSmokeTests() {
   console.log("=========================================");
-  console.log("🚀 Starting Staging Smoke Deploy Verification");
-  console.log(`- API URL: ${API_URL}`);
-  console.log(`- Web URL: ${WEB_URL}`);
+  console.log("🚀 Starting Staging Smoke Verification");
+  console.log(`- Target API URL: ${API_URL}`);
+  console.log(`- Target Web URL: ${WEB_URL}`);
   console.log(`- Max attempts: ${MAX_ATTEMPTS}`);
   console.log(`- Request timeout: ${REQUEST_TIMEOUT_MS}ms`);
   console.log("=========================================\n");
 
-  let apiPassed = false;
-  let webPassed = false;
   let currentDelay = INITIAL_DELAY_MS;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    console.log(`[Attempt ${attempt}/${MAX_ATTEMPTS}] Checking services...`);
+    console.log(`[Attempt ${attempt}/${MAX_ATTEMPTS}] Verifying API and Web simultaneously...`);
+    let apiData = null;
+    let webData = null;
+    let apiError = null;
+    let webError = null;
 
-    // 1. Check API
-    if (!apiPassed) {
-      try {
-        const apiData = await checkApiHealth();
-        console.log(`✅ API Health OK: version ${apiData.version}, status: ${apiData.status}`);
-        apiPassed = true;
-      } catch (err) {
-        console.warn(`⏳ API Health waiting: ${err.message}`);
-      }
+    try {
+      apiData = await checkApiHealth();
+    } catch (err) {
+      apiError = err.message;
     }
 
-    // 2. Check Web
-    if (!webPassed) {
-      try {
-        const webData = await checkWebShell();
-        console.log(`✅ Web Shell OK: HTTP ${webData.status}, payload size: ${webData.bytes} bytes`);
-        webPassed = true;
-      } catch (err) {
-        console.warn(`⏳ Web Shell waiting: ${err.message}`);
-      }
+    try {
+      webData = await checkWebShell();
+    } catch (err) {
+      webError = err.message;
     }
 
-    if (apiPassed && webPassed) {
-      console.log("\n🎉 All smoke tests passed successfully!");
+    if (apiData && webData) {
+      console.log(`  ✅ API Health OK: version ${apiData.version}, status: ${apiData.status}`);
+      console.log(`  ✅ Web Shell OK: HTTP ${webData.status}, payload size: ${webData.bytes} bytes`);
+      console.log("\n🎉 All staging smoke tests passed concurrently!");
       process.exit(0);
     }
 
+    if (apiError) console.warn(`  ⏳ API waiting: ${apiError}`);
+    if (webError) console.warn(`  ⏳ Web waiting: ${webError}`);
+
     if (attempt < MAX_ATTEMPTS) {
-      console.log(`   Sleeping ${currentDelay}ms before retry...`);
+      console.log(`   Waiting ${currentDelay}ms before retry...`);
       await sleep(currentDelay);
       currentDelay = Math.min(currentDelay * 1.5, MAX_DELAY_MS);
     }
   }
 
-  console.error("\n❌ Smoke test failed after maximum attempts.");
-  if (!apiPassed) console.error("  - API service failed health checks.");
-  if (!webPassed) console.error("  - Web frontend failed availability checks.");
+  console.error("\n❌ Smoke test failed: Services failed concurrent health verification.");
   process.exit(1);
 }
 

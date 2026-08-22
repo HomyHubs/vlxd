@@ -6,7 +6,8 @@ services:
     container_name: vlxd-api-staging
     restart: unless-stopped
     environment:
-      - NODE_ENV=staging
+      - NODE_ENV=production
+      - DEPLOY_ENV=staging
       - PORT=3001
       - HOST=0.0.0.0
       - LOG_LEVEL=${LOG_LEVEL:-info}
