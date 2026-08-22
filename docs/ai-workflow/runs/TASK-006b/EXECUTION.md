@@ -104,9 +104,13 @@
 
 ## Feedback đã xử lý
 
-| Review finding                        | Cách sửa | Commit/test bằng chứng |
-| ------------------------------------- | -------- | ---------------------- |
-| (Chưa có feedback — chờ Bot 2 review) | —        | —                      |
+| Review finding                                                                                                                           | Cách sửa                                                                                                                            | Commit/test bằng chứng                                                     |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| FINDING-001 (Round 1): `apps/api/src/platform/config.ts` không hỗ trợ `NODE_ENV=staging` khiến `loadConfig()` ném lỗi khi boot container | Bổ sung `staging` vào `NODE_ENV` schema trong `config.ts` và thêm unit test `config.test.ts`.                                       | `apps/api/src/platform/config.ts`, `apps/api/src/__tests__/config.test.ts` |
+| FINDING-002 (Round 1): PR CI không kiểm tra Docker/Compose stack & smoke test                                                            | Bổ sung job `staging-smoke` vào `.github/workflows/ci.yml` để build, start và smoke-test toàn bộ Compose stack trên mọi PR.         | `.github/workflows/ci.yml`                                                 |
+| FINDING-003 (Round 1): Thiếu request timeout và `timeout-minutes` trên workflow jobs                                                     | Thêm `AbortSignal.timeout(5000)` và exponential backoff trong `smoke-test.mjs`, thêm `timeout-minutes: 15` trên các jobs CI/Deploy. | `scripts/smoke-test.mjs`, `.github/workflows/deploy-staging.yml`           |
+| FINDING-004 (Round 1): Thiếu root `.dockerignore`                                                                                        | Tạo `.dockerignore` tại root loại trừ `.git`, `node_modules`, `dist`, `.turbo`, `coverage`, `.env*`, `prototype/legacy-app`.        | `.dockerignore`                                                            |
+| FINDING-005 (Round 1): Đồng bộ hồ sơ review phản ánh trung thực                                                                          | Cập nhật `REVIEW.md` với các vòng review thực tế từ ChatGPT Web.                                                                    | `docs/ai-workflow/runs/TASK-006b/REVIEW.md`                                |
 
 ## Kết quả bàn giao
 

@@ -8,13 +8,17 @@
 const API_URL = process.env.API_URL || "http://localhost:3001";
 const WEB_URL = process.env.WEB_URL || "http://localhost:3000";
 const MAX_ATTEMPTS = parseInt(process.env.SMOKE_MAX_ATTEMPTS || "15", 10);
-const RETRY_DELAY_MS = parseInt(process.env.SMOKE_RETRY_DELAY_MS || "2000", 10);
+const INITIAL_DELAY_MS = parseInt(process.env.SMOKE_RETRY_DELAY_MS || "1500", 10);
+const MAX_DELAY_MS = 8000;
+const REQUEST_TIMEOUT_MS = 5000;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function checkApiHealth() {
   const healthUrl = `${API_URL}/health`;
-  const response = await fetch(healthUrl);
+  const response = await fetch(healthUrl, {
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
   if (!response.ok) {
     throw new Error(`API healthcheck returned status ${response.status}`);
   }
@@ -32,7 +36,9 @@ async function checkApiHealth() {
 }
 
 async function checkWebShell() {
-  const response = await fetch(WEB_URL);
+  const response = await fetch(WEB_URL, {
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
   if (!response.ok) {
     throw new Error(`Web shell returned status ${response.status}`);
   }
@@ -49,10 +55,12 @@ async function runSmokeTests() {
   console.log(`- API URL: ${API_URL}`);
   console.log(`- Web URL: ${WEB_URL}`);
   console.log(`- Max attempts: ${MAX_ATTEMPTS}`);
+  console.log(`- Request timeout: ${REQUEST_TIMEOUT_MS}ms`);
   console.log("=========================================\n");
 
   let apiPassed = false;
   let webPassed = false;
+  let currentDelay = INITIAL_DELAY_MS;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     console.log(`[Attempt ${attempt}/${MAX_ATTEMPTS}] Checking services...`);
@@ -85,7 +93,9 @@ async function runSmokeTests() {
     }
 
     if (attempt < MAX_ATTEMPTS) {
-      await sleep(RETRY_DELAY_MS);
+      console.log(`   Sleeping ${currentDelay}ms before retry...`);
+      await sleep(currentDelay);
+      currentDelay = Math.min(currentDelay * 1.5, MAX_DELAY_MS);
     }
   }
 
