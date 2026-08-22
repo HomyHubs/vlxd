@@ -11,9 +11,10 @@
   - Round 4 (PR #10): `e1ad0d024b2d72ed364eac57762355e86e63503c`
   - Round 5 (PR #10): `abbf796255e48168077a95ccf2198a061e86a300`
   - Round 6 (PR #10): `b224ad87998ad5a35bb65254f82d1c6552b1730e`
-- Reviewed at (UTC): 2026-08-22T06:25:00Z
-- Review round: 6
-- Verdict: changes_required (Round 6) -> pending re-review
+  - Round 7 (PR #10): `dfddf596f37d93eae74a81c820401e925a4b596e`
+- Reviewed at (UTC): 2026-08-22T06:35:00Z
+- Review round: 7
+- Verdict: changes_required (Round 7) -> pending re-review
 
 ## Phạm vi đã kiểm tra
 
@@ -68,6 +69,11 @@
 - File/dòng: `docs/decision-backlog.md` (DEC-003, DEC-004, DEC-005, DEC-007, DEC-008, DEC-010, DEC-011, DEC-012, Section 3)
 - Trạng thái: resolved (khớp 100% các mapping blocker với subtasks chi tiết của M3: DEC-003 -> TASK-016c/018c, DEC-004 -> TASK-016b/018b, DEC-005 -> TASK-018b/018c, DEC-007 -> TASK-020a/020b, DEC-008 -> TASK-018a/018b/024, DEC-010 -> TASK-018d, DEC-011 -> TASK-017/020b, DEC-012 -> TASK-016b/016c; đồng thời dọn sạch nội dung trùng lặp và sửa chuẩn format UTF-8).
 
+### FINDING-007 — [ROUND 7] Đồng bộ requirements/sales-order.md, ADR-0007, sửa Mermaid fence và DEC-011 blocker mapping
+- Severity: BLOCKER
+- File/dòng: `docs/requirements/sales-order.md`, `docs/adr/0007-immutable-ledgers-and-state-machines.md`, `docs/decision-backlog.md`
+- Trạng thái: resolved (đồng bộ FSM 8 trạng thái, điểm trừ kho duy nhất tại DELIVERING/COMPLETED, capability chiết khấu trên sales-order.md và ADR-0007; sửa DEC-011 trỏ đúng TASK-017 & TASK-018b; đóng fence Mermaid và sửa bảng tóm tắt 7 cột).
+
 ## Acceptance criteria
 
 | Criterion | Pass/Fail/Not verified | Evidence |
@@ -88,4 +94,4 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: Đã khắc phục triệt để các phát hiện của Round 6, làm sạch hoàn toàn nội dung và định dạng UTF-8, sẵn sàng đưa SHA mới vào re-review để nhận phê duyệt chính thức `APPROVED_TO_MERGE`.
+- Lý do kết luận: Đã khắc phục triệt để các phát hiện của Round 7, đồng bộ toàn diện giữa Decision Backlog, Requirements và ADRs, sẵn sàng đưa SHA mới vào re-review để nhận phê duyệt chính thức `APPROVED_TO_MERGE`.

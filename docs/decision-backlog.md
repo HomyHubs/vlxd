@@ -10,7 +10,7 @@
 ## 1. Bảng tóm tắt danh mục quyết định
 
 | ID | Quyết định | Phân loại | Trạng thái | Owner | Trigger / Milestone | Blocker cho Feature |
-| --- | --- | --- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- | --- |
 | **DEC-001** | Platform Admin vs Tenant Admin Scope | Kiến trúc / Auth | `Open` (Assumption) | CEO / Architect | M1 (TASK-009, 010a) | `auth`, `role-management`, `service-plan` |
 | **DEC-002** | Branch & Multi-Warehouse Scope | Nghiệp vụ / Core | `Open` (Assumption) | CEO / Ops Lead | M2 (TASK-014a, 015), M4 (TASK-025) | `warehouse`, `inventory`, `yard-map` |
 | **DEC-003** | Thời điểm Reserve và Trừ Tồn kho | Nghiệp vụ / Ledger | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016c, 018c) | `inventory`, `order`, `pos` |
@@ -21,7 +21,7 @@
 | **DEC-008** | Xử lý Thuế VAT trên Báo giá và Đơn hàng | Nghi vụ / Thuế | `Open` (Assumption) | CEO / Accountant | M3 (TASK-018a, 018b), M4 (TASK-024) | `product`, `order`, `invoice`, `settings` |
 | **DEC-009** | Phương pháp Tính giá vốn Hàng tồn kho | Kế toán / Kho | `Open` (Assumption) | CEO / Accountant | M3 (TASK-016a, 021), M4 (TASK-022) | `inventory`, `purchase`, `report`, `finance` |
 | **DEC-010** | Phân cấp Phê duyệt Chiết khấu & Giảm giá | Nghiệp vụ / Bán hàng | `Open` (Assumption) | CEO / Sales Lead | M3 (TASK-018d) | `order`, `role-management` |
-| **DEC-011** | Kiểm soát Hạn mức Công nợ Khách hàng (Credit Limit) | Nghiệp vụ / Rủi ro | `Open` (Assumption) | CEO / Risk Lead | M2 (TASK-017), M3 (TASK-020b) | `customer`, `order`, `finance` |
+| **DEC-011** | Kiểm soát Hạn mức Công nợ Khách hàng (Credit Limit) | Nghiệp vụ / Rủi ro | `Open` (Assumption) | CEO / Risk Lead | M2 (TASK-017), M3 (TASK-018b) | `customer`, `order` |
 | **DEC-012** | Quy trình Chuyển kho Nội bộ (Stock Transfer) | Nghiệp vụ / Kho | `Open` (Assumption) | CEO / Warehouse Lead | M3 (TASK-016b, 016c) | `warehouse`, `inventory` |
 | **DEC-013** | Chính sách Lưu trữ, Soft-delete & Archive Dữ liệu | Kỹ thuật / DB | `Open` (Assumption) | Architect | M1 (TASK-008a) | Toàn bộ các module, `platform`, `db` |
 
@@ -191,7 +191,7 @@
 - **Recommendation:** Option B.
 - **Trạng thái:** `Open` (Assumption).
 - **Temporary Assumption:** Triển khai theo Option B. Khách hàng mới/khách lẻ có `credit_limit = 0` (bắt buộc thanh toán 100%). Nhà thầu được cấu hình hạn mức riêng.
-- **Blocker:** M2 (`TASK-017`), M3 (`TASK-020b`).
+- **Blocker:** M2 (`TASK-017`), M3 (`TASK-018b`).
 
 ---
 
@@ -255,7 +255,7 @@ graph TD
         DEC009[DEC-009: Moving Weighted Average Cost] --> F_InvBalance[Feature: Balance & Schema (TASK-016a)]
         DEC009 --> F_Purchase[Feature: Purchase & Receiving (TASK-021)]
         DEC010[DEC-010: Discount Approval Limit] --> F_OrderDiscount
-        DEC011 --> F_Finance
+        DEC011 --> F_OrderFSM
         DEC012[DEC-012: 2-Step Stock Transfer] --> F_InvMove
         DEC012 --> F_InvReserve
     end
@@ -265,6 +265,7 @@ graph TD
         DEC008 --> F_Settings[Feature: Settings & Print Templates (TASK-024)]
         DEC002 --> F_Yard[Feature: Yard Map Hardening (TASK-025)]
     end
+```
 
 ---
 
