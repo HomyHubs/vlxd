@@ -53,26 +53,26 @@
 
 ## Giả định và quyết định
 
-| Thời điểm | Nội dung | Căn cứ | Ảnh hưởng |
-| --- | --- | --- | --- |
-| 2026-08-22 | Multi-stage Dockerfile cho `apps/api` và `apps/web` | Tối ưu kích thước image và bảo mật runtime | Container staging nhỏ gọn, không chứa devDependencies |
-| 2026-08-22 | Smoke test bằng Node.js script độc lập `scripts/smoke-test.mjs` | Chạy được trên cả CI (Linux) và máy dev cục bộ (Windows/macOS) | Không phụ thuộc công cụ ngoài, có exponential backoff retry |
-| 2026-08-22 | Trigger `deploy-staging.yml` khi push vào `dev` + `workflow_dispatch` | Đúng yêu cầu MVP-BACKLOG.md | Tự động hóa kiểm tra staging ngay sau khi merge |
+| Thời điểm  | Nội dung                                                              | Căn cứ                                                         | Ảnh hưởng                                                   |
+| ---------- | --------------------------------------------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------- |
+| 2026-08-22 | Multi-stage Dockerfile cho `apps/api` và `apps/web`                   | Tối ưu kích thước image và bảo mật runtime                     | Container staging nhỏ gọn, không chứa devDependencies       |
+| 2026-08-22 | Smoke test bằng Node.js script độc lập `scripts/smoke-test.mjs`       | Chạy được trên cả CI (Linux) và máy dev cục bộ (Windows/macOS) | Không phụ thuộc công cụ ngoài, có exponential backoff retry |
+| 2026-08-22 | Trigger `deploy-staging.yml` khi push vào `dev` + `workflow_dispatch` | Đúng yêu cầu MVP-BACKLOG.md                                    | Tự động hóa kiểm tra staging ngay sau khi merge             |
 
 ## Thay đổi đã thực hiện
 
-| File/khu vực | Thay đổi | Lý do |
-| --- | --- | --- |
-| `apps/api/Dockerfile` | Tạo multi-stage Dockerfile cho API Fastify | Container hóa backend staging |
-| `apps/web/Dockerfile` | Tạo multi-stage Dockerfile cho Vite + Nginx | Container hóa frontend staging |
-| `nginx/staging.conf` | Cấu hình Nginx reverse proxy & static SPA server | Phục vụ frontend và định tuyến an toàn |
-| `compose.staging.yml` | Cấu hình Docker Compose cho môi trường staging | Khởi chạy stack staging độc lập |
-| `scripts/smoke-test.mjs` | Tạo script automated smoke test với retry logic | Xác thực hệ thống sau deploy |
-| `package.json` | Bổ sung scripts `test:smoke`, `staging:build`, `staging:up`, `staging:down` | Tiện ích vận hành staging cục bộ |
-| `.github/workflows/deploy-staging.yml` | Tạo workflow deploy & smoke test staging tự động | Tự động hóa CI/CD staging |
-| `docs/tasks/CURRENT.md` | Cập nhật trạng thái TASK-006b sang `ready_for_review` | Quản lý tiến độ |
-| `docs/ai-workflow/runs/TASK-006b/EXECUTION.md` | Hoàn thiện execution log | Theo dõi quá trình triển khai |
-| `docs/ai-workflow/runs/TASK-006b/REVIEW.md` | Khởi tạo review report | Chuẩn bị hồ sơ review |
+| File/khu vực                                   | Thay đổi                                                                    | Lý do                                  |
+| ---------------------------------------------- | --------------------------------------------------------------------------- | -------------------------------------- |
+| `apps/api/Dockerfile`                          | Tạo multi-stage Dockerfile cho API Fastify                                  | Container hóa backend staging          |
+| `apps/web/Dockerfile`                          | Tạo multi-stage Dockerfile cho Vite + Nginx                                 | Container hóa frontend staging         |
+| `nginx/staging.conf`                           | Cấu hình Nginx reverse proxy & static SPA server                            | Phục vụ frontend và định tuyến an toàn |
+| `compose.staging.yml`                          | Cấu hình Docker Compose cho môi trường staging                              | Khởi chạy stack staging độc lập        |
+| `scripts/smoke-test.mjs`                       | Tạo script automated smoke test với retry logic                             | Xác thực hệ thống sau deploy           |
+| `package.json`                                 | Bổ sung scripts `test:smoke`, `staging:build`, `staging:up`, `staging:down` | Tiện ích vận hành staging cục bộ       |
+| `.github/workflows/deploy-staging.yml`         | Tạo workflow deploy & smoke test staging tự động                            | Tự động hóa CI/CD staging              |
+| `docs/tasks/CURRENT.md`                        | Cập nhật trạng thái TASK-006b sang `ready_for_review`                       | Quản lý tiến độ                        |
+| `docs/ai-workflow/runs/TASK-006b/EXECUTION.md` | Hoàn thiện execution log                                                    | Theo dõi quá trình triển khai          |
+| `docs/ai-workflow/runs/TASK-006b/REVIEW.md`    | Khởi tạo review report                                                      | Chuẩn bị hồ sơ review                  |
 
 ## Migration/contract/generated artifacts
 
@@ -80,16 +80,16 @@
 
 ## Kiểm tra đã chạy
 
-| Command | Kết quả/exit code | Ghi chú |
-| --- | --- | --- |
-| `node scripts/smoke-test.mjs` | Exit 0 | API `/health` và Web shell tải thành công (HTTP 200) |
-| `pnpm audit --audit-level=high` | Exit 0 | 0 vulnerabilities found |
-| `pnpm run format:check` | Exit 0 | All matched files use Prettier code style |
-| `pnpm typecheck` | Exit 0 | 7/7 projects typecheck pass |
-| `pnpm lint` | Exit 0 | ESLint 9 pass với 0 errors |
-| `pnpm test` | Exit 0 | 11 unit/integration tests pass |
-| `pnpm build` | Exit 0 | 4 build targets pass |
-| `pnpm check` | Exit 0 | 18/18 turbo tasks + Prettier check xanh |
+| Command                         | Kết quả/exit code | Ghi chú                                              |
+| ------------------------------- | ----------------- | ---------------------------------------------------- |
+| `node scripts/smoke-test.mjs`   | Exit 0            | API `/health` và Web shell tải thành công (HTTP 200) |
+| `pnpm audit --audit-level=high` | Exit 0            | 0 vulnerabilities found                              |
+| `pnpm run format:check`         | Exit 0            | All matched files use Prettier code style            |
+| `pnpm typecheck`                | Exit 0            | 7/7 projects typecheck pass                          |
+| `pnpm lint`                     | Exit 0            | ESLint 9 pass với 0 errors                           |
+| `pnpm test`                     | Exit 0            | 11 unit/integration tests pass                       |
+| `pnpm build`                    | Exit 0            | 4 build targets pass                                 |
+| `pnpm check`                    | Exit 0            | 18/18 turbo tasks + Prettier check xanh              |
 
 ## Self-review
 
@@ -104,9 +104,9 @@
 
 ## Feedback đã xử lý
 
-| Review finding | Cách sửa | Commit/test bằng chứng |
-| --- | --- | --- |
-| (Chưa có feedback — chờ Bot 2 review) | — | — |
+| Review finding                        | Cách sửa | Commit/test bằng chứng |
+| ------------------------------------- | -------- | ---------------------- |
+| (Chưa có feedback — chờ Bot 2 review) | —        | —                      |
 
 ## Kết quả bàn giao
 
