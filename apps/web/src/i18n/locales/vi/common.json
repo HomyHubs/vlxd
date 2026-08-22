@@ -3,7 +3,9 @@
     "title": "Hệ thống Quản lý Vật liệu Xây dựng",
     "tagline": "Giải pháp toàn diện cho chuỗi cung ứng và cửa hàng VLXD",
     "status": "Hệ thống đang hoạt động",
-    "version": "Phiên bản"
+    "version": "Phiên bản",
+    "baseline_badge": "(Nền tảng M0)",
+    "platform_name": "VLXD Platform"
   },
   "nav": {
     "dashboard": "Tổng quan",
@@ -18,6 +20,8 @@
   },
   "actions": {
     "switch_language": "Ngôn ngữ",
+    "lang_vi": "Tiếng Việt",
+    "lang_en": "English",
     "login": "Đăng nhập",
     "logout": "Đăng xuất"
   },

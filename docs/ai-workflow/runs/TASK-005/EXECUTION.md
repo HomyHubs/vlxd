@@ -128,9 +128,12 @@
 
 ## Feedback đã xử lý
 
-| Review finding                        | Cách sửa | Commit/test bằng chứng |
-| ------------------------------------- | -------- | ---------------------- |
-| (Chưa có feedback — chờ Bot 2 review) | —        | —                      |
+| Review finding                                                                       | Cách sửa                                                                                                                                                                                            | Commit/test bằng chứng                            |
+| ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| FINDING-001 (Round 1): Lệch locked stack (Node 22, Zod 3, Vitest 3)                  | Cập nhật `.nvmrc` lên `24.0.0`, `package.json` engines lên `node >=24.0.0`, nâng `zod` lên `^4.4.3`, `fastify-type-provider-zod` lên `^7.0.0`, `vitest` lên `^4.1.11`, `@types/node` lên `^24.1.0`. | `pnpm install`, `pnpm check` 100% PASS            |
+| FINDING-002 (Round 1): Định nghĩa `pnpm check` và đồng bộ tài liệu                   | Chuẩn hóa `pnpm check` tại root chạy Turborepo quality gate và Prettier format check; cập nhật `AGENTS.md` và ADR-0001.                                                                             | `pnpm check`                                      |
+| FINDING-003 (Round 1): Race condition do song song `tsc -b` ở `typecheck` và `build` | Tách `typecheck` sang dùng `tsc --noEmit` trên toàn bộ packages/apps; chỉ `build` mới emit build artifacts.                                                                                         | `turbo run typecheck build` không tranh chấp file |
+| FINDING-004 (Round 1): Hard-coded strings trong `App.tsx`                            | Đưa 100% chuỗi UI trong `App.tsx` vào translation keys trong `common.json` (vi & en) và bổ sung test tiếng Anh + tiếng Việt.                                                                        | `App.test.tsx` 2 tests pass                       |
 
 ## Kết quả bàn giao
 

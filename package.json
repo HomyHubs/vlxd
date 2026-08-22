@@ -4,9 +4,10 @@
   "private": true,
   "packageManager": "pnpm@11.15.1",
   "engines": {
-    "node": ">=22.0.0",
+    "node": ">=24.0.0",
     "pnpm": ">=11.0.0"
   },
+  "prettier": "@vlxd/config-prettier",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@vlxd/config-prettier": "workspace:*",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.2",
     "globals": "^16.0.0",

@@ -361,7 +361,7 @@ Frontend chịu trách nhiệm dịch:
 ### Trước khi coi là xong
 
 ```bash
-pnpm -r check
+pnpm check
 ```
 
 Gate gồm format, lint, typecheck, test, build, OpenAPI drift, bundle budget, secret scan.
@@ -372,7 +372,7 @@ Gate gồm format, lint, typecheck, test, build, OpenAPI drift, bundle budget, s
 
 - [ ] Contract/API cập nhật trước khi code.
 - [ ] Unit/integration test phù hợp.
-- [ ] `pnpm -r check` xanh.
+- [ ] `pnpm check` xanh.
 - [ ] Không secret, không `any` vô lý, không tắt lint thiếu lý do.
 - [ ] Permission/plan enforce ở backend.
 - [ ] Migration reversible nếu có đổi DB.

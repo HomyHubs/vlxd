@@ -5,7 +5,7 @@ import { theme } from "../theme/index.js";
 import { App } from "../App.js";
 
 describe("<App />", () => {
-  it("renders header and main title in Vietnamese by default", () => {
+  it("renders header, main title, and badges in Vietnamese by default", () => {
     render(
       <ThemeProvider theme={theme}>
         <App />
@@ -14,6 +14,7 @@ describe("<App />", () => {
 
     expect(screen.getByText("VLXD Platform")).toBeInTheDocument();
     expect(screen.getByText("Hệ thống Quản lý Vật liệu Xây dựng")).toBeInTheDocument();
+    expect(screen.getByText("Hệ thống đang hoạt động (Nền tảng M0)")).toBeInTheDocument();
   });
 
   it("switches language to English when English button is clicked", () => {
@@ -27,5 +28,6 @@ describe("<App />", () => {
     fireEvent.click(enButton);
 
     expect(screen.getByText("Construction Materials Management System")).toBeInTheDocument();
+    expect(screen.getByText("System Operational (M0 Baseline)")).toBeInTheDocument();
   });
 });

@@ -83,4 +83,4 @@ repo/
 ## 7. Compliance & Enforcement
 
 - Mọi package nội bộ phải đặt scope `@vlxd/*` (vd: `@vlxd/shared`, `@vlxd/api-client`).
-- CI pipeline chạy `pnpm -r check` để kiểm tra toàn bộ workspace trước khi merge.
+- CI pipeline và developer chạy `pnpm check` để kiểm tra toàn bộ workspace trước khi merge.

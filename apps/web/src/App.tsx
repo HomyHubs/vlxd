@@ -26,20 +26,20 @@ export function App() {
         <Toolbar>
           <ConstructionIcon sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 700 }}>
-            VLXD Platform
+            {t("app.platform_name")}
           </Typography>
           <ButtonGroup variant="outlined" sx={{ bgcolor: "white", borderRadius: 1 }} size="small">
             <Button
               variant={i18n.language === "vi" ? "contained" : "outlined"}
               onClick={() => changeLanguage("vi")}
             >
-              Tiếng Việt
+              {t("actions.lang_vi")}
             </Button>
             <Button
               variant={i18n.language === "en" ? "contained" : "outlined"}
               onClick={() => changeLanguage("en")}
             >
-              English
+              {t("actions.lang_en")}
             </Button>
           </ButtonGroup>
         </Toolbar>
@@ -57,7 +57,7 @@ export function App() {
           <Box sx={{ mt: 4, display: "flex", justifyContent: "center", gap: 2 }}>
             <Chip
               icon={<CheckCircleOutlineIcon />}
-              label={`${t("app.status")} (M0 Baseline)`}
+              label={`${t("app.status")} ${t("app.baseline_badge")}`}
               color="success"
               variant="outlined"
             />

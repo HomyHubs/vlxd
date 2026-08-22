@@ -3,7 +3,9 @@
     "title": "Construction Materials Management System",
     "tagline": "Comprehensive solution for building material stores and supply chains",
     "status": "System Operational",
-    "version": "Version"
+    "version": "Version",
+    "baseline_badge": "(M0 Baseline)",
+    "platform_name": "VLXD Platform"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -18,6 +20,8 @@
   },
   "actions": {
     "switch_language": "Language",
+    "lang_vi": "Tiếng Việt",
+    "lang_en": "English",
     "login": "Login",
     "logout": "Logout"
   },

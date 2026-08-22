@@ -33,9 +33,9 @@ export const DateStringSchema = z
 export const ErrorEnvelopeSchema = z.object({
   success: z.literal(false),
   error: z.object({
-    code: z.nativeEnum(ErrorCode as Record<string, string>),
+    code: z.enum(Object.values(ErrorCode) as [string, ...string[]]),
     message: z.string(),
-    details: z.record(z.unknown()).optional(),
+    details: z.record(z.string(), z.unknown()).optional(),
     requestId: z.string().optional(),
   }),
 });
