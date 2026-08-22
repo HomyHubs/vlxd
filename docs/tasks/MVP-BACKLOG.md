@@ -245,7 +245,7 @@ Contract-first CRUD/archive, customer type, addresses/projects, credit limit, su
 - **TASK-016c — Reserve & safety:** reserve/release/reverse; transaction + lock/version; idempotency; permission/approval/audit.
 - **TASK-016d — UI + tests:** UI + integration/concurrency tests.
 
-**Acceptance:** transfer giảm nguồn tăng đích atomically; retry không nhân đôi; reverse tạo movement bù; không mất update đồng thời.
+**Acceptance:** transfer 2 bước qua `IN_TRANSIT` nguyên tử từng bước (atomic `DISPATCH` & `RECEIVE` transactions, ghi nhận `TRANSFER_SHRINKAGE` nếu có chênh lệch, bảo toàn tồn kho $\text{source} + \text{in\_transit} + \text{dest} + \text{shrinkage} = \text{const}$); retry không nhân đôi (idempotency); reverse tạo movement bù; không mất update đồng thời.
 
 ## TASK-018 — Quotation và sales order (chẻ 5 PR)
 

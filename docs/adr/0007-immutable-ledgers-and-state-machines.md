@@ -47,7 +47,7 @@ Cần một kiến trúc Sổ cái Bất biến (Immutable Append-Only Ledger) v
 **Chọn Option C: Áp dụng Sổ cái Bất biến cho Kho và Công nợ kết hợp với Finite State Machine cho Đơn hàng & Vận chuyển.**
 
 ### 1. Sổ cái Kho Bất biến (`inventory_ledger`):
-- Các loại sự kiện: `IMPORT`, `EXPORT`, `RESERVE`, `UNRESERVE`, `TRANSFER_OUT`, `TRANSFER_IN`, `STOCK_ADJUSTMENT`, `RETURN_IMPORT`.
+- Các loại sự kiện: `IMPORT`, `EXPORT`, `RESERVE`, `UNRESERVE`, `TRANSFER_OUT`, `TRANSFER_IN`, `TRANSFER_SHRINKAGE`, `STOCK_ADJUSTMENT`, `RETURN_IMPORT`.
 - Cấm tuyệt đối câu lệnh `UPDATE` hoặc `DELETE` trên bảng `inventory_ledger`.
 - Mọi điều chỉnh hoặc hủy phiếu đều sinh dòng giao dịch bù trừ (Reverse Entry).
 
@@ -56,17 +56,24 @@ Cần một kiến trúc Sổ cái Bất biến (Immutable Append-Only Ledger) v
 - Dư nợ = $\sum \text{DEBIT} - \sum \text{CREDIT}$.
 
 ### 3. Finite State Machine (FSM):
+Áp dụng mô hình 8 trạng thái và sự kiện trừ kho duy nhất (Single Deduction Point):
+- Đơn giao hàng tận nơi: Trừ kho thực tế (`on_hand -= qty, reserved -= qty`) duy nhất tại thời điểm chuyển sang `DELIVERING`.
+- Đơn bán lẻ tại quầy / POS: Trừ kho thực tế (`on_hand -= qty, reserved -= qty`) duy nhất tại thời điểm chuyển sang `COMPLETED`.
+
 ```mermaid
 stateDiagram-v2
-    [*] --> DRAFT
-    DRAFT --> CONFIRMED: Giữ chỗ tồn Reserved
-    CONFIRMED --> PROCESSING: Điều xe / Bốc hàng
-    PROCESSING --> DELIVERING: Xe rời bãi
-    DELIVERING --> COMPLETED: Ký nhận, trừ tồn On Hand
-    CONFIRMED --> CANCELLED: Giải phóng Reserved
-    PROCESSING --> CANCELLED: Giải phóng Reserved
-    DELIVERING --> RETURNED: Hoàn trả bãi
-    COMPLETED --> RETURNED: Đổi trả sau mua
+    [*] --> DRAFT: Tạo đơn / Báo giá (Chưa giữ tồn)
+    DRAFT --> CONFIRMED: Đủ tồn (Giữ chỗ reserved += qty)
+    DRAFT --> BACKORDER: Thiếu tồn (Chờ nhập hàng)
+    BACKORDER --> CONFIRMED: Hàng nhập về kho (Tự động reserved += qty)
+    CONFIRMED --> PROCESSING: Điều xe / Chuẩn bị bốc hàng tại bãi
+    PROCESSING --> DELIVERING: Đơn giao nơi (Trừ on_hand & reserved)
+    PROCESSING --> COMPLETED: Bán lẻ tại quầy (Trừ on_hand & reserved)
+    DELIVERING --> COMPLETED: Giao thành công, ký biên bản
+    CONFIRMED --> CANCELLED: Khách hủy đơn (Giải phóng reserved)
+    PROCESSING --> CANCELLED: Hủy trước khi xuất bãi (Giải phóng reserved)
+    DELIVERING --> RETURNED: Xe hàng bị trả về (Hoàn trả tồn kho và công nợ)
+    COMPLETED --> RETURNED: Đổi trả sau mua (Tạo phiếu hoàn trả)
 ```
 
 ---

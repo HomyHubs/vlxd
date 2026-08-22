@@ -8,29 +8,34 @@
 
 | Chức danh / Title | Quyền hạn trên module Bán hàng | Khả năng thực hiện (Capabilities) |
 | --- | --- | --- |
-| **Chủ cửa hàng (Super Admin)** | Toàn quyền tạo đơn, sửa đơn, duyệt chiết khấu đặc biệt $> 10\%$, hủy đơn hàng đã chốt, xem lợi nhuận đơn. | `order:create`, `order:read`, `order:update`, `order:cancel`, `order:discount_unlimited`, `order:margin_view` |
-| **Quản lý chi nhánh (Support Admin)** | Duyệt đơn hàng, duyệt chiết khấu $\le 10\%$, duyệt ngoại lệ hạn mức nợ, xem báo cáo bán hàng chi nhánh. | `order:create`, `order:read`, `order:confirm`, `order:discount_manager`, `order:cancel` |
-| **Nhân viên bán hàng (User)** | Tạo báo giá, tạo đơn hàng, áp dụng chiết khấu $\le 3\%$, in phiếu đặt hàng, theo dõi tiến độ giao hàng. | `order:create`, `order:read`, `order:discount_staff`, `order:quote_create` |
-| **Thu ngân (User)** | Thu tiền đơn hàng (tiền mặt/chuyển khoản VietQR), in hóa đơn bán lẻ/phiếu thu tiền. | `order:read`, `order:payment_collect` |
+| **Chủ cửa hàng (Super Admin)** | Toàn quyền tạo đơn, sửa đơn, duyệt chiết khấu đặc biệt $> 10\%$, duyệt hạn mức nợ, hủy đơn hàng đã chốt, xem lợi nhuận đơn. | `sales.order.create`, `sales.order.read`, `sales.order.update`, `sales.order.cancel`, `sales.discount.override`, `customer.credit.override`, `sales.order.view_margin` |
+| **Quản lý chi nhánh (Support Admin)** | Duyệt đơn hàng, duyệt chiết khấu $\le 10\%$, duyệt ngoại lệ hạn mức nợ, xem báo cáo bán hàng chi nhánh. | `sales.order.create`, `sales.order.read`, `sales.order.confirm`, `sales.discount.tier2`, `customer.credit.override`, `sales.order.cancel` |
+| **Nhân viên bán hàng (User)** | Tạo báo giá, tạo đơn hàng, áp dụng chiết khấu $\le 3\%$, in phiếu đặt hàng, theo dõi tiến độ giao hàng. | `sales.order.create`, `sales.order.read`, `sales.discount.tier1`, `sales.quote.create` |
+| **Thu ngân (User)** | Thu tiền đơn hàng (tiền mặt/chuyển khoản VietQR), in hóa đơn bán lẻ/phiếu thu tiền. | `sales.order.read`, `sales.payment.collect` |
 
 ---
 
 ## 2. Business Scope & Rules
 
 - **Hai hình thức bán hàng đặc thù VLXD:**
-  1. *Bán lẻ tại quầy (Quick POS):* Khách lấy hàng ngay tại bãi (vd 2 bao xi măng, 1 cuộn dây kẽm), thanh toán 100% $\rightarrow$ Tạo đơn và hoàn tất ngay lập tức trong 1 bước.
-  2. *Đơn hàng giao công trình (Sales Order):* Lên báo giá/đơn hàng khối lượng lớn (vd 50 $m^3$ cát, 5 tấn thép) $\rightarrow$ Duyệt đơn $\rightarrow$ Điều xe giao nhiều chuyến $\rightarrow$ Thu tiền nhiều đợt.
-- **Vòng đời State Machine 7 trạng thái (DEC-005):**
-  `DRAFT` $\rightarrow$ `CONFIRMED` $\rightarrow$ `PROCESSING` $\rightarrow$ `DELIVERING` $\rightarrow$ `COMPLETED` / `CANCELLED` / `RETURNED`.
-- **Cơ chế Giữ chỗ Tồn kho — Reservation (DEC-003):**
+  1. *Bán lẻ tại quầy / POS (Bán nhanh):* Khách lấy hàng ngay tại bãi/quầy, thanh toán 100% $\rightarrow$ Đi qua luồng chuẩn `CONFIRMED` (giữ chỗ `reserved += qty`) $\rightarrow$ `PROCESSING` $\rightarrow$ Hoàn tất `COMPLETED` (trừ tồn thực tế `on_hand -= qty, reserved -= qty` duy nhất tại thời điểm hoàn tất nhận hàng và thanh toán).
+  2. *Đơn hàng giao công trình (Sales Order):* Lên báo giá/đơn hàng khối lượng lớn $\rightarrow$ Xác nhận đơn `CONFIRMED` (hoặc `BACKORDER` nếu thiếu tồn) $\rightarrow$ `PROCESSING` $\rightarrow$ Điều xe giao tận nơi `DELIVERING` (trừ tồn thực tế `on_hand -= qty, reserved -= qty` duy nhất tại thời điểm xuất bãi) $\rightarrow$ Khách nhận hàng `COMPLETED` $\rightarrow$ Thu tiền nhiều đợt.
+- **Vòng đời State Machine 8 trạng thái (DEC-004, DEC-005):**
+  `DRAFT`, `CONFIRMED`, `BACKORDER`, `PROCESSING`, `DELIVERING`, `COMPLETED`, `CANCELLED`, `RETURNED`.
+- **Cơ chế Giữ chỗ Tồn kho & Sự kiện Trừ kho Thực tế duy nhất (DEC-003, DEC-004, DEC-005):**
   - Khi đơn ở trạng thái `DRAFT`: Không giữ chỗ tồn kho (khách mới hỏi giá).
-  - Khi đơn chuyển sang `CONFIRMED`: Hệ thống tự động tăng `reserved` trong `inventory_balances` để đảm bảo có đủ hàng giao cho khách.
-  - Khi xuất hàng `DELIVERING`/`COMPLETED`: Hệ thống giảm `reserved` và trừ `on_hand`.
-  - Nếu hủy đơn `CANCELLED`: Hệ thống giải phóng `reserved` trở lại tồn khả dụng.
-- **Phân cấp Phê duyệt Chiết khấu (DEC-010):**
-  - Nhân viên bán hàng: Chiết khấu tối đa **$\le 3\%$** trên tổng đơn hoặc đơn giá.
-  - Quản lý chi nhánh: Chiết khấu tối đa **$\le 10\%$**.
-  - Vượt quá $10\%$: Bắt buộc có mã duyệt hoặc tài khoản Chủ cửa hàng (Super Admin) xác nhận trước khi lưu đơn.
+  - Khi đơn chuyển sang `CONFIRMED`: Hệ thống tự động tăng `reserved += qty` trong `inventory_balances` để đảm bảo có đủ hàng giao cho khách (`available = on_hand - reserved`).
+  - Đơn ở trạng thái `BACKORDER`: Không giữ chỗ tồn kho thực tế, chờ nhập hàng để chuyển `BACKORDER -> CONFIRMED` (nơi tự động `reserved += qty`).
+  - **Sự kiện Trừ kho thực tế duy nhất (`EXPORT`):**
+    - Đối với đơn giao hàng tận nơi: Trừ kho thực tế (`on_hand -= qty, reserved -= qty`) duy nhất tại thời điểm chuyển sang `DELIVERING` (hàng được bốc lên xe và xuất bãi).
+    - Đối với đơn bán lẻ tại quầy / POS: Trừ kho thực tế (`on_hand -= qty, reserved -= qty`) duy nhất tại thời điểm chuyển sang `COMPLETED` (sau khi quét mã/kiểm đếm tại quầy và khách hoàn tất thanh toán nhận hàng).
+  - Nếu hủy đơn `CANCELLED` từ `CONFIRMED` hoặc `PROCESSING`: Hệ thống giải phóng `reserved -= qty` trở lại tồn khả dụng.
+- **Phân cấp Phê duyệt Chiết khấu theo Capability (DEC-010):**
+  - Capability `sales.discount.tier1` (mặc định gán nhân viên bán hàng): Chiết khấu tối đa **$\le 3\%$**.
+  - Capability `sales.discount.tier2` (mặc định gán quản lý cửa hàng): Chiết khấu tối đa **$\le 10\%$**.
+  - Capability `sales.discount.override` (mặc định gán chủ cửa hàng / super admin): Chiết khấu vượt quá $10\%$ (yêu cầu phê duyệt Approval OTP / Xác nhận trực tiếp).
+- **Kiểm soát Hạn mức Công nợ Khách hàng (DEC-011):**
+  - Khi tổng nợ hiện tại + giá trị đơn mới $>$ `credit_limit`, hệ thống chặn xác nhận đơn (`CONFIRMED`) và yêu cầu capability `customer.credit.override` duyệt ghi đè.
 - **Xử lý Thuế VAT (DEC-008):**
   - Mỗi dòng sản phẩm trên đơn hàng có cấu hình thuế suất riêng ($0\%, 5\%, 8\%, 10\%$).
   - Đơn hàng tính toán rõ: $\text{Tổng tiền trước thuế} + \text{Tổng tiền thuế VAT} - \text{Chiết khấu} + \text{Phí vận chuyển/bốc xếp} = \text{Tổng thanh toán}$.
@@ -42,14 +47,17 @@
 ```mermaid
 stateDiagram-v2
     [*] --> DRAFT: Tạo Báo giá / Đơn nháp (Chưa giữ tồn)
-    DRAFT --> CONFIRMED: Khách chốt mua (Giữ chỗ tồn Reserved)
+    DRAFT --> CONFIRMED: Đủ tồn khả dụng (Giữ chỗ reserved += qty)
+    DRAFT --> BACKORDER: Thiếu tồn khả dụng (Chờ hàng về)
+    BACKORDER --> CONFIRMED: Hàng nhập về kho (Tự động reserved += qty)
     CONFIRMED --> PROCESSING: Điều xe / Chuẩn bị bốc hàng tại bãi
-    PROCESSING --> DELIVERING: Xe chở hàng rời bãi tới công trình
-    DELIVERING --> COMPLETED: Giao thành công, ký biên bản (Trừ tồn On Hand)
-    CONFIRMED --> CANCELLED: Khách hủy đơn (Giải phóng Reserved)
-    PROCESSING --> CANCELLED: Hủy trước khi xuất bãi
+    PROCESSING --> DELIVERING: Đơn giao nơi (Trừ on_hand & reserved)
+    PROCESSING --> COMPLETED: Bán lẻ tại quầy (Trừ on_hand & reserved)
+    DELIVERING --> COMPLETED: Giao thành công, ký biên bản
+    CONFIRMED --> CANCELLED: Khách hủy đơn (Giải phóng reserved)
+    PROCESSING --> CANCELLED: Hủy trước khi xuất bãi (Giải phóng reserved)
     DELIVERING --> RETURNED: Xe hàng bị trả về (Hoàn trả tồn kho và công nợ)
-    COMPLETED --> RETURNED: Đổi trả sau giao hàng (Tạo phiếu hoàn trả)
+    COMPLETED --> RETURNED: Đổi trả sau mua (Tạo phiếu hoàn trả)
 ```
 
 ---
