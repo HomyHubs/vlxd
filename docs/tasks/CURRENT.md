@@ -8,21 +8,21 @@
 
 ## Bảng lane
 
-| Lane              | Task active | Tiêu đề                                 | Status                                  | PR  | Reviewer |
-| ----------------- | ----------- | --------------------------------------- | --------------------------------------- | --- | -------- |
-| `LANE-CORE`       | `TASK-006b` | Staging smoke deploy                    | `todo`                                  | —   | chưa gán |
-| `LANE-CATALOG`    | —           | —                                       | `blocked` (chờ M1)                      | —   | —        |
-| `LANE-CRM`        | —           | —                                       | `blocked` (chờ TASK-013)                | —   | —        |
-| `LANE-COMMERCE`   | —           | —                                       | `blocked` (chờ M2)                      | —   | —        |
-| `LANE-PLATFORMUI` | —           | —                                       | `blocked` (chờ TASK-007 + TASK-010b)    | —   | —        |
-| `LANE-QUALITY`    | —           | —                                       | `blocked` (chạy tăng dần theo UI slice) | —   | —        |
+| Lane              | Task active | Tiêu đề                                 | Status             | PR      | Reviewer |
+| ----------------- | ----------- | --------------------------------------- | ------------------ | ------- | -------- |
+| `LANE-CORE`       | `TASK-006b` | Staging smoke deploy                    | `ready_for_review` | chưa có | chưa gán |
+| `LANE-CATALOG`    | —           | —                                       | `blocked` (chờ M1) | —       | —        |
+| `LANE-CRM`        | —           | —                                       | `blocked` (chờ TASK-013) | —       | —        |
+| `LANE-COMMERCE`   | —           | —                                       | `blocked` (chờ M2) | —       | —        |
+| `LANE-PLATFORMUI` | —           | —                                       | `blocked` (chờ TASK-007 + TASK-010b) | —       | —        |
+| `LANE-QUALITY`    | —           | —                                       | `blocked` (chạy tăng dần theo UI slice) | —       | —        |
 
 ### Chi tiết task active
 
 - **`TASK-006b` · `LANE-CORE`**
   - Task packet: `docs/tasks/MVP-BACKLOG.md#task-006b--staging-smoke-deploy-mới`
   - Prerequisite: `TASK-005` (accepted & merged via [#13](https://github.com/HomyHubs/vlxd/pull/13)), `TASK-006` (accepted & merged via [#14](https://github.com/HomyHubs/vlxd/pull/14))
-  - Implementer PR: chưa mở
+  - Implementer PR: đang mở trên branch `task/TASK-006b-staging-smoke-deploy`
   - Reviewer: chưa gán
 
 ## Quy tắc cập nhật
