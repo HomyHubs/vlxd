@@ -279,13 +279,12 @@ jobs:
           WEB_CANDIDATE_DIGEST=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/web:${{ github.sha }}" --raw | sha256sum | awk '{print $1}')
           WEB_PROMOTED_DIGEST=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/web:staging" --raw | sha256sum | awk '{print $1}')
 
-          if [ "$API_CANDIDATE_DIGEST" != "$API_PROMOTED_DIGEST" ]; then
-            echo "❌ Promoted API digest mismatch! Candidate: $API_CANDIDATE_DIGEST, Promoted: $API_PROMOTED_DIGEST"
-            exit 1
-          fi
-
-          if [ "$WEB_CANDIDATE_DIGEST" != "$WEB_PROMOTED_DIGEST" ]; then
-            echo "❌ Promoted Web digest mismatch! Candidate: $WEB_CANDIDATE_DIGEST, Promoted: $WEB_PROMOTED_DIGEST"
+          if [ "$API_CANDIDATE_DIGEST" != "$API_PROMOTED_DIGEST" ] || [ "$WEB_CANDIDATE_DIGEST" != "$WEB_PROMOTED_DIGEST" ]; then
+            echo "❌ Promoted digest mismatch! Applying compensation recovery..."
+            if [ "$HAS_PREV" -eq 1 ]; then
+              docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:staging-previous"
+              docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:staging-previous"
+            fi
             exit 1
           fi
 
