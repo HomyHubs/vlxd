@@ -8,21 +8,21 @@
 
 ## Bảng lane
 
-| Lane              | Task active | Tiêu đề                                     | Status                                  | PR      | Reviewer |
-| ----------------- | ----------- | ------------------------------------------- | --------------------------------------- | ------- | -------- |
-| `LANE-CORE`       | `TASK-009`  | Backend platform foundation + observability | `in_progress`                           | chưa có | chưa gán |
-| `LANE-CATALOG`    | —           | —                                           | `blocked` (chờ M1)                      | —       | —        |
-| `LANE-CRM`        | —           | —                                           | `blocked` (chờ TASK-013)                | —       | —        |
-| `LANE-COMMERCE`   | —           | —                                           | `blocked` (chờ M2)                      | —       | —        |
-| `LANE-PLATFORMUI` | —           | —                                           | `blocked` (chờ TASK-007 + TASK-010b)    | —       | —        |
-| `LANE-QUALITY`    | —           | —                                           | `blocked` (chạy tăng dần theo UI slice) | —       | —        |
+| Lane              | Task active | Tiêu đề                                     | Status             | PR                                              | Reviewer |
+| ----------------- | ----------- | ------------------------------------------- | ------------------ | ----------------------------------------------- | -------- |
+| `LANE-CORE`       | `TASK-009`  | Backend platform foundation + observability | `ready_for_review` | [#20](https://github.com/HomyHubs/vlxd/pull/20) | chưa gán |
+| `LANE-CATALOG`    | —           | —                                           | `blocked` (chờ M1) | —                                               | —        |
+| `LANE-CRM`        | —           | —                                           | `blocked` (chờ TASK-013) | —                                               | —        |
+| `LANE-COMMERCE`   | —           | —                                           | `blocked` (chờ M2) | —                                               | —        |
+| `LANE-PLATFORMUI` | —           | —                                           | `blocked` (chờ TASK-007 + TASK-010b) | —                                               | —        |
+| `LANE-QUALITY`    | —           | —                                           | `blocked` (chạy tăng dần theo UI slice) | —                                               | —        |
 
 ### Chi tiết task active
 
 - **`TASK-009` · `LANE-CORE`**
   - Task packet: `docs/tasks/MVP-BACKLOG.md#task-009--backend-platform-foundation--observability--lane-core`
   - Prerequisite: `TASK-007` (merged via [#16](https://github.com/HomyHubs/vlxd/pull/16)), `TASK-008c` (merged via [#19](https://github.com/HomyHubs/vlxd/pull/19))
-  - Implementer PR: đang thực hiện trên branch `task/TASK-009-backend-platform-foundation-observability`
+  - Implementer PR: [#20](https://github.com/HomyHubs/vlxd/pull/20)
   - Reviewer: chưa gán
 
 ## Quy tắc cập nhật
