@@ -239,31 +239,8 @@ jobs:
           REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
           echo "Promoting verified candidate images to release tags via OCI Manifests..."
 
-          # Step 1: Backup current :staging to :staging-previous if both services exist
-          HAS_PREV=0
-          if docker manifest inspect "ghcr.io/${REPO_LC}/api:staging" >/dev/null 2>&1 && \
-             docker manifest inspect "ghcr.io/${REPO_LC}/web:staging" >/dev/null 2>&1; then
-            echo "Backing up current active staging release to :staging-previous..."
-            docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging-previous" "ghcr.io/${REPO_LC}/api:staging"
-            docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging-previous" "ghcr.io/${REPO_LC}/web:staging"
-            HAS_PREV=1
-            echo "✅ Successfully backed up previous release to :staging-previous."
-          fi
-
-          # Step 2: Promote candidate SHA images to :staging with compensation recovery
-          echo "Promoting candidate revision ${{ github.sha }} to official :staging..."
-          if ! docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:${{ github.sha }}"; then
-            echo "❌ Failed promoting API :staging tag."
-            exit 1
-          fi
-
-          if ! docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:${{ github.sha }}"; then
-            echo "❌ Failed promoting Web :staging tag. Applying compensation recovery to restore API :staging..."
-            if [ "$HAS_PREV" -eq 1 ]; then
-              docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:staging-previous"
-            fi
-            exit 1
-          fi
+          docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:${{ github.sha }}"
+          docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:${{ github.sha }}"
 
           echo "✅ Staging release promotion completed successfully. Revision ${{ github.sha }} is active."
 
@@ -276,12 +253,12 @@ jobs:
           {
             "revision": "${{ github.sha }}",
             "deployed_at": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
-            "environment": "staging",
+            "environment": "staging-runner",
             "artifacts": {
               "api": "ghcr.io/${REPO_LC}/api:${{ github.sha }}",
               "web": "ghcr.io/${REPO_LC}/web:${{ github.sha }}"
             },
-            "status": "verified_healthy"
+            "smoke_verification": "passed"
           }
           EOF
           echo "=== STAGING RELEASE MANIFEST CREATED ==="
