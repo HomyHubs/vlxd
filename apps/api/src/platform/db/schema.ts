@@ -4,6 +4,10 @@ export type TenantStatus = "ACTIVE" | "SUSPENDED" | "ARCHIVED";
 export type UserStatus = "ACTIVE" | "INACTIVE" | "BLOCKED" | "ARCHIVED";
 export type TenantUserStatus = "ACTIVE" | "SUSPENDED" | "REVOKED";
 
+export type PermissionEffect = "ALLOW" | "DENY";
+export type PermissionScopeType =
+  "TENANT" | "BRANCH" | "WAREHOUSE" | "OWN_RECORDS" | "ASSIGNED_RECORDS";
+
 export interface TenantSettings {
   currency?: string;
   dateFormat?: string;
@@ -62,9 +66,75 @@ export interface SessionTable {
   revoked_at: ColumnType<Date | string | null, Date | string | null, Date | string | null>;
 }
 
+export interface RoleGroupTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  description: string | null;
+  is_system: Generated<boolean>;
+  created_at: Generated<Date | string>;
+  updated_at: Generated<Date | string>;
+  archived_at: ColumnType<Date | string | null, Date | string | null, Date | string | null>;
+}
+
+export interface PermissionTable {
+  id: Generated<string>;
+  code: string;
+  module: string;
+  resource: string;
+  action: string;
+  name: string;
+  description: string | null;
+  created_at: Generated<Date | string>;
+  updated_at: Generated<Date | string>;
+}
+
+export interface RoleGroupPermissionTable {
+  id: Generated<string>;
+  role_group_id: string;
+  permission_id: string;
+  created_at: Generated<Date | string>;
+}
+
+export interface TitleTable {
+  id: Generated<string>;
+  tenant_id: string | null;
+  code: string;
+  name: string;
+  role_group_id: string;
+  description: string | null;
+  created_at: Generated<Date | string>;
+  updated_at: Generated<Date | string>;
+  archived_at: ColumnType<Date | string | null, Date | string | null, Date | string | null>;
+}
+
+export interface TenantUserTitleTable {
+  id: Generated<string>;
+  tenant_user_id: string;
+  title_id: string;
+  created_at: Generated<Date | string>;
+}
+
+export interface UserCustomPermissionTable {
+  id: Generated<string>;
+  tenant_user_id: string;
+  permission_id: string;
+  effect: Generated<PermissionEffect>;
+  scope_type: Generated<PermissionScopeType>;
+  scope_value: string | null;
+  created_at: Generated<Date | string>;
+  updated_at: Generated<Date | string>;
+}
+
 export interface Database {
   tenants: TenantTable;
   users: UserTable;
   tenant_users: TenantUserTable;
   sessions: SessionTable;
+  role_groups: RoleGroupTable;
+  permissions: PermissionTable;
+  role_group_permissions: RoleGroupPermissionTable;
+  titles: TitleTable;
+  tenant_user_titles: TenantUserTitleTable;
+  user_custom_permissions: UserCustomPermissionTable;
 }

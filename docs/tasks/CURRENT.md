@@ -8,21 +8,21 @@
 
 ## Bảng lane
 
-| Lane              | Task active | Tiêu đề                       | Status                                  | PR                                              | Reviewer |
-| ----------------- | ----------- | ----------------------------- | --------------------------------------- | ----------------------------------------------- | -------- |
-| `LANE-CORE`       | `TASK-008a` | Identity & tenancy migrations | `ready_for_review`                      | [#17](https://github.com/HomyHubs/vlxd/pull/17) | chưa gán |
-| `LANE-CATALOG`    | —           | —                             | `blocked` (chờ M1)                      | —                                               | —        |
-| `LANE-CRM`        | —           | —                             | `blocked` (chờ TASK-013)                | —                                               | —        |
-| `LANE-COMMERCE`   | —           | —                             | `blocked` (chờ M2)                      | —                                               | —        |
-| `LANE-PLATFORMUI` | —           | —                             | `blocked` (chờ TASK-007 + TASK-010b)    | —                                               | —        |
-| `LANE-QUALITY`    | —           | —                             | `blocked` (chạy tăng dần theo UI slice) | —                                               | —        |
+| Lane              | Task active | Tiêu đề                                  | Status                                  | PR                                              | Reviewer |
+| ----------------- | ----------- | ---------------------------------------- | --------------------------------------- | ----------------------------------------------- | -------- |
+| `LANE-CORE`       | `TASK-008b` | Permissions & role management migrations | `ready_for_review`                      | [#18](https://github.com/HomyHubs/vlxd/pull/18) | chưa gán |
+| `LANE-CATALOG`    | —           | —                                        | `blocked` (chờ M1)                      | —                                               | —        |
+| `LANE-CRM`        | —           | —                                        | `blocked` (chờ TASK-013)                | —                                               | —        |
+| `LANE-COMMERCE`   | —           | —                                        | `blocked` (chờ M2)                      | —                                               | —        |
+| `LANE-PLATFORMUI` | —           | —                                        | `blocked` (chờ TASK-007 + TASK-010b)    | —                                               | —        |
+| `LANE-QUALITY`    | —           | —                                        | `blocked` (chạy tăng dần theo UI slice) | —                                               | —        |
 
 ### Chi tiết task active
 
-- **`TASK-008a` · `LANE-CORE`**
+- **`TASK-008b` · `LANE-CORE`**
   - Task packet: `docs/tasks/MVP-BACKLOG.md#task-008--database-multi-tenant-foundation--lane-core-chẻ-3-pr`
-  - Prerequisite: `TASK-004`, `TASK-005` (accepted & merged), `TASK-007` (accepted & merged via [#16](https://github.com/HomyHubs/vlxd/pull/16))
-  - Implementer PR: [#17](https://github.com/HomyHubs/vlxd/pull/17)
+  - Prerequisite: `TASK-004`, `TASK-005`, `TASK-007`, `TASK-008a` (accepted & merged via [#17](https://github.com/HomyHubs/vlxd/pull/17))
+  - Implementer PR: [#18](https://github.com/HomyHubs/vlxd/pull/18)
   - Reviewer: chưa gán
 
 ## Quy tắc cập nhật
