@@ -44,6 +44,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * User login and session creation
+         * @description Authenticates user credentials (email/password), initializes an opaque session, and returns session details with an HttpOnly cookie.
+         */
+        post: operations["login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * User logout and session revocation
+         * @description Revokes the current session and clears the session cookie.
+         */
+        post: operations["logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current authenticated session profile
+         * @description Returns information about the currently logged-in user, active tenant, and assigned titles.
+         */
+        get: operations["getAuthMe"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -71,11 +131,117 @@ export interface components {
             database: "connected" | "disconnected" | "disabled";
             timestamp: components["schemas"]["DateTime"];
         };
+        LoginRequest: {
+            /**
+             * Format: email
+             * @example admin@vlxd.vn
+             */
+            email: string;
+            /** @example Admin@123456 */
+            password: string;
+            /**
+             * @description Optional tenant code if the user belongs to multiple tenants or specifies tenant explicitly
+             * @example VLXD-DEFAULT
+             */
+            tenantCode?: string;
+        };
+        AuthUser: {
+            /**
+             * Format: uuid
+             * @example 550e8400-e29b-41d4-a716-446655440000
+             */
+            id: string;
+            /**
+             * Format: email
+             * @example admin@vlxd.vn
+             */
+            email: string;
+            /** @example +84901234567 */
+            phone?: string | null;
+            /** @example Quản Trị Viên */
+            fullName: string;
+            /**
+             * @example ACTIVE
+             * @enum {string}
+             */
+            status: "ACTIVE" | "INACTIVE" | "BLOCKED" | "ARCHIVED";
+        };
+        AuthTenant: {
+            /**
+             * Format: uuid
+             * @example 550e8400-e29b-41d4-a716-446655440001
+             */
+            id: string;
+            /** @example VLXD-DEFAULT */
+            code: string;
+            /** @example Công ty VLXD Mẫu */
+            name: string;
+            /**
+             * @example ACTIVE
+             * @enum {string}
+             */
+            status: "ACTIVE" | "SUSPENDED" | "ARCHIVED";
+        };
+        AuthSession: {
+            /**
+             * Format: uuid
+             * @example 550e8400-e29b-41d4-a716-446655440002
+             */
+            id: string;
+            expiresAt: components["schemas"]["DateTime"];
+            createdAt?: components["schemas"]["DateTime"];
+        };
+        AuthTitle: {
+            /**
+             * Format: uuid
+             * @example 550e8400-e29b-41d4-a716-446655440003
+             */
+            id: string;
+            /** @example GDKD */
+            code: string;
+            /** @example Giám đốc */
+            name: string;
+            roleGroup: {
+                /**
+                 * Format: uuid
+                 * @example 550e8400-e29b-41d4-a716-446655440004
+                 */
+                id: string;
+                /** @example SUPER_ADMIN */
+                code: string;
+                /** @example Super admin */
+                name: string;
+            };
+        };
+        LoginResponse: {
+            user: components["schemas"]["AuthUser"];
+            tenant: components["schemas"]["AuthTenant"];
+            session: components["schemas"]["AuthSession"];
+            /**
+             * @description Opaque session token string (also set in HttpOnly cookie)
+             * @example 3a7b5e9f1c...
+             */
+            token: string;
+        };
+        LogoutResponse: {
+            /** @example true */
+            success: boolean;
+            /** @example Logout successful */
+            message: string;
+        };
+        AuthMeResponse: {
+            user: components["schemas"]["AuthUser"];
+            tenant: components["schemas"]["AuthTenant"];
+            session: components["schemas"]["AuthSession"];
+            /** @example true */
+            isOwner: boolean;
+            titles: components["schemas"]["AuthTitle"][];
+        };
         /**
          * @example VALIDATION_ERROR
          * @enum {string}
          */
-        ErrorCode: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "PLAN_LIMIT_REACHED" | "TENANT_NOT_FOUND" | "INTERNAL_SERVER_ERROR" | "BAD_REQUEST";
+        ErrorCode: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "PLAN_LIMIT_REACHED" | "TENANT_NOT_FOUND" | "INVALID_CREDENTIALS" | "USER_SUSPENDED" | "TENANT_SUSPENDED" | "SESSION_EXPIRED" | "SESSION_REVOKED" | "INTERNAL_SERVER_ERROR" | "BAD_REQUEST";
         /** @description Structured contextual error details or field-level validation errors */
         ErrorDetails: {
             [key: string]: unknown;
@@ -264,6 +430,79 @@ export interface operations {
                     "application/json": components["schemas"]["ReadinessResponse"];
                 };
             };
+        };
+    };
+    login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Login successful */
+            200: {
+                headers: {
+                    /** @description Opaque session cookie (vlxd_session) */
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginResponse"];
+                };
+            };
+            400: components["responses"]["BadRequestError"];
+            401: components["responses"]["UnauthorizedError"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Logout successful */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LogoutResponse"];
+                };
+            };
+            401: components["responses"]["UnauthorizedError"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    getAuthMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current user session profile */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthMeResponse"];
+                };
+            };
+            401: components["responses"]["UnauthorizedError"];
+            500: components["responses"]["InternalServerError"];
         };
     };
 }

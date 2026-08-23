@@ -59,3 +59,78 @@ export const ReadinessResponseSchema = z.object({
 });
 
 export type ReadinessResponse = z.infer<typeof ReadinessResponseSchema>;
+
+// Auth schemas
+export const LoginRequestSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  tenantCode: z.string().optional(),
+});
+
+export type LoginRequest = z.infer<typeof LoginRequestSchema>;
+
+export const AuthUserSchema = z.object({
+  id: z.string().uuid(),
+  email: z.string().email(),
+  phone: z.string().nullable().optional(),
+  fullName: z.string(),
+  status: z.enum(["ACTIVE", "INACTIVE", "BLOCKED", "ARCHIVED"]),
+});
+
+export type AuthUser = z.infer<typeof AuthUserSchema>;
+
+export const AuthTenantSchema = z.object({
+  id: z.string().uuid(),
+  code: z.string(),
+  name: z.string(),
+  status: z.enum(["ACTIVE", "SUSPENDED", "ARCHIVED"]),
+});
+
+export type AuthTenant = z.infer<typeof AuthTenantSchema>;
+
+export const AuthSessionSchema = z.object({
+  id: z.string().uuid(),
+  expiresAt: z.string(),
+  createdAt: z.string().optional(),
+});
+
+export type AuthSession = z.infer<typeof AuthSessionSchema>;
+
+export const AuthTitleSchema = z.object({
+  id: z.string().uuid(),
+  code: z.string(),
+  name: z.string(),
+  roleGroup: z.object({
+    id: z.string().uuid(),
+    code: z.string(),
+    name: z.string(),
+  }),
+});
+
+export type AuthTitle = z.infer<typeof AuthTitleSchema>;
+
+export const LoginResponseSchema = z.object({
+  user: AuthUserSchema,
+  tenant: AuthTenantSchema,
+  session: AuthSessionSchema,
+  token: z.string(),
+});
+
+export type LoginResponse = z.infer<typeof LoginResponseSchema>;
+
+export const LogoutResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+
+export type LogoutResponse = z.infer<typeof LogoutResponseSchema>;
+
+export const AuthMeResponseSchema = z.object({
+  user: AuthUserSchema,
+  tenant: AuthTenantSchema,
+  session: AuthSessionSchema,
+  isOwner: z.boolean(),
+  titles: z.array(AuthTitleSchema),
+});
+
+export type AuthMeResponse = z.infer<typeof AuthMeResponseSchema>;

@@ -19,6 +19,7 @@ paths:
                 $ref: "#/components/schemas/HealthResponse"
         "500":
           $ref: "#/components/responses/InternalServerError"
+
   /health/ready:
     get:
       summary: Readiness check endpoint
@@ -38,7 +39,89 @@ paths:
               schema:
                 $ref: "#/components/schemas/ReadinessResponse"
 
+  /api/v1/auth/login:
+    post:
+      summary: User login and session creation
+      description: Authenticates user credentials (email/password), initializes an opaque session, and returns session details with an HttpOnly cookie.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          headers:
+            Set-Cookie:
+              description: Opaque session cookie (vlxd_session)
+              schema:
+                type: string
+                example: vlxd_session=3a7b...; Path=/; HttpOnly; SameSite=Lax
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/auth/logout:
+    post:
+      summary: User logout and session revocation
+      description: Revokes the current session and clears the session cookie.
+      operationId: logout
+      security:
+        - CookieAuth: []
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/auth/me:
+    get:
+      summary: Get current authenticated session profile
+      description: Returns information about the currently logged-in user, active tenant, and assigned titles.
+      operationId: getAuthMe
+      security:
+        - CookieAuth: []
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Current user session profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthMeResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
 components:
+  securitySchemes:
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: vlxd_session
+      description: Opaque session token stored in HttpOnly cookie
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Opaque session token provided in Authorization header
+
   headers:
     X-Request-Id:
       description: Unique request trace identifier
@@ -134,6 +217,189 @@ components:
         timestamp:
           $ref: "#/components/schemas/DateTime"
 
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@vlxd.vn
+        password:
+          type: string
+          minLength: 6
+          example: Admin@123456
+        tenantCode:
+          type: string
+          description: Optional tenant code if the user belongs to multiple tenants or specifies tenant explicitly
+          example: VLXD-DEFAULT
+
+    AuthUser:
+      type: object
+      required:
+        - id
+        - email
+        - fullName
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        email:
+          type: string
+          format: email
+          example: admin@vlxd.vn
+        phone:
+          type: string
+          nullable: true
+          example: "+84901234567"
+        fullName:
+          type: string
+          example: Quản Trị Viên
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - BLOCKED
+            - ARCHIVED
+          example: ACTIVE
+
+    AuthTenant:
+      type: object
+      required:
+        - id
+        - code
+        - name
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440001
+        code:
+          type: string
+          example: VLXD-DEFAULT
+        name:
+          type: string
+          example: Công ty VLXD Mẫu
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - SUSPENDED
+            - ARCHIVED
+          example: ACTIVE
+
+    AuthSession:
+      type: object
+      required:
+        - id
+        - expiresAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440002
+        expiresAt:
+          $ref: "#/components/schemas/DateTime"
+        createdAt:
+          $ref: "#/components/schemas/DateTime"
+
+    AuthTitle:
+      type: object
+      required:
+        - id
+        - code
+        - name
+        - roleGroup
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440003
+        code:
+          type: string
+          example: GDKD
+        name:
+          type: string
+          example: Giám đốc
+        roleGroup:
+          type: object
+          required:
+            - id
+            - code
+            - name
+          properties:
+            id:
+              type: string
+              format: uuid
+              example: 550e8400-e29b-41d4-a716-446655440004
+            code:
+              type: string
+              example: SUPER_ADMIN
+            name:
+              type: string
+              example: Super admin
+
+    LoginResponse:
+      type: object
+      required:
+        - user
+        - tenant
+        - session
+        - token
+      properties:
+        user:
+          $ref: "#/components/schemas/AuthUser"
+        tenant:
+          $ref: "#/components/schemas/AuthTenant"
+        session:
+          $ref: "#/components/schemas/AuthSession"
+        token:
+          type: string
+          description: Opaque session token string (also set in HttpOnly cookie)
+          example: 3a7b5e9f1c...
+
+    LogoutResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Logout successful
+
+    AuthMeResponse:
+      type: object
+      required:
+        - user
+        - tenant
+        - session
+        - isOwner
+        - titles
+      properties:
+        user:
+          $ref: "#/components/schemas/AuthUser"
+        tenant:
+          $ref: "#/components/schemas/AuthTenant"
+        session:
+          $ref: "#/components/schemas/AuthSession"
+        isOwner:
+          type: boolean
+          example: true
+        titles:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuthTitle"
+
     ErrorCode:
       type: string
       enum:
@@ -144,6 +410,11 @@ components:
         - CONFLICT
         - PLAN_LIMIT_REACHED
         - TENANT_NOT_FOUND
+        - INVALID_CREDENTIALS
+        - USER_SUSPENDED
+        - TENANT_SUSPENDED
+        - SESSION_EXPIRED
+        - SESSION_REVOKED
         - INTERNAL_SERVER_ERROR
         - BAD_REQUEST
       example: VALIDATION_ERROR

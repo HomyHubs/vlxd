@@ -1,3 +1,4 @@
+import fastifyCookie from "@fastify/cookie";
 import { HealthResponseSchema, ReadinessResponseSchema } from "@vlxd/shared";
 import Fastify from "fastify";
 import {
@@ -6,6 +7,7 @@ import {
   type ZodTypeProvider,
 } from "fastify-type-provider-zod";
 import type { Kysely } from "kysely";
+import { authPlugin, AuthRepository, authRoutes, AuthService } from "./features/auth/index.js";
 import type { Config } from "./platform/config.js";
 import { checkDatabaseHealth, type Database } from "./platform/db/index.js";
 import { registerErrorHandlers } from "./platform/http/error-handler.js";
@@ -41,6 +43,18 @@ export function buildApp(optionsOrConfig: Config | AppOptions) {
 
   // Register Global Error Handlers (404 and Error Envelope)
   registerErrorHandlers(app);
+
+  // Register Cookie Plugin
+  app.register(fastifyCookie);
+
+  // Register Auth feature slice when database connection is available
+  if (db) {
+    const authRepository = new AuthRepository(db);
+    const authService = new AuthService(authRepository);
+
+    app.register(authPlugin, { authService });
+    app.register(authRoutes, { config, authService });
+  }
 
   // Liveness Health Check Route (/health)
   app.get(
