@@ -48,7 +48,7 @@ describe("Auth Crypto Utilities", () => {
     });
 
     it("hashes token deterministically using SHA-256", () => {
-      const token = "3a7b5e9f1c8d2a4e6b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a";
+      const token = "mock-test-session-token-for-hashing-verification";
       const hash1 = hashSessionToken(token);
       const hash2 = hashSessionToken(token);
 

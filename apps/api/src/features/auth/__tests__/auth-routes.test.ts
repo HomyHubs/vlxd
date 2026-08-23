@@ -115,7 +115,7 @@ describe("Auth Routes HTTP Integration", () => {
           expiresAt: "2026-08-30T00:00:00.000Z",
           createdAt: "2026-08-23T00:00:00.000Z",
         },
-        token: "3a7b5e9f1c8d2a4e6b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a",
+        token: "mock-test-session-token-for-login-test",
       };
 
       vi.mocked(mockAuthService.login).mockResolvedValue(mockLoginResult);
