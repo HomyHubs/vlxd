@@ -14,6 +14,8 @@
   "scripts": {
     "build": "tsc -b",
     "dev": "tsc -b --watch",
+    "generate": "openapi-typescript ../../contracts/http/openapi.yaml -o src/generated/schema.ts",
+    "check:drift": "node ../../scripts/check-openapi-drift.mjs",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "lint": "eslint src --max-warnings 0",
     "typecheck": "tsc --noEmit",
@@ -27,6 +29,7 @@
     "@vlxd/config-eslint": "workspace:*",
     "@vlxd/config-ts": "workspace:*",
     "eslint": "^9.21.0",
+    "openapi-typescript": "^7.6.1",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.2",
     "vitest": "^4.1.11"
