@@ -96,4 +96,31 @@ describe("@vlxd/api-client", () => {
       expect(apiError.envelope).toBeUndefined();
     }
   });
+
+  it("calls /health/ready and returns typed ReadinessResponse", async () => {
+    const mockReadiness = {
+      status: "ready" as const,
+      database: "connected" as const,
+      timestamp: "2026-08-23T03:00:00.000Z",
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockReadiness,
+    });
+
+    const client = createApiClient({
+      baseUrl: "http://localhost:3001",
+      fetchFn: mockFetch as unknown as typeof fetch,
+    });
+
+    const result = await client.getReadiness();
+    expect(result).toEqual(mockReadiness);
+    expect(mockFetch).toHaveBeenCalledWith("http://localhost:3001/health/ready", {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+  });
 });

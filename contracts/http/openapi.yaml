@@ -19,6 +19,24 @@ paths:
                 $ref: "#/components/schemas/HealthResponse"
         "500":
           $ref: "#/components/responses/InternalServerError"
+  /health/ready:
+    get:
+      summary: Readiness check endpoint
+      description: Checks backend service readiness including database pool connectivity.
+      operationId: getReadiness
+      responses:
+        "200":
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadinessResponse"
+        "503":
+          description: Service is unready or database is unreachable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadinessResponse"
 
 components:
   headers:
@@ -90,6 +108,29 @@ components:
         version:
           type: string
           example: 0.1.0
+        timestamp:
+          $ref: "#/components/schemas/DateTime"
+
+    ReadinessResponse:
+      type: object
+      required:
+        - status
+        - database
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum:
+            - ready
+            - unready
+          example: ready
+        database:
+          type: string
+          enum:
+            - connected
+            - disconnected
+            - disabled
+          example: connected
         timestamp:
           $ref: "#/components/schemas/DateTime"
 
