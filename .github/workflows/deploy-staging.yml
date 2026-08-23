@@ -155,9 +155,14 @@ jobs:
       - name: Verify Compose Image Resolution
         run: |
           REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
-          API_IMAGE="ghcr.io/${REPO_LC}/api:${{ github.sha }}" \
-          WEB_IMAGE="ghcr.io/${REPO_LC}/web:${{ github.sha }}" \
-          docker compose -f compose.staging.yml config --images
+          RESOLVED=$(API_IMAGE="ghcr.io/${REPO_LC}/api:${{ github.sha }}" \
+                     WEB_IMAGE="ghcr.io/${REPO_LC}/web:${{ github.sha }}" \
+                     docker compose -f compose.staging.yml config --images)
+          echo "Resolved Compose images:"
+          echo "$RESOLVED"
+          echo "$RESOLVED" | grep -F "ghcr.io/${REPO_LC}/api:${{ github.sha }}" || { echo "❌ API image not resolved correctly"; exit 1; }
+          echo "$RESOLVED" | grep -F "ghcr.io/${REPO_LC}/web:${{ github.sha }}" || { echo "❌ Web image not resolved correctly"; exit 1; }
+          echo "✅ Compose correctly resolved candidate image tags."
 
       - name: Boot Staging Candidate Stack
         run: |
@@ -220,20 +225,22 @@ jobs:
         if: success()
         run: |
           REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
-          echo "Promoting candidate revision ${{ github.sha }} to official :staging and :staging-previous tags..."
+          echo "Preserving existing active staging release as :staging-previous..."
+          # Step 1: Pull current :staging and retag as :staging-previous to preserve history
+          if docker pull "ghcr.io/${REPO_LC}/api:staging" 2>/dev/null; then
+            docker tag "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:staging-previous"
+            docker push "ghcr.io/${REPO_LC}/api:staging-previous"
+          fi
+          if docker pull "ghcr.io/${REPO_LC}/web:staging" 2>/dev/null; then
+            docker tag "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:staging-previous"
+            docker push "ghcr.io/${REPO_LC}/web:staging-previous"
+          fi
 
-          # Tag current candidate as :staging and push to GHCR
+          echo "Promoting candidate revision ${{ github.sha }} to official :staging tag..."
+          # Step 2: Promote candidate to :staging
           docker tag "ghcr.io/${REPO_LC}/api:${{ github.sha }}" "ghcr.io/${REPO_LC}/api:staging"
-          docker push "ghcr.io/${REPO_LC}/api:staging"
-
           docker tag "ghcr.io/${REPO_LC}/web:${{ github.sha }}" "ghcr.io/${REPO_LC}/web:staging"
+          docker push "ghcr.io/${REPO_LC}/api:staging"
           docker push "ghcr.io/${REPO_LC}/web:staging"
 
-          # Tag candidate as :staging-previous for history preservation
-          docker tag "ghcr.io/${REPO_LC}/api:${{ github.sha }}" "ghcr.io/${REPO_LC}/api:staging-previous"
-          docker push "ghcr.io/${REPO_LC}/api:staging-previous"
-
-          docker tag "ghcr.io/${REPO_LC}/web:${{ github.sha }}" "ghcr.io/${REPO_LC}/web:staging-previous"
-          docker push "ghcr.io/${REPO_LC}/web:staging-previous"
-
-          echo "✅ Promotion completed successfully. Revision ${{ github.sha }} is active in staging."
+          echo "✅ Staging promotion completed successfully. Revision ${{ github.sha }} is active."

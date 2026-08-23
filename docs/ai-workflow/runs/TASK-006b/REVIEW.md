@@ -9,9 +9,10 @@
   - Round 2 (PR #15): `004ec0d665b9e7a0bd7a6d0b4a478c9ee2e6e977`
   - Round 3 (PR #15): `b5746417cabf71c61c88ef5807cb84a28e9d925b`
   - Round 4 (PR #15): `0024f45191105df59eee1eb691756193633d1910`
-- Reviewed at (UTC): 2026-08-23T01:05:00Z
-- Review round: 4
-- Verdict: changes_required (Round 4) -> pending re-review (Round 5)
+  - Round 5 (PR #15): `5ced05dec7661a9ff1c81221e642117d02314ece`
+- Reviewed at (UTC): 2026-08-23T01:12:00Z
+- Review round: 5
+- Verdict: changes_required (Round 5) -> pending re-review (Round 6)
 
 ## Phạm vi đã kiểm tra
 
@@ -19,7 +20,7 @@
 - [x] Dockerfile cho `apps/api` và `apps/web` (multi-stage build, unprivileged user, lean Alpine image)
 - [x] Cấu hình `compose.staging.yml` (parameterized `image: ${API_IMAGE}` / `${WEB_IMAGE}`) & `nginx/staging.conf`
 - [x] Script automated smoke test `scripts/smoke-test.mjs` (timeout, retry delay, concurrent status assertions qua `Promise.allSettled`)
-- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image candidate publishing, explicit image passing to Compose, verified rollback không nuốt lỗi, và promotion sau kiểm thử)
+- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image candidate publishing, explicit image passing to Compose, verified rollback không nuốt lỗi, bảo toàn `:staging-previous` trước khi promote, và strict image resolution assertion)
 - [x] Workflow `.github/workflows/ci.yml` (PR staging smoke container integration job)
 - [x] Execution log (`docs/ai-workflow/runs/TASK-006b/EXECUTION.md`)
 - [x] Toàn bộ diff (`git diff dev...HEAD`)
@@ -66,11 +67,15 @@
 - Severity: BLOCKER
 - File/dòng: `compose.staging.yml:1-32`, `.github/workflows/deploy-staging.yml`
 - Tác động: `compose.staging.yml` thiếu `image:`, Compose mặc định tìm `:latest` khi chạy `--no-build`. Tag `:staging` bị ghi đè trước khi kiểm thử khiến không thể rollback.
-- Cách xử lý:
-  1. Thêm `image: ${API_IMAGE:-vlxd-api:staging}` và `image: ${WEB_IMAGE:-vlxd-web:staging}` vào `compose.staging.yml`.
-  2. Gắn tag candidate `:staging-candidate` khi build.
-  3. Chỉ promote `:staging` và `:staging-previous` sau khi smoke test đạt.
-  4. Loại bỏ `|| true` trong bước rollback và thực hiện tái kiểm tra smoke test để đảm bảo phục hồi thành công.
+- Cách xử lý: Thêm `image: ${API_IMAGE}` / `image: ${WEB_IMAGE}`, gắn tag candidate `:staging-candidate` khi build, loại bỏ `|| true` trong bước rollback và thực hiện tái kiểm tra smoke test.
+- Trạng thái: resolved
+
+### FINDING-005 — [ROUND 5] Bảo toàn `:staging-previous` đúng thứ tự và assert Compose resolution
+
+- Severity: BLOCKER
+- File/dòng: `.github/workflows/deploy-staging.yml:155-239`
+- Tác động: Gắn tag candidate mới cho cả `:staging` và `:staging-previous` làm mất bản release trước; thiếu assertion cho bước resolve Compose images.
+- Cách xử lý: Kéo và gắn tag bản `:staging` hiện tại thành `:staging-previous` trước khi promote candidate thành `:staging`; thêm assertion kiểm tra kết quả `docker compose config --images`.
 - Trạng thái: resolved
 
 ## Acceptance criteria
@@ -94,4 +99,4 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với Compose image parameterization, candidate tag lifecycle, verified rollback không nuốt lỗi, và promotion sau kiểm thử, sẵn sàng cho Round 5 re-review.
+- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với bảo toàn release trước `:staging-previous` chính xác, assertion Compose image resolution chặt chẽ, và Markdown audit log chuẩn định dạng, sẵn sàng cho Round 6 re-review.
