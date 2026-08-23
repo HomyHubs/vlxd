@@ -81,11 +81,11 @@
 
 ## Kiểm tra đã chạy
 
-| Command | Kết quả/exit code | Ghi chú |
-| ------- | ----------------- | ------- |
-| `pnpm test` | Exit code 0 (6/6 turbo tasks passed) | Vitest chạy 8 tests trong `apps/api` (bao gồm 3 migration tests trong `migrations.test.ts`), 5 tests trong `api-client`, 6 tests trong `shared`, 2 tests trong `web` |
-| `pnpm run check` | Exit code 0 | Quality gate đầy đủ: check drift, lint, typecheck, test, build (18/18 turbo tasks), prettier check |
-| `pnpm audit --audit-level=high` | Exit code 0 | 0 lỗ hổng bảo mật |
+| Command                         | Kết quả/exit code                    | Ghi chú                                                                                                                                                              |
+| ------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm test`                     | Exit code 0 (6/6 turbo tasks passed) | Vitest chạy 8 tests trong `apps/api` (bao gồm 3 migration tests trong `migrations.test.ts`), 5 tests trong `api-client`, 6 tests trong `shared`, 2 tests trong `web` |
+| `pnpm run check`                | Exit code 0                          | Quality gate đầy đủ: check drift, lint, typecheck, test, build (18/18 turbo tasks), prettier check                                                                   |
+| `pnpm audit --audit-level=high` | Exit code 0                          | 0 lỗ hổng bảo mật                                                                                                                                                    |
 
 ## Self-review
 
