@@ -345,4 +345,3 @@ Tenant/permission negative tests, CSRF, session security, rate/file limits, secr
 - OCR hóa đơn: upload contract, async job, correction workflow, retention, Premium/Enterprise gate.
 - AI chat/voice: permission-safe tools, confirmation cho hành động tiền/hàng, transcript/retention/audit, cost controls.
 - Enterprise dedicated DB: provisioning, tenant routing, schema compatibility, backup/recovery, secrets runbook (ADR định hướng đã đặt ở TASK-004).
-- **TASK-035 — Persistent staging host deployment (Follow-up sau M0 Baseline):** thiết lập máy chủ persistent staging dài hạn (VPS/cloud VM/k8s) kết nối với GHCR images phát hành từ pipeline M0.

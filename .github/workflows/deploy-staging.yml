@@ -245,13 +245,42 @@ jobs:
           REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
           echo "Promoting verified candidate images to release tags via OCI Manifests..."
 
+          # Helper to restore previous release tags and verify post-compensation state
+          restore_previous_tags() {
+            if [ "$HAS_PREV" -eq 1 ]; then
+              echo "Restoring previous release tags from :staging-previous..."
+              docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:staging-previous" || true
+              docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:staging-previous" || true
+              echo "Verifying post-compensation tag digests..."
+              RESTORED_API=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/api:staging" --raw 2>/dev/null | sha256sum | awk '{print $1}')
+              PREV_API=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/api:staging-previous" --raw 2>/dev/null | sha256sum | awk '{print $1}')
+              RESTORED_WEB=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/web:staging" --raw 2>/dev/null | sha256sum | awk '{print $1}')
+              PREV_WEB=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/web:staging-previous" --raw 2>/dev/null | sha256sum | awk '{print $1}')
+
+              if [ -n "$RESTORED_API" ] && [ "$RESTORED_API" = "$PREV_API" ] && \
+                 [ -n "$RESTORED_WEB" ] && [ "$RESTORED_WEB" = "$PREV_WEB" ]; then
+                echo "✅ Post-compensation verification passed: Both :staging tags restored to previous release digests."
+              else
+                echo "⚠️ Post-compensation verification: Inconsistent restoration detected (API: $RESTORED_API vs $PREV_API, WEB: $RESTORED_WEB vs $PREV_WEB)."
+              fi
+            else
+              echo "⚠️ Initial bootstrap deployment failure: No previous release (:staging-previous) exists to restore."
+            fi
+          }
+
           # Step 1: Backup current :staging to :staging-previous if both services exist
           HAS_PREV=0
           if docker manifest inspect "ghcr.io/${REPO_LC}/api:staging" >/dev/null 2>&1 && \
              docker manifest inspect "ghcr.io/${REPO_LC}/web:staging" >/dev/null 2>&1; then
             echo "Backing up current active staging release to :staging-previous..."
-            docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging-previous" "ghcr.io/${REPO_LC}/api:staging"
-            docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging-previous" "ghcr.io/${REPO_LC}/web:staging"
+            if ! docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging-previous" "ghcr.io/${REPO_LC}/api:staging"; then
+              echo "❌ Failed backing up API release tag."
+              exit 1
+            fi
+            if ! docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging-previous" "ghcr.io/${REPO_LC}/web:staging"; then
+              echo "❌ Failed backing up Web release tag."
+              exit 1
+            fi
             HAS_PREV=1
             echo "✅ Successfully backed up previous release to :staging-previous."
           fi
@@ -260,14 +289,13 @@ jobs:
           echo "Promoting candidate revision ${{ github.sha }} to official :staging..."
           if ! docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:${{ github.sha }}"; then
             echo "❌ Failed promoting API :staging tag."
+            restore_previous_tags
             exit 1
           fi
 
           if ! docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:${{ github.sha }}"; then
-            echo "❌ Failed promoting Web :staging tag. Applying compensation recovery to restore API :staging..."
-            if [ "$HAS_PREV" -eq 1 ]; then
-              docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:staging-previous"
-            fi
+            echo "❌ Failed promoting Web :staging tag. Applying compensation recovery..."
+            restore_previous_tags
             exit 1
           fi
 
@@ -280,11 +308,8 @@ jobs:
           WEB_PROMOTED_DIGEST=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/web:staging" --raw | sha256sum | awk '{print $1}')
 
           if [ "$API_CANDIDATE_DIGEST" != "$API_PROMOTED_DIGEST" ] || [ "$WEB_CANDIDATE_DIGEST" != "$WEB_PROMOTED_DIGEST" ]; then
-            echo "❌ Promoted digest mismatch! Applying compensation recovery..."
-            if [ "$HAS_PREV" -eq 1 ]; then
-              docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:staging-previous"
-              docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:staging-previous"
-            fi
+            echo "❌ Promoted digest mismatch! Candidate: ($API_CANDIDATE_DIGEST, $WEB_CANDIDATE_DIGEST) vs Promoted: ($API_PROMOTED_DIGEST, $WEB_PROMOTED_DIGEST). Applying compensation recovery..."
+            restore_previous_tags
             exit 1
           fi
 
