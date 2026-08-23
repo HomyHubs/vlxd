@@ -155,14 +155,23 @@ jobs:
       - name: Verify Compose Image Resolution
         run: |
           REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
-          RESOLVED=$(API_IMAGE="ghcr.io/${REPO_LC}/api:${{ github.sha }}" \
-                     WEB_IMAGE="ghcr.io/${REPO_LC}/web:${{ github.sha }}" \
-                     docker compose -f compose.staging.yml config --images)
+          EXPECTED_API="ghcr.io/${REPO_LC}/api:${{ github.sha }}"
+          EXPECTED_WEB="ghcr.io/${REPO_LC}/web:${{ github.sha }}"
+
+          RESOLVED=$(API_IMAGE="$EXPECTED_API" WEB_IMAGE="$EXPECTED_WEB" docker compose -f compose.staging.yml config --images)
           echo "Resolved Compose images:"
           echo "$RESOLVED"
-          echo "$RESOLVED" | grep -F "ghcr.io/${REPO_LC}/api:${{ github.sha }}" || { echo "❌ API image not resolved correctly"; exit 1; }
-          echo "$RESOLVED" | grep -F "ghcr.io/${REPO_LC}/web:${{ github.sha }}" || { echo "❌ Web image not resolved correctly"; exit 1; }
-          echo "✅ Compose correctly resolved candidate image tags."
+
+          RESOLVED_SORTED=$(echo "$RESOLVED" | sort)
+          EXPECTED_SORTED=$(printf "%s\n%s\n" "$EXPECTED_API" "$EXPECTED_WEB" | sort)
+
+          if [ "$RESOLVED_SORTED" != "$EXPECTED_SORTED" ]; then
+            echo "❌ Resolved images do not match expected set exactly!"
+            echo "Expected: $EXPECTED_SORTED"
+            echo "Got:      $RESOLVED_SORTED"
+            exit 1
+          fi
+          echo "✅ Compose resolved image set strictly matches candidate image pair."
 
       - name: Boot Staging Candidate Stack
         run: |
@@ -173,8 +182,8 @@ jobs:
 
       - name: Run Automated Post-Deploy Smoke Tests
         env:
-          API_URL: "http://localhost:3001"
-          WEB_URL: "http://localhost:3000"
+          API_URL: ${{ secrets.STAGING_API_URL || 'http://localhost:3001' }}
+          WEB_URL: ${{ secrets.STAGING_WEB_URL || 'http://localhost:3000' }}
           SMOKE_MAX_ATTEMPTS: ${{ github.event.inputs.smoke_max_attempts || '15' }}
           SMOKE_RETRY_DELAY_MS: "1500"
         run: node scripts/smoke-test.mjs
@@ -227,20 +236,33 @@ jobs:
           REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
           echo "Preserving existing active staging release as :staging-previous..."
           # Step 1: Pull current :staging and retag as :staging-previous to preserve history
-          if docker pull "ghcr.io/${REPO_LC}/api:staging" 2>/dev/null; then
+          HAS_PREVIOUS=0
+          if docker pull "ghcr.io/${REPO_LC}/api:staging" 2>/dev/null && docker pull "ghcr.io/${REPO_LC}/web:staging" 2>/dev/null; then
             docker tag "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:staging-previous"
-            docker push "ghcr.io/${REPO_LC}/api:staging-previous"
-          fi
-          if docker pull "ghcr.io/${REPO_LC}/web:staging" 2>/dev/null; then
             docker tag "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:staging-previous"
+            docker push "ghcr.io/${REPO_LC}/api:staging-previous"
             docker push "ghcr.io/${REPO_LC}/web:staging-previous"
+            HAS_PREVIOUS=1
+            echo "Preserved previous release under :staging-previous."
           fi
 
           echo "Promoting candidate revision ${{ github.sha }} to official :staging tag..."
-          # Step 2: Promote candidate to :staging
+          # Step 2: Atomic promotion with compensation rollback if second push fails
           docker tag "ghcr.io/${REPO_LC}/api:${{ github.sha }}" "ghcr.io/${REPO_LC}/api:staging"
           docker tag "ghcr.io/${REPO_LC}/web:${{ github.sha }}" "ghcr.io/${REPO_LC}/web:staging"
-          docker push "ghcr.io/${REPO_LC}/api:staging"
-          docker push "ghcr.io/${REPO_LC}/web:staging"
+
+          if ! docker push "ghcr.io/${REPO_LC}/api:staging"; then
+            echo "❌ Failed pushing API :staging tag."
+            exit 1
+          fi
+
+          if ! docker push "ghcr.io/${REPO_LC}/web:staging"; then
+            echo "❌ Failed pushing Web :staging tag. Applying compensation rollback to restore consistent API :staging tag..."
+            if [ "$HAS_PREVIOUS" -eq 1 ]; then
+              docker tag "ghcr.io/${REPO_LC}/api:staging-previous" "ghcr.io/${REPO_LC}/api:staging"
+              docker push "ghcr.io/${REPO_LC}/api:staging" || true
+            fi
+            exit 1
+          fi
 
           echo "✅ Staging promotion completed successfully. Revision ${{ github.sha }} is active."

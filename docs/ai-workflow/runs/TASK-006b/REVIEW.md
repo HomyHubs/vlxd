@@ -10,9 +10,10 @@
   - Round 3 (PR #15): `b5746417cabf71c61c88ef5807cb84a28e9d925b`
   - Round 4 (PR #15): `0024f45191105df59eee1eb691756193633d1910`
   - Round 5 (PR #15): `5ced05dec7661a9ff1c81221e642117d02314ece`
-- Reviewed at (UTC): 2026-08-23T01:12:00Z
-- Review round: 5
-- Verdict: changes_required (Round 5) -> pending re-review (Round 6)
+  - Round 6 (PR #15): `e2e35b2ec629851075599fdec15b36127e0bcc86`
+- Reviewed at (UTC): 2026-08-23T01:18:00Z
+- Review round: 6
+- Verdict: changes_required (Round 6) -> pending re-review (Round 7)
 
 ## Phạm vi đã kiểm tra
 
@@ -20,7 +21,7 @@
 - [x] Dockerfile cho `apps/api` và `apps/web` (multi-stage build, unprivileged user, lean Alpine image)
 - [x] Cấu hình `compose.staging.yml` (parameterized `image: ${API_IMAGE}` / `${WEB_IMAGE}`) & `nginx/staging.conf`
 - [x] Script automated smoke test `scripts/smoke-test.mjs` (timeout, retry delay, concurrent status assertions qua `Promise.allSettled`)
-- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image candidate publishing, explicit image passing to Compose, verified rollback không nuốt lỗi, bảo toàn `:staging-previous` trước khi promote, và strict image resolution assertion)
+- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image candidate publishing, explicit image passing to Compose, verified rollback không nuốt lỗi, bảo toàn `:staging-previous` trước khi promote, compensation rollback nếu promotion lỗi một phần, và strict sorted image set assertion)
 - [x] Workflow `.github/workflows/ci.yml` (PR staging smoke container integration job)
 - [x] Execution log (`docs/ai-workflow/runs/TASK-006b/EXECUTION.md`)
 - [x] Toàn bộ diff (`git diff dev...HEAD`)
@@ -70,12 +71,12 @@
 - Cách xử lý: Thêm `image: ${API_IMAGE}` / `image: ${WEB_IMAGE}`, gắn tag candidate `:staging-candidate` khi build, loại bỏ `|| true` trong bước rollback và thực hiện tái kiểm tra smoke test.
 - Trạng thái: resolved
 
-### FINDING-005 — [ROUND 5] Bảo toàn `:staging-previous` đúng thứ tự và assert Compose resolution
+### FINDING-005 — [ROUND 5 & 6] Bảo toàn `:staging-previous`, compensation rollback và strict image set assertion
 
 - Severity: BLOCKER
 - File/dòng: `.github/workflows/deploy-staging.yml:155-239`
-- Tác động: Gắn tag candidate mới cho cả `:staging` và `:staging-previous` làm mất bản release trước; thiếu assertion cho bước resolve Compose images.
-- Cách xử lý: Kéo và gắn tag bản `:staging` hiện tại thành `:staging-previous` trước khi promote candidate thành `:staging`; thêm assertion kiểm tra kết quả `docker compose config --images`.
+- Tác động: Nguy cơ lệch cặp release nếu promotion Web lỗi sau khi đã push API; đối soát Compose images cần so khớp toàn bộ tập hợp.
+- Cách xử lý: Kéo và gắn tag bản `:staging` hiện tại thành `:staging-previous` trước khi promote candidate thành `:staging`; bổ sung compensation rollback tự động khôi phục nếu push Web lỗi; so khớp toàn bộ tập images bằng sorted comparison.
 - Trạng thái: resolved
 
 ## Acceptance criteria
@@ -85,7 +86,7 @@
 | Pipeline deploy staging cho `apps/api` và `apps/web`        | Pass                   | `apps/api/Dockerfile`, `apps/web/Dockerfile`, `compose.staging.yml`, `.github/workflows/deploy-staging.yml`              |
 | Cấu hình quản trị qua env/secrets, không hard-code          | Pass                   | Cấu hình qua environment variables (`NODE_ENV=production`, `DEPLOY_ENV=staging`, `PORT`, `HOST`), không hard-code secret |
 | Tự động chạy smoke test sau deploy (`/health` và shell web) | Pass                   | Script `scripts/smoke-test.mjs` kiểm tra đồng thời API `/health` và Web shell HTML qua `Promise.allSettled`              |
-| Cơ chế rollback/thông báo lỗi khi smoke test fail           | Pass                   | `deploy-staging.yml` tự động rollback về `:staging` hoặc 40-char SHA và tái kiểm tra sức khỏe                            |
+| Cơ chế rollback/thông báo lỗi khi smoke test fail           | Pass                   | `deploy-staging.yml` tự động rollback về `:staging` hoặc 40-char SHA và compensation rollback khi promotion lỗi          |
 | Không có secret trong log/artifact                          | Pass                   | Gitleaks scan và `pnpm audit` chạy sạch sẽ 100%                                                                          |
 | PR CI kiểm tra staging smoke test                           | Pass                   | Job `staging-smoke` trong `.github/workflows/ci.yml` kiểm thử toàn bộ container stack trên PR                            |
 
@@ -99,4 +100,4 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với bảo toàn release trước `:staging-previous` chính xác, assertion Compose image resolution chặt chẽ, và Markdown audit log chuẩn định dạng, sẵn sàng cho Round 6 re-review.
+- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với atomic promotion, compensation rollback, strict image set assertion, sẵn sàng cho Round 7 re-review.
