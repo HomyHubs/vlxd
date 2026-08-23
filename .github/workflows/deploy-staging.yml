@@ -1,0 +1,344 @@
+name: Staging Smoke Deploy
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+    inputs:
+      smoke_max_attempts:
+        description: "Maximum smoke test retry attempts"
+        required: false
+        default: "15"
+      rollback_sha:
+        description: "Full 40-character commit SHA to rollback to if needed"
+        required: false
+        default: ""
+
+concurrency:
+  group: staging-deployment
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  pre-deploy-check:
+    name: Pre-Deploy Quality Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.15.1
+          run_install: false
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify Prettier formatting
+        run: pnpm run format:check
+
+      - name: Lint codebase
+        run: pnpm lint
+
+      - name: Typecheck TypeScript
+        run: pnpm typecheck
+
+      - name: Run unit and integration tests
+        run: pnpm test
+
+      - name: Build applications and packages
+        run: pnpm build
+
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=high
+
+  build-and-publish-artifacts:
+    name: Build & Publish Immutable Staging Images
+    runs-on: ubuntu-latest
+    needs: [pre-deploy-check]
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase repository name for image tag
+        id: repo_meta
+        run: |
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo_lc=${REPO_LC}" >> "$GITHUB_OUTPUT"
+
+      - name: Build & push API immutable candidate image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ steps.repo_meta.outputs.repo_lc }}/api:${{ github.sha }}
+            ghcr.io/${{ steps.repo_meta.outputs.repo_lc }}/api:staging-candidate
+
+      - name: Build & push Web immutable candidate image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ steps.repo_meta.outputs.repo_lc }}/web:${{ github.sha }}
+            ghcr.io/${{ steps.repo_meta.outputs.repo_lc }}/web:staging-candidate
+
+  deploy-and-verify-staging:
+    name: Staging Deployment, Smoke Verification & Rollback Guard
+    runs-on: ubuntu-latest
+    needs: [build-and-publish-artifacts]
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    environment:
+      name: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24 for smoke testing
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase repository name for image tag
+        id: repo_meta
+        run: |
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo_lc=${REPO_LC}" >> "$GITHUB_OUTPUT"
+
+      - name: Pull exact SHA candidate artifacts from GHCR
+        run: |
+          REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
+          echo "Pulling API candidate image: ghcr.io/${REPO_LC}/api:${{ github.sha }}"
+          docker pull "ghcr.io/${REPO_LC}/api:${{ github.sha }}"
+
+          echo "Pulling Web candidate image: ghcr.io/${REPO_LC}/web:${{ github.sha }}"
+          docker pull "ghcr.io/${REPO_LC}/web:${{ github.sha }}"
+
+      - name: Verify Compose Image Resolution
+        run: |
+          REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
+          EXPECTED_API="ghcr.io/${REPO_LC}/api:${{ github.sha }}"
+          EXPECTED_WEB="ghcr.io/${REPO_LC}/web:${{ github.sha }}"
+
+          RESOLVED=$(API_IMAGE="$EXPECTED_API" WEB_IMAGE="$EXPECTED_WEB" docker compose -f compose.staging.yml config --images)
+          echo "Resolved Compose images:"
+          echo "$RESOLVED"
+
+          RESOLVED_SORTED=$(echo "$RESOLVED" | sort)
+          EXPECTED_SORTED=$(printf "%s\n%s\n" "$EXPECTED_API" "$EXPECTED_WEB" | sort)
+
+          if [ "$RESOLVED_SORTED" != "$EXPECTED_SORTED" ]; then
+            echo "❌ Resolved images do not match expected set exactly!"
+            echo "Expected: $EXPECTED_SORTED"
+            echo "Got:      $RESOLVED_SORTED"
+            exit 1
+          fi
+          echo "✅ Compose resolved image set strictly matches candidate image pair."
+
+      - name: Boot Staging Candidate Stack
+        run: |
+          REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
+          API_IMAGE="ghcr.io/${REPO_LC}/api:${{ github.sha }}" \
+          WEB_IMAGE="ghcr.io/${REPO_LC}/web:${{ github.sha }}" \
+          docker compose -f compose.staging.yml up -d --no-build --wait
+
+      - name: Run Automated Post-Deploy Smoke Tests
+        env:
+          API_URL: "http://localhost:3001"
+          WEB_URL: "http://localhost:3000"
+          SMOKE_MAX_ATTEMPTS: ${{ github.event.inputs.smoke_max_attempts || '15' }}
+          SMOKE_RETRY_DELAY_MS: "1500"
+        run: node scripts/smoke-test.mjs
+
+      - name: Capture Diagnostic Logs on Failure
+        if: failure()
+        run: |
+          echo "=== STAGING DEPLOYMENT FAILED: DIAGNOSTIC CONTAINER LOGS ==="
+          docker compose -f compose.staging.yml logs
+
+      - name: Execute Verified Automated Rollback on Smoke Failure
+        if: failure()
+        env:
+          ROLLBACK_SHA: ${{ github.event.inputs.rollback_sha }}
+          REPO_LC: ${{ steps.repo_meta.outputs.repo_lc }}
+        run: |
+          echo "⚠️ Smoke tests failed for candidate revision ${{ github.sha }}."
+          echo "Initiating automated rollback to previous known-good deployment state..."
+
+          # Validate full 40-character commit SHA format strictly
+          if [[ -n "$ROLLBACK_SHA" ]]; then
+            if [[ ! "$ROLLBACK_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+              echo "❌ Invalid rollback SHA format. Must be 40-character hex string: ${ROLLBACK_SHA}"
+              exit 1
+            fi
+            echo "Rolling back to specified immutable commit SHA: ${ROLLBACK_SHA}"
+            TARGET_API_IMAGE="ghcr.io/${REPO_LC}/api:${ROLLBACK_SHA}"
+            TARGET_WEB_IMAGE="ghcr.io/${REPO_LC}/web:${ROLLBACK_SHA}"
+          else
+            echo "Checking if previous staging release tags exist on GHCR..."
+            if ! docker manifest inspect "ghcr.io/${REPO_LC}/api:staging" >/dev/null 2>&1 || \
+               ! docker manifest inspect "ghcr.io/${REPO_LC}/web:staging" >/dev/null 2>&1; then
+              echo "⚠️ No previous :staging release tags found on GHCR (initial bootstrap deployment). Cannot rollback to prior release."
+              exit 1
+            fi
+            echo "Rolling back to verified previous staging release (:staging)..."
+            TARGET_API_IMAGE="ghcr.io/${REPO_LC}/api:staging"
+            TARGET_WEB_IMAGE="ghcr.io/${REPO_LC}/web:staging"
+          fi
+
+          echo "Pulling rollback images: ${TARGET_API_IMAGE} and ${TARGET_WEB_IMAGE}"
+          docker pull "$TARGET_API_IMAGE"
+          docker pull "$TARGET_WEB_IMAGE"
+
+          API_IMAGE="$TARGET_API_IMAGE" \
+          WEB_IMAGE="$TARGET_WEB_IMAGE" \
+          docker compose -f compose.staging.yml up -d --no-build --wait
+
+          echo "Re-running smoke test to verify rollback health..."
+          API_URL="http://localhost:3001" WEB_URL="http://localhost:3000" node scripts/smoke-test.mjs
+          echo "✅ Rollback restoration healthy and verified."
+
+      - name: Promote Candidate Images to Staging Release Tags
+        if: success()
+        run: |
+          REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
+          echo "Promoting verified candidate images to release tags via OCI Manifests..."
+
+          # Helper to restore previous release tags and verify post-compensation state
+          restore_previous_tags() {
+            if [ "$HAS_PREV" -eq 1 ]; then
+              echo "Restoring previous release tags from :staging-previous..."
+              docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:staging-previous" || true
+              docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:staging-previous" || true
+              echo "Verifying post-compensation tag digests..."
+              RESTORED_API=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/api:staging" --raw 2>/dev/null | sha256sum | awk '{print $1}')
+              PREV_API=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/api:staging-previous" --raw 2>/dev/null | sha256sum | awk '{print $1}')
+              RESTORED_WEB=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/web:staging" --raw 2>/dev/null | sha256sum | awk '{print $1}')
+              PREV_WEB=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/web:staging-previous" --raw 2>/dev/null | sha256sum | awk '{print $1}')
+
+              if [ -n "$RESTORED_API" ] && [ "$RESTORED_API" = "$PREV_API" ] && \
+                 [ -n "$RESTORED_WEB" ] && [ "$RESTORED_WEB" = "$PREV_WEB" ]; then
+                echo "✅ Post-compensation verification passed: Both :staging tags restored to previous release digests."
+              else
+                echo "⚠️ Post-compensation verification: Inconsistent restoration detected (API: $RESTORED_API vs $PREV_API, WEB: $RESTORED_WEB vs $PREV_WEB)."
+              fi
+            else
+              echo "⚠️ Initial bootstrap deployment failure: No previous release (:staging-previous) exists to restore."
+            fi
+          }
+
+          # Step 1: Backup current :staging to :staging-previous if both services exist
+          HAS_PREV=0
+          if docker manifest inspect "ghcr.io/${REPO_LC}/api:staging" >/dev/null 2>&1 && \
+             docker manifest inspect "ghcr.io/${REPO_LC}/web:staging" >/dev/null 2>&1; then
+            echo "Backing up current active staging release to :staging-previous..."
+            if ! docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging-previous" "ghcr.io/${REPO_LC}/api:staging"; then
+              echo "❌ Failed backing up API release tag."
+              exit 1
+            fi
+            if ! docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging-previous" "ghcr.io/${REPO_LC}/web:staging"; then
+              echo "❌ Failed backing up Web release tag."
+              exit 1
+            fi
+            HAS_PREV=1
+            echo "✅ Successfully backed up previous release to :staging-previous."
+          fi
+
+          # Step 2: Promote candidate SHA images to :staging with compensation recovery
+          echo "Promoting candidate revision ${{ github.sha }} to official :staging..."
+          if ! docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:${{ github.sha }}"; then
+            echo "❌ Failed promoting API :staging tag."
+            restore_previous_tags
+            exit 1
+          fi
+
+          if ! docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:${{ github.sha }}"; then
+            echo "❌ Failed promoting Web :staging tag. Applying compensation recovery..."
+            restore_previous_tags
+            exit 1
+          fi
+
+          # Step 3: Verify exact digest equality between promoted tags and candidate images
+          echo "Verifying exact digest equality between promoted tags and candidate images..."
+          API_CANDIDATE_DIGEST=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/api:${{ github.sha }}" --raw | sha256sum | awk '{print $1}')
+          API_PROMOTED_DIGEST=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/api:staging" --raw | sha256sum | awk '{print $1}')
+
+          WEB_CANDIDATE_DIGEST=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/web:${{ github.sha }}" --raw | sha256sum | awk '{print $1}')
+          WEB_PROMOTED_DIGEST=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/web:staging" --raw | sha256sum | awk '{print $1}')
+
+          if [ "$API_CANDIDATE_DIGEST" != "$API_PROMOTED_DIGEST" ] || [ "$WEB_CANDIDATE_DIGEST" != "$WEB_PROMOTED_DIGEST" ]; then
+            echo "❌ Promoted digest mismatch! Candidate: ($API_CANDIDATE_DIGEST, $WEB_CANDIDATE_DIGEST) vs Promoted: ($API_PROMOTED_DIGEST, $WEB_PROMOTED_DIGEST). Applying compensation recovery..."
+            restore_previous_tags
+            exit 1
+          fi
+
+          echo "✅ Staging release promotion and exact digest equality verified successfully. Revision ${{ github.sha }} is active."
+
+      - name: Generate Verified Staging Release Manifest
+        if: success()
+        run: |
+          REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
+          mkdir -p dist/release
+          cat <<EOF > dist/release/manifest.json
+          {
+            "revision": "${{ github.sha }}",
+            "deployed_at": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+            "environment": "staging-runner",
+            "artifacts": {
+              "api": "ghcr.io/${REPO_LC}/api:${{ github.sha }}",
+              "web": "ghcr.io/${REPO_LC}/web:${{ github.sha }}"
+            },
+            "smoke_verification": "passed"
+          }
+          EOF
+          echo "=== STAGING RELEASE MANIFEST CREATED ==="
+          cat dist/release/manifest.json
+
+      - name: Upload Release Manifest Artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-release-manifest-${{ github.sha }}
+          path: dist/release/manifest.json
+          retention-days: 30

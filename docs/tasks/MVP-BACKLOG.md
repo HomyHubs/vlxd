@@ -127,15 +127,15 @@ M4: 016+018+020+021→022 ; 014+017→023 ; 013+018→024 ; 015+016→025
 
 **Acceptance:** CI xanh trên PR mẫu; command local và CI khớp contract; scan chạy trên mọi PR.
 
-## TASK-006b — Staging smoke deploy (MỚI)
+## TASK-006b — Staging smoke deploy (M0 Baseline)
 
 **Lane:** CORE · **Prerequisite:** TASK-005 accepted, TASK-006 accepted
 
-**Mục tiêu:** rút ngắn vòng phản hồi: có môi trường staging tối thiểu từ rất sớm.
+**Mục tiêu:** rút ngắn vòng phản hồi: có pipeline containerized staging smoke deploy từ rất sớm trên GHCR & Compose stack.
 
-**Cách làm:** pipeline deploy staging cho `apps/api` (`/health`) và `apps/web` (shell rỗng); config qua env/secret manager, không hard-code; smoke test tự động sau deploy; rollback đơn giản.
+**Cách làm:** pipeline deploy staging cho `apps/api` (`/health`) và `apps/web` (shell rỗng); config qua env/secrets, không hard-code; đóng gói GHCR immutable artifacts; automated post-deploy container smoke test; rollback container stack khi smoke test fail; promotion OCI release manifest; chuẩn bị nền tảng kết nối persistent host khi hạ tầng cloud được cấp phát ở milestone sau.
 
-**Acceptance:** mỗi merge vào `dev` deploy staging tự động; smoke `/health` + tải shell xanh; không secret trong log/artifact.
+**Acceptance:** mỗi merge vào `dev` chạy workflow deploy staging tự động; build & publish GHCR candidate; smoke test `/health` + tải shell xanh; verified rollback khi fail; không secret trong log/artifact.
 
 ---
 

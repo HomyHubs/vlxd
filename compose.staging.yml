@@ -1,0 +1,53 @@
+services:
+  api:
+    image: ${API_IMAGE:-vlxd-api:staging}
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: vlxd-api-staging
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DEPLOY_ENV=staging
+      - PORT=3001
+      - HOST=0.0.0.0
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    ports:
+      - "${API_PORT:-3001}:3001"
+    networks:
+      - vlxd-staging-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:3001/health'').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"',
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
+
+  web:
+    image: ${WEB_IMAGE:-vlxd-web:staging}
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: vlxd-web-staging
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-3000}:80"
+    networks:
+      - vlxd-staging-network
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:80/healthz || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
+
+networks:
+  vlxd-staging-network:
+    driver: bridge
