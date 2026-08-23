@@ -10,7 +10,7 @@
 
 | Lane              | Task active | Tiêu đề                                            | Status                                  | PR      | Reviewer |
 | ----------------- | ----------- | -------------------------------------------------- | --------------------------------------- | ------- | -------- |
-| `LANE-CORE`       | `TASK-010a` | Backend auth, password hashing, and session tokens | `pending`                               | chưa có | chưa gán |
+| `LANE-CORE`       | `TASK-010a` | Backend auth, password hashing, and session tokens | `in_progress`                           | chưa có | chưa gán |
 | `LANE-CATALOG`    | —           | —                                                  | `blocked` (chờ M1)                      | —       | —        |
 | `LANE-CRM`        | —           | —                                                  | `blocked` (chờ TASK-013)                | —       | —        |
 | `LANE-COMMERCE`   | —           | —                                                  | `blocked` (chờ M2)                      | —       | —        |
@@ -22,7 +22,7 @@
 - **`TASK-010a` · `LANE-CORE`**
   - Task packet: `docs/tasks/MVP-BACKLOG.md#task-010--authentication-v%C3%A0-session--lane-core-ch%E1%BA%BB-2-pr`
   - Prerequisite: `TASK-009` (merged via [#20](https://github.com/HomyHubs/vlxd/pull/20))
-  - Implementer PR: chưa mở
+  - Implementer PR: đang thực hiện trên branch `task/TASK-010a-backend-auth-session`
   - Reviewer: chưa gán
 
 ## Quy tắc cập nhật

@@ -14,8 +14,10 @@
     "test": "vitest run src"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.1.2",
     "@vlxd/shared": "workspace:*",
     "fastify": "^5.2.1",
+    "fastify-plugin": "^6.0.0",
     "fastify-type-provider-zod": "^7.0.0",
     "kysely": "^0.28.17",
     "pg": "^8.13.3",

@@ -4,6 +4,14 @@ import type { components, operations, paths } from "./generated/schema.js";
 export type { components, operations, paths };
 export type HealthResponse = components["schemas"]["HealthResponse"];
 export type ReadinessResponse = components["schemas"]["ReadinessResponse"];
+export type LoginRequest = components["schemas"]["LoginRequest"];
+export type LoginResponse = components["schemas"]["LoginResponse"];
+export type LogoutResponse = components["schemas"]["LogoutResponse"];
+export type AuthMeResponse = components["schemas"]["AuthMeResponse"];
+export type AuthUser = components["schemas"]["AuthUser"];
+export type AuthTenant = components["schemas"]["AuthTenant"];
+export type AuthSession = components["schemas"]["AuthSession"];
+export type AuthTitle = components["schemas"]["AuthTitle"];
 export type ErrorCode = components["schemas"]["ErrorCode"];
 export type ErrorObject = components["schemas"]["ErrorObject"];
 export type ErrorDetails = components["schemas"]["ErrorDetails"];
@@ -42,6 +50,9 @@ export interface ApiClient {
   readonly baseUrl: string;
   getHealth(): Promise<HealthResponse>;
   getReadiness(): Promise<ReadinessResponse>;
+  login(body: LoginRequest): Promise<LoginResponse>;
+  logout(token?: string): Promise<LogoutResponse>;
+  getAuthMe(token?: string): Promise<AuthMeResponse>;
 }
 
 export function createApiClient(options: ApiClientOptions): ApiClient {
@@ -86,6 +97,35 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     },
     async getReadiness(): Promise<ReadinessResponse> {
       return request<ReadinessResponse>("/health/ready", { method: "GET" });
+    },
+    async login(body: LoginRequest): Promise<LoginResponse> {
+      return request<LoginResponse>("/api/v1/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+    },
+    async logout(token?: string): Promise<LogoutResponse> {
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      return request<LogoutResponse>("/api/v1/auth/logout", {
+        method: "POST",
+        headers,
+      });
+    },
+    async getAuthMe(token?: string): Promise<AuthMeResponse> {
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      return request<AuthMeResponse>("/api/v1/auth/me", {
+        method: "GET",
+        headers,
+      });
     },
   };
 }
