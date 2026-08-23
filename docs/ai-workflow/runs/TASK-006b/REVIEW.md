@@ -18,9 +18,10 @@
   - Round 11 (PR #15): `d1a75fdc634e200fcee77638a7387dd92453acd6`
   - Round 12 (PR #15): `fc0d19531150248ff89038706fa5db603839677c`
   - Round 13 (PR #15): `729fa9297ba3e17f0f127891f39879bf9045e59e`
-- Reviewed at (UTC): 2026-08-23T01:51:00Z
-- Review round: 13
-- Verdict: changes_required (Round 13) -> pending re-review (Round 14)
+  - Round 14 (PR #15): `6eab9c92410d83b3fa2fcf20d8198c255bf77b85`
+- Reviewed at (UTC): 2026-08-23T01:56:00Z
+- Review round: 14
+- Verdict: changes_required (Round 14) -> pending re-review (Round 15)
 
 ## Phạm vi đã kiểm tra
 
@@ -28,7 +29,7 @@
 - [x] Dockerfile cho `apps/api` và `apps/web` (multi-stage build, unprivileged user, lean Alpine image)
 - [x] Cấu hình `compose.staging.yml` (parameterized `image: ${API_IMAGE}` / `${WEB_IMAGE}`) & `nginx/staging.conf`
 - [x] Script automated smoke test `scripts/smoke-test.mjs` (timeout, retry delay, concurrent status assertions qua `Promise.allSettled`)
-- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image candidate publishing, explicit image passing to Compose, verified rollback không nuốt lỗi, initial bootstrap rollback guard, OCI imagetools manifest promotion có compensation recovery & digest inspection, release manifest artifact upload, và strict sorted image set assertion)
+- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image candidate publishing, explicit image passing to Compose, verified rollback không nuốt lỗi, initial bootstrap rollback guard, OCI imagetools manifest promotion có compensation recovery & SHA256 digest equality verification, release manifest artifact upload, và strict sorted image set assertion)
 - [x] Workflow `.github/workflows/ci.yml` (PR staging smoke container integration job)
 - [x] Execution log (`docs/ai-workflow/runs/TASK-006b/EXECUTION.md`)
 - [x] Toàn bộ diff (`git diff dev...HEAD`)
@@ -78,12 +79,12 @@
 - Cách xử lý: Thêm `image: ${API_IMAGE}` / `image: ${WEB_IMAGE}`, gắn tag candidate `:staging-candidate` khi build, loại bỏ `|| true` trong bước rollback và thực hiện tái kiểm tra smoke test.
 - Trạng thái: resolved
 
-### FINDING-005 — [ROUND 5-13] OCI Imagetools manifest promotion có compensation recovery, digest inspection, initial bootstrap guard, và release manifest artifact
+### FINDING-005 — [ROUND 5-14] OCI Imagetools manifest promotion có compensation recovery, exact digest equality, initial bootstrap guard, và persistent staging follow-up task
 
 - Severity: BLOCKER
 - File/dòng: `.github/workflows/deploy-staging.yml:155-265`
-- Tác động: Hoàn thiện quy trình tag promotion sang `docker buildx imagetools create` có compensation recovery, kiểm tra manifest digests, xử lý graceful bootstrap khi rollback chưa có tag cũ, lưu release manifest bằng `actions/upload-artifact@v4`, thu gọn permissions về `contents: read`, `packages: write`, và so khớp toàn bộ tập images bằng sorted comparison.
-- Cách xử lý: Sử dụng `docker buildx imagetools create` cho OCI manifest promotion có compensation recovery & digest inspection, tạo và upload release manifest artifact, xử lý bootstrap rollback guard, so khớp toàn bộ tập images bằng sorted comparison, và chuẩn hóa endpoint smoke test thống nhất.
+- Tác động: Hoàn thiện quy trình tag promotion sang `docker buildx imagetools create` có compensation recovery, đối soát SHA256 digest giữa candidate và promoted tags, xử lý graceful bootstrap khi rollback chưa có tag cũ, lưu release manifest bằng `actions/upload-artifact@v4`, thu gọn permissions về `contents: read`, `packages: write`, và bổ sung task `TASK-035` persistent staging host follow-up trong `MVP-BACKLOG.md`.
+- Cách xử lý: Sử dụng `docker buildx imagetools create` cho OCI manifest promotion có compensation recovery & exact SHA256 digest equality verification, tạo và upload release manifest artifact, xử lý bootstrap rollback guard, bổ sung task `TASK-035`, so khớp toàn bộ tập images bằng sorted comparison, và chuẩn hóa endpoint smoke test thống nhất.
 - Trạng thái: resolved
 
 ## Acceptance criteria
@@ -107,4 +108,4 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với OCI imagetools manifest promotion có compensation recovery & digest inspection, initial bootstrap rollback guard, release manifest artifact upload, sẵn sàng cho Round 14 re-review.
+- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với OCI imagetools manifest promotion có compensation recovery & exact digest equality verification, initial bootstrap rollback guard, release manifest artifact upload, và follow-up task TASK-035, sẵn sàng cho Round 15 re-review.

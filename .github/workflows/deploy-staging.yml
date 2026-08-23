@@ -271,12 +271,25 @@ jobs:
             exit 1
           fi
 
-          # Step 3: Verify digest integrity of both promoted tags
-          echo "Verifying promoted release manifests on GHCR..."
-          docker manifest inspect "ghcr.io/${REPO_LC}/api:staging" >/dev/null 2>&1
-          docker manifest inspect "ghcr.io/${REPO_LC}/web:staging" >/dev/null 2>&1
+          # Step 3: Verify exact digest equality between promoted tags and candidate images
+          echo "Verifying exact digest equality between promoted tags and candidate images..."
+          API_CANDIDATE_DIGEST=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/api:${{ github.sha }}" --raw | sha256sum | awk '{print $1}')
+          API_PROMOTED_DIGEST=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/api:staging" --raw | sha256sum | awk '{print $1}')
 
-          echo "✅ Staging release promotion and digest verification completed successfully. Revision ${{ github.sha }} is active."
+          WEB_CANDIDATE_DIGEST=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/web:${{ github.sha }}" --raw | sha256sum | awk '{print $1}')
+          WEB_PROMOTED_DIGEST=$(docker buildx imagetools inspect "ghcr.io/${REPO_LC}/web:staging" --raw | sha256sum | awk '{print $1}')
+
+          if [ "$API_CANDIDATE_DIGEST" != "$API_PROMOTED_DIGEST" ]; then
+            echo "❌ Promoted API digest mismatch! Candidate: $API_CANDIDATE_DIGEST, Promoted: $API_PROMOTED_DIGEST"
+            exit 1
+          fi
+
+          if [ "$WEB_CANDIDATE_DIGEST" != "$WEB_PROMOTED_DIGEST" ]; then
+            echo "❌ Promoted Web digest mismatch! Candidate: $WEB_CANDIDATE_DIGEST, Promoted: $WEB_PROMOTED_DIGEST"
+            exit 1
+          fi
+
+          echo "✅ Staging release promotion and exact digest equality verified successfully. Revision ${{ github.sha }} is active."
 
       - name: Generate Verified Staging Release Manifest
         if: success()
