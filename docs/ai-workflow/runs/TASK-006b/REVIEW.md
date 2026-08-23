@@ -11,9 +11,10 @@
   - Round 4 (PR #15): `0024f45191105df59eee1eb691756193633d1910`
   - Round 5 (PR #15): `5ced05dec7661a9ff1c81221e642117d02314ece`
   - Round 6 (PR #15): `e2e35b2ec629851075599fdec15b36127e0bcc86`
-- Reviewed at (UTC): 2026-08-23T01:18:00Z
-- Review round: 6
-- Verdict: changes_required (Round 6) -> pending re-review (Round 7)
+  - Round 7 (PR #15): `c0c1299a2232435618d8eafcf453e64003a5e03d`
+- Reviewed at (UTC): 2026-08-23T01:23:00Z
+- Review round: 7
+- Verdict: changes_required (Round 7) -> pending re-review (Round 8)
 
 ## Phạm vi đã kiểm tra
 
@@ -21,7 +22,7 @@
 - [x] Dockerfile cho `apps/api` và `apps/web` (multi-stage build, unprivileged user, lean Alpine image)
 - [x] Cấu hình `compose.staging.yml` (parameterized `image: ${API_IMAGE}` / `${WEB_IMAGE}`) & `nginx/staging.conf`
 - [x] Script automated smoke test `scripts/smoke-test.mjs` (timeout, retry delay, concurrent status assertions qua `Promise.allSettled`)
-- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image candidate publishing, explicit image passing to Compose, verified rollback không nuốt lỗi, bảo toàn `:staging-previous` trước khi promote, compensation rollback nếu promotion lỗi một phần, và strict sorted image set assertion)
+- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image candidate publishing, explicit image passing to Compose, verified rollback không nuốt lỗi, backup độc lập `:staging-previous` cho cả 2 dịch vụ, compensation rollback song phương, và strict sorted image set assertion)
 - [x] Workflow `.github/workflows/ci.yml` (PR staging smoke container integration job)
 - [x] Execution log (`docs/ai-workflow/runs/TASK-006b/EXECUTION.md`)
 - [x] Toàn bộ diff (`git diff dev...HEAD`)
@@ -71,12 +72,12 @@
 - Cách xử lý: Thêm `image: ${API_IMAGE}` / `image: ${WEB_IMAGE}`, gắn tag candidate `:staging-candidate` khi build, loại bỏ `|| true` trong bước rollback và thực hiện tái kiểm tra smoke test.
 - Trạng thái: resolved
 
-### FINDING-005 — [ROUND 5 & 6] Bảo toàn `:staging-previous`, compensation rollback và strict image set assertion
+### FINDING-005 — [ROUND 5, 6, 7] Backup độc lập `:staging-previous`, compensation rollback và strict image set assertion
 
 - Severity: BLOCKER
-- File/dòng: `.github/workflows/deploy-staging.yml:155-239`
-- Tác động: Nguy cơ lệch cặp release nếu promotion Web lỗi sau khi đã push API; đối soát Compose images cần so khớp toàn bộ tập hợp.
-- Cách xử lý: Kéo và gắn tag bản `:staging` hiện tại thành `:staging-previous` trước khi promote candidate thành `:staging`; bổ sung compensation rollback tự động khôi phục nếu push Web lỗi; so khớp toàn bộ tập images bằng sorted comparison.
+- File/dòng: `.github/workflows/deploy-staging.yml:155-245`
+- Tác động: Xử lý trường hợp lần đầu deploy chưa có `:staging`, backup độc lập và compensation rollback khôi phục hoàn chỉnh API :staging nếu Web push lỗi.
+- Cách xử lý: Backup độc lập `HAS_API_PREV` và `HAS_WEB_PREV`, compensation rollback song phương không nuốt lỗi, so khớp toàn bộ tập images bằng sorted comparison, và chuẩn hóa endpoint smoke test thống nhất.
 - Trạng thái: resolved
 
 ## Acceptance criteria
@@ -100,4 +101,4 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với atomic promotion, compensation rollback, strict image set assertion, sẵn sàng cho Round 7 re-review.
+- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với atomic promotion, backup độc lập, compensation rollback song phương, strict image set assertion, sẵn sàng cho Round 8 re-review.

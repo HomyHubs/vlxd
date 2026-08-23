@@ -182,8 +182,8 @@ jobs:
 
       - name: Run Automated Post-Deploy Smoke Tests
         env:
-          API_URL: ${{ secrets.STAGING_API_URL || 'http://localhost:3001' }}
-          WEB_URL: ${{ secrets.STAGING_WEB_URL || 'http://localhost:3000' }}
+          API_URL: "http://localhost:3001"
+          WEB_URL: "http://localhost:3000"
           SMOKE_MAX_ATTEMPTS: ${{ github.event.inputs.smoke_max_attempts || '15' }}
           SMOKE_RETRY_DELAY_MS: "1500"
         run: node scripts/smoke-test.mjs
@@ -227,7 +227,7 @@ jobs:
           docker compose -f compose.staging.yml up -d --no-build --wait
 
           echo "Re-running smoke test to verify rollback health..."
-          node scripts/smoke-test.mjs
+          API_URL="http://localhost:3001" WEB_URL="http://localhost:3000" node scripts/smoke-test.mjs
           echo "✅ Rollback restoration healthy and verified."
 
       - name: Promote Candidate Images to Staging Release Tags
@@ -235,32 +235,35 @@ jobs:
         run: |
           REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
           echo "Preserving existing active staging release as :staging-previous..."
-          # Step 1: Pull current :staging and retag as :staging-previous to preserve history
-          HAS_PREVIOUS=0
-          if docker pull "ghcr.io/${REPO_LC}/api:staging" 2>/dev/null && docker pull "ghcr.io/${REPO_LC}/web:staging" 2>/dev/null; then
+          # Step 1: Backup current :staging release to :staging-previous
+          HAS_API_PREV=0
+          HAS_WEB_PREV=0
+          if docker pull "ghcr.io/${REPO_LC}/api:staging" 2>/dev/null; then
             docker tag "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:staging-previous"
-            docker tag "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:staging-previous"
             docker push "ghcr.io/${REPO_LC}/api:staging-previous"
+            HAS_API_PREV=1
+          fi
+          if docker pull "ghcr.io/${REPO_LC}/web:staging" 2>/dev/null; then
+            docker tag "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:staging-previous"
             docker push "ghcr.io/${REPO_LC}/web:staging-previous"
-            HAS_PREVIOUS=1
-            echo "Preserved previous release under :staging-previous."
+            HAS_WEB_PREV=1
           fi
 
           echo "Promoting candidate revision ${{ github.sha }} to official :staging tag..."
-          # Step 2: Atomic promotion with compensation rollback if second push fails
+          # Step 2: Atomic promotion with full bilateral compensation rollback
           docker tag "ghcr.io/${REPO_LC}/api:${{ github.sha }}" "ghcr.io/${REPO_LC}/api:staging"
           docker tag "ghcr.io/${REPO_LC}/web:${{ github.sha }}" "ghcr.io/${REPO_LC}/web:staging"
 
           if ! docker push "ghcr.io/${REPO_LC}/api:staging"; then
-            echo "❌ Failed pushing API :staging tag."
+            echo "❌ Failed pushing API :staging tag. Promotion aborted."
             exit 1
           fi
 
           if ! docker push "ghcr.io/${REPO_LC}/web:staging"; then
-            echo "❌ Failed pushing Web :staging tag. Applying compensation rollback to restore consistent API :staging tag..."
-            if [ "$HAS_PREVIOUS" -eq 1 ]; then
+            echo "❌ Failed pushing Web :staging tag. Applying bilateral compensation rollback to restore API :staging..."
+            if [ "$HAS_API_PREV" -eq 1 ]; then
               docker tag "ghcr.io/${REPO_LC}/api:staging-previous" "ghcr.io/${REPO_LC}/api:staging"
-              docker push "ghcr.io/${REPO_LC}/api:staging" || true
+              docker push "ghcr.io/${REPO_LC}/api:staging"
             fi
             exit 1
           fi
