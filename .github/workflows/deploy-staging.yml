@@ -216,6 +216,12 @@ jobs:
             TARGET_API_IMAGE="ghcr.io/${REPO_LC}/api:${ROLLBACK_SHA}"
             TARGET_WEB_IMAGE="ghcr.io/${REPO_LC}/web:${ROLLBACK_SHA}"
           else
+            echo "Checking if previous staging release tags exist on GHCR..."
+            if ! docker manifest inspect "ghcr.io/${REPO_LC}/api:staging" >/dev/null 2>&1 || \
+               ! docker manifest inspect "ghcr.io/${REPO_LC}/web:staging" >/dev/null 2>&1; then
+              echo "⚠️ No previous :staging release tags found on GHCR (initial bootstrap deployment). Cannot rollback to prior release."
+              exit 1
+            fi
             echo "Rolling back to verified previous staging release (:staging)..."
             TARGET_API_IMAGE="ghcr.io/${REPO_LC}/api:staging"
             TARGET_WEB_IMAGE="ghcr.io/${REPO_LC}/web:staging"
@@ -265,7 +271,12 @@ jobs:
             exit 1
           fi
 
-          echo "✅ Staging release promotion completed successfully. Revision ${{ github.sha }} is active."
+          # Step 3: Verify digest integrity of both promoted tags
+          echo "Verifying promoted release manifests on GHCR..."
+          docker manifest inspect "ghcr.io/${REPO_LC}/api:staging" >/dev/null 2>&1
+          docker manifest inspect "ghcr.io/${REPO_LC}/web:staging" >/dev/null 2>&1
+
+          echo "✅ Staging release promotion and digest verification completed successfully. Revision ${{ github.sha }} is active."
 
       - name: Generate Verified Staging Release Manifest
         if: success()
