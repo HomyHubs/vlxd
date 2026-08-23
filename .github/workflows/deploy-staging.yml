@@ -117,7 +117,7 @@ jobs:
     needs: [build-and-publish-artifacts]
     timeout-minutes: 15
     permissions:
-      contents: write
+      contents: read
       packages: write
     environment:
       name: staging
@@ -240,22 +240,34 @@ jobs:
           echo "Promoting verified candidate images to release tags via OCI Manifests..."
 
           # Step 1: Backup current :staging to :staging-previous if both services exist
+          HAS_PREV=0
           if docker manifest inspect "ghcr.io/${REPO_LC}/api:staging" >/dev/null 2>&1 && \
              docker manifest inspect "ghcr.io/${REPO_LC}/web:staging" >/dev/null 2>&1; then
             echo "Backing up current active staging release to :staging-previous..."
             docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging-previous" "ghcr.io/${REPO_LC}/api:staging"
             docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging-previous" "ghcr.io/${REPO_LC}/web:staging"
+            HAS_PREV=1
             echo "✅ Successfully backed up previous release to :staging-previous."
           fi
 
-          # Step 2: Promote candidate SHA images to :staging atomically
+          # Step 2: Promote candidate SHA images to :staging with compensation recovery
           echo "Promoting candidate revision ${{ github.sha }} to official :staging..."
-          docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:${{ github.sha }}"
-          docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:${{ github.sha }}"
+          if ! docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:${{ github.sha }}"; then
+            echo "❌ Failed promoting API :staging tag."
+            exit 1
+          fi
+
+          if ! docker buildx imagetools create -t "ghcr.io/${REPO_LC}/web:staging" "ghcr.io/${REPO_LC}/web:${{ github.sha }}"; then
+            echo "❌ Failed promoting Web :staging tag. Applying compensation recovery to restore API :staging..."
+            if [ "$HAS_PREV" -eq 1 ]; then
+              docker buildx imagetools create -t "ghcr.io/${REPO_LC}/api:staging" "ghcr.io/${REPO_LC}/api:staging-previous"
+            fi
+            exit 1
+          fi
 
           echo "✅ Staging release promotion completed successfully. Revision ${{ github.sha }} is active."
 
-      - name: Record Verified Staging Release Manifest
+      - name: Generate Verified Staging Release Manifest
         if: success()
         run: |
           REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
@@ -275,12 +287,10 @@ jobs:
           echo "=== STAGING RELEASE MANIFEST CREATED ==="
           cat dist/release/manifest.json
 
-      - name: Deploy to Remote Persistent Staging Host (when configured)
-        if: success() && env.STAGING_HOST != ''
-        env:
-          STAGING_HOST: ${{ secrets.STAGING_HOST }}
-          STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
-          STAGING_DEPLOY_PATH: ${{ secrets.STAGING_DEPLOY_PATH || '/opt/vlxd-staging' }}
-        run: |
-          echo "Deploying release candidate ${{ github.sha }} to persistent remote staging host: ${STAGING_HOST}..."
-          # Dedicated hardware deployment hook activated once staging infrastructure secrets are configured
+      - name: Upload Release Manifest Artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-release-manifest-${{ github.sha }}
+          path: dist/release/manifest.json
+          retention-days: 30
