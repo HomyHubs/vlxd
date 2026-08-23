@@ -8,10 +8,21 @@ export type PermissionEffect = "ALLOW" | "DENY";
 export type PermissionScopeType =
   "TENANT" | "BRANCH" | "WAREHOUSE" | "OWN_RECORDS" | "ASSIGNED_RECORDS";
 
+export type ServicePlanCode = "FREE" | "STANDARD" | "PREMIUM" | "ENTERPRISE";
+export type ServicePlanStatus = "ACTIVE" | "EXPIRED" | "SUSPENDED" | "CANCELLED";
+
 export interface TenantSettings {
   currency?: string;
   dateFormat?: string;
   timezone?: string;
+  [key: string]: unknown;
+}
+
+export interface PlanFeatures {
+  hasAIAgent?: boolean;
+  hasVoice?: boolean;
+  hasInvoiceOCR?: boolean;
+  databaseMode?: "shared" | "dedicated";
   [key: string]: unknown;
 }
 
@@ -126,6 +137,37 @@ export interface UserCustomPermissionTable {
   updated_at: Generated<Date | string>;
 }
 
+export interface TenantPlanTable {
+  id: Generated<string>;
+  tenant_id: string;
+  plan_code: ServicePlanCode;
+  status: Generated<ServicePlanStatus>;
+  max_products: number | null;
+  max_warehouses: number | null;
+  features: Generated<JSONColumnType<PlanFeatures>>;
+  started_at: Generated<Date | string>;
+  expires_at: Date | string | null;
+  created_at: Generated<Date | string>;
+  updated_at: Generated<Date | string>;
+  archived_at: ColumnType<Date | string | null, Date | string | null, Date | string | null>;
+}
+
+export interface AuditLogTable {
+  id: Generated<string>;
+  tenant_id: string;
+  actor_id: string | null;
+  actor_email: string | null;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  before_state: JSONColumnType<Record<string, unknown>> | null;
+  after_state: JSONColumnType<Record<string, unknown>> | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  request_id: string | null;
+  created_at: Generated<Date | string>;
+}
+
 export interface Database {
   tenants: TenantTable;
   users: UserTable;
@@ -137,4 +179,6 @@ export interface Database {
   titles: TitleTable;
   tenant_user_titles: TenantUserTitleTable;
   user_custom_permissions: UserCustomPermissionTable;
+  tenant_plans: TenantPlanTable;
+  audit_logs: AuditLogTable;
 }
