@@ -8,22 +8,22 @@
 
 ## Bảng lane
 
-| Lane              | Task active | Tiêu đề                                            | Status                                  | PR      | Reviewer |
-| ----------------- | ----------- | -------------------------------------------------- | --------------------------------------- | ------- | -------- |
-| `LANE-CORE`       | —           | —                                                  | `idle` (chờ TASK-011a)                  | —       | —        |
-| `LANE-CATALOG`    | —           | —                                                  | `blocked` (chờ M1)                      | —       | —        |
-| `LANE-CRM`        | —           | —                                                  | `blocked` (chờ TASK-013)                | —       | —        |
-| `LANE-COMMERCE`   | —           | —                                                  | `blocked` (chờ M2)                      | —       | —        |
-| `LANE-PLATFORMUI` | `TASK-010b` | Frontend login shell & reactive session management | `in_progress`                           | chưa có | chưa gán |
-| `LANE-QUALITY`    | —           | —                                                  | `blocked` (chạy tăng dần theo UI slice) | —       | —        |
+| Lane              | Task active | Tiêu đề                                            | Status                                  | PR                                            | Reviewer             |
+| ----------------- | ----------- | -------------------------------------------------- | --------------------------------------- | --------------------------------------------- | -------------------- |
+| `LANE-CORE`       | —           | —                                                  | `idle` (chờ TASK-011a)                  | —                                             | —                    |
+| `LANE-CATALOG`    | —           | —                                                  | `blocked` (chờ M1)                      | —                                             | —                    |
+| `LANE-CRM`        | —           | —                                                  | `blocked` (chờ TASK-013)                | —                                             | —                    |
+| `LANE-COMMERCE`   | —           | —                                                  | `blocked` (chờ M2)                      | —                                             | —                    |
+| `LANE-PLATFORMUI` | `TASK-010b` | Frontend login shell & reactive session management | `ready_for_review`                      | [#22](https://github.com/HomyHubs/vlxd/pull/22) | AI Bot 2 (Reviewer) |
+| `LANE-QUALITY`    | —           | —                                                  | `blocked` (chạy tăng dần theo UI slice) | —                                             | —                    |
 
 ### Chi tiết task active
 
 - **`TASK-010b` · `LANE-PLATFORMUI`**
   - Task packet: `docs/tasks/MVP-BACKLOG.md#task-010--authentication-v%C3%A0-session--lane-core-ch%E1%BA%BB-2-pr`
   - Prerequisite: `TASK-010a` (merged via [#21](https://github.com/HomyHubs/vlxd/pull/21))
-  - Implementer PR: đang thực hiện trên branch `task/TASK-010b-frontend-login-shell`
-  - Reviewer: chưa gán
+  - Implementer PR: [#22](https://github.com/HomyHubs/vlxd/pull/22) (`task/TASK-010b-frontend-login-shell`)
+  - Reviewer: AI Bot 2 (Reviewer)
 
 ## Quy tắc cập nhật
 
