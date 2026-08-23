@@ -2,8 +2,8 @@
 
 /**
  * Staging Automated Smoke Test
- * Tests API health endpoint and Web frontend shell accessibility.
- * Requires BOTH services to be healthy in the same iteration to declare success.
+ * Tests API health endpoint and Web frontend shell accessibility concurrently.
+ * Both services must pass simultaneously in the same check iteration.
  */
 
 const API_URL = process.env.API_URL || process.env.STAGING_API_URL || "http://localhost:3001";
@@ -52,7 +52,7 @@ async function checkWebShell() {
 
 async function runSmokeTests() {
   console.log("=========================================");
-  console.log("🚀 Starting Staging Smoke Verification");
+  console.log("🚀 Starting Staging Concurrent Smoke Verification");
   console.log(`- Target API URL: ${API_URL}`);
   console.log(`- Target Web URL: ${WEB_URL}`);
   console.log(`- Max attempts: ${MAX_ATTEMPTS}`);
@@ -62,33 +62,25 @@ async function runSmokeTests() {
   let currentDelay = INITIAL_DELAY_MS;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    console.log(`[Attempt ${attempt}/${MAX_ATTEMPTS}] Verifying API and Web simultaneously...`);
-    let apiData = null;
-    let webData = null;
-    let apiError = null;
-    let webError = null;
+    console.log(`[Attempt ${attempt}/${MAX_ATTEMPTS}] Concurrent health checks...`);
 
-    try {
-      apiData = await checkApiHealth();
-    } catch (err) {
-      apiError = err.message;
-    }
+    const results = await Promise.allSettled([checkApiHealth(), checkWebShell()]);
+    const [apiResult, webResult] = results;
 
-    try {
-      webData = await checkWebShell();
-    } catch (err) {
-      webError = err.message;
-    }
+    const apiPassed = apiResult.status === "fulfilled";
+    const webPassed = webResult.status === "fulfilled";
 
-    if (apiData && webData) {
+    if (apiPassed && webPassed) {
+      const apiData = apiResult.value;
+      const webData = webResult.value;
       console.log(`  ✅ API Health OK: version ${apiData.version}, status: ${apiData.status}`);
       console.log(`  ✅ Web Shell OK: HTTP ${webData.status}, payload size: ${webData.bytes} bytes`);
       console.log("\n🎉 All staging smoke tests passed concurrently!");
       process.exit(0);
     }
 
-    if (apiError) console.warn(`  ⏳ API waiting: ${apiError}`);
-    if (webError) console.warn(`  ⏳ Web waiting: ${webError}`);
+    if (!apiPassed) console.warn(`  ⏳ API waiting: ${apiResult.reason?.message || "Unknown error"}`);
+    if (!webPassed) console.warn(`  ⏳ Web waiting: ${webResult.reason?.message || "Unknown error"}`);
 
     if (attempt < MAX_ATTEMPTS) {
       console.log(`   Waiting ${currentDelay}ms before retry...`);
@@ -97,7 +89,7 @@ async function runSmokeTests() {
     }
   }
 
-  console.error("\n❌ Smoke test failed: Services failed concurrent health verification.");
+  console.error("\n❌ Smoke test failed: Services failed concurrent health verification within limit.");
   process.exit(1);
 }
 

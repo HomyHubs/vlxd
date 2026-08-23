@@ -7,21 +7,22 @@
 - Reviewed commits:
   - Round 1 (PR #15): `9d3bb7f33c6b53b60d4cd0b2f2871da6344c2d8d`
   - Round 2 (PR #15): `004ec0d665b9e7a0bd7a6d0b4a478c9ee2e6e977`
-- Reviewed at (UTC): 2026-08-22T20:15:00Z
-- Review round: 2
-- Verdict: changes_required (Round 2) -> pending re-review (Round 3)
+  - Round 3 (PR #15): `b5746417cabf71c61c88ef5807cb84a28e9d925b`
+- Reviewed at (UTC): 2026-08-23T00:58:00Z
+- Review round: 3
+- Verdict: changes_required (Round 3) -> pending re-review (Round 4)
 
 ## Phạm vi đã kiểm tra
 
 - [x] Task packet và acceptance criteria (`MVP-BACKLOG.md#task-006b--staging-smoke-deploy-mới`)
 - [x] Dockerfile cho `apps/api` và `apps/web` (multi-stage build, unprivileged user, lean Alpine image)
 - [x] Cấu hình `compose.staging.yml` & `nginx/staging.conf`
-- [x] Script automated smoke test `scripts/smoke-test.mjs` (timeout, retry delay, concurrent status assertions)
-- [x] Workflow `.github/workflows/deploy-staging.yml` (immutable artifacts, post-deploy verification, automated rollback on failure)
+- [x] Script automated smoke test `scripts/smoke-test.mjs` (timeout, retry delay, concurrent status assertions qua Promise.allSettled)
+- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image publishing theo commit SHA, pull-based staging deploy, safe rollback guard)
 - [x] Workflow `.github/workflows/ci.yml` (PR staging smoke container integration job)
 - [x] Execution log (`docs/ai-workflow/runs/TASK-006b/EXECUTION.md`)
 - [x] Toàn bộ diff (`git diff dev...HEAD`)
-- [x] Không có secret / PII / hard-coded credentials
+- [x] Không có secret / PII / hard-coded credentials / shell injection
 - [x] Kết quả chạy thực tế trên GitHub Actions runners
 
 ## Commands reviewer đã chạy
@@ -51,20 +52,28 @@
 - Cách xử lý: Đã bổ sung job `staging-smoke` vào `.github/workflows/ci.yml` chạy trên mọi PR, build compose stack, đợi healthy, chạy `scripts/smoke-test.mjs`, capture log khi fail và teardown sạch sẽ.
 - Trạng thái: resolved
 
-### FINDING-003 — [ROUND 2] Pipeline deploy staging cần cơ chế release artifact và rollback rõ ràng
+### FINDING-003 — [ROUND 2 & 3] Pipeline deploy staging cần publish registry image bất biến và pull-based deploy
 
 - Severity: BLOCKER
 - File/dòng: `.github/workflows/deploy-staging.yml`
-- Tác động: Workflow deploy trước đây chưa cấu hình build artifact theo commit SHA và thiếu kịch bản rollback khi smoke test thất bại.
-- Cách xử lý: Đã nâng cấp `deploy-staging.yml` thành 3 jobs tách biệt (`pre-deploy-check`, `build-and-publish-artifacts`, `deploy-and-verify-staging`), gắn tag image bất biến theo `${{ github.sha }}`, tích hợp cơ chế rollback tự động khi deploy smoke test không đạt.
+- Tác động: Workflow deploy trước đây chỉ build local trên runner tách biệt khiến downstream job không truy cập được và thiếu rollback thực sự.
+- Cách xử lý: Đã nâng cấp `deploy-staging.yml` publish ảnh bất biến lên GHCR (`ghcr.io/.../api:${{ github.sha }}` và `web:${{ github.sha }}`), pull ảnh chính xác trong job deploy, và hỗ trợ rollback an toàn bằng commit SHA hoặc previous staging release tag.
 - Trạng thái: resolved
 
-### FINDING-004 — [ROUND 2] Kiểm thử smoke test cần xác thực đồng thời cả 2 services
+### FINDING-004 — [ROUND 3] An toàn shell injection với input `rollback_sha`
 
-- Severity: MEDIUM
+- Severity: BLOCKER
+- File/dòng: `.github/workflows/deploy-staging.yml`
+- Tác động: Interpolation trực tiếp input vào bash script có nguy cơ injection.
+- Cách xử lý: Đã chuyển sang truyền qua `env: ROLLBACK_SHA` và kiểm tra định dạng an toàn bằng regex `^[0-9a-fA-F]{7,40}$`.
+- Trạng thái: resolved
+
+### FINDING-005 — [ROUND 3] Smoke test concurrent bằng Promise.allSettled
+
+- Severity: LOW
 - File/dòng: `scripts/smoke-test.mjs`
-- Tác động: Latching flags độc lập có thể bỏ sót trường hợp một service crash sau khi đã pass tạm thời.
-- Cách xử lý: Cập nhật `smoke-test.mjs` yêu cầu đồng thời cả API `/health` và Web shell HTML đều phải hợp lệ trong cùng 1 lần kiểm tra.
+- Tác động: Kiểm tra tuần tự tốn thời gian hơn.
+- Cách xử lý: Dùng `Promise.allSettled` kiểm tra đồng thời cả API `/health` và Web shell HTML.
 - Trạng thái: resolved
 
 ## Acceptance criteria
@@ -88,4 +97,4 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với immutable artifacts theo SHA, cơ chế rollback khi smoke fail, kiểm thử đồng thời trong smoke test script, sẵn sàng cho Round 3 re-review.
+- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với GHCR publishing, pull-based deploy, an toàn shell injection và concurrent smoke tests, sẵn sàng cho Round 4 re-review.

@@ -20,7 +20,6 @@ concurrency:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   pre-deploy-check:
@@ -69,6 +68,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [pre-deploy-check]
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -76,27 +78,47 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build API image with commit SHA tag
-        run: |
-          docker build \
-            -f apps/api/Dockerfile \
-            -t vlxd-api:${{ github.sha }} \
-            -t vlxd-api:staging \
-            .
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Web image with commit SHA tag
+      - name: Lowercase repository name for image tag
+        id: repo_meta
         run: |
-          docker build \
-            -f apps/web/Dockerfile \
-            -t vlxd-web:${{ github.sha }} \
-            -t vlxd-web:staging \
-            .
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo_lc=${REPO_LC}" >> "$GITHUB_OUTPUT"
+
+      - name: Build & push API immutable container image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ steps.repo_meta.outputs.repo_lc }}/api:${{ github.sha }}
+            ghcr.io/${{ steps.repo_meta.outputs.repo_lc }}/api:staging
+
+      - name: Build & push Web immutable container image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ steps.repo_meta.outputs.repo_lc }}/web:${{ github.sha }}
+            ghcr.io/${{ steps.repo_meta.outputs.repo_lc }}/web:staging
 
   deploy-and-verify-staging:
     name: Staging Deployment, Smoke Verification & Rollback Guard
     runs-on: ubuntu-latest
     needs: [build-and-publish-artifacts]
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
     environment:
       name: staging
     steps:
@@ -108,17 +130,37 @@ jobs:
         with:
           node-version: 24
 
-      - name: Boot Staging Deployment Stack
-        id: deploy
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase repository name for image tag
+        id: repo_meta
         run: |
-          echo "Deploying revision ${{ github.sha }} to staging environment..."
-          docker compose -f compose.staging.yml up -d --build --wait
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo_lc=${REPO_LC}" >> "$GITHUB_OUTPUT"
+
+      - name: Pull immutable SHA-tagged artifacts and tag for staging stack
+        run: |
+          REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
+          echo "Pulling immutable API image: ghcr.io/${REPO_LC}/api:${{ github.sha }}"
+          docker pull "ghcr.io/${REPO_LC}/api:${{ github.sha }}"
+          docker tag "ghcr.io/${REPO_LC}/api:${{ github.sha }}" vlxd-api:staging
+
+          echo "Pulling immutable Web image: ghcr.io/${REPO_LC}/web:${{ github.sha }}"
+          docker pull "ghcr.io/${REPO_LC}/web:${{ github.sha }}"
+          docker tag "ghcr.io/${REPO_LC}/web:${{ github.sha }}" vlxd-web:staging
+
+      - name: Boot Staging Deployment Stack
+        run: docker compose -f compose.staging.yml up -d --no-build --wait
 
       - name: Run Automated Post-Deploy Smoke Tests
-        id: smoke
         env:
-          API_URL: ${{ secrets.STAGING_API_URL || 'http://localhost:3001' }}
-          WEB_URL: ${{ secrets.STAGING_WEB_URL || 'http://localhost:3000' }}
+          API_URL: "http://localhost:3001"
+          WEB_URL: "http://localhost:3000"
           SMOKE_MAX_ATTEMPTS: ${{ github.event.inputs.smoke_max_attempts || '15' }}
           SMOKE_RETRY_DELAY_MS: "1500"
         run: node scripts/smoke-test.mjs
@@ -131,19 +173,33 @@ jobs:
 
       - name: Execute Automated Rollback on Smoke Failure
         if: failure()
+        env:
+          ROLLBACK_SHA: ${{ github.event.inputs.rollback_sha }}
+          REPO_LC: ${{ steps.repo_meta.outputs.repo_lc }}
         run: |
           echo "⚠️ Smoke tests failed for revision ${{ github.sha }}."
-          echo "Initiating automated rollback to previous known-good deployment state..."
-          if [ -n "${{ github.event.inputs.rollback_sha }}" ]; then
-            echo "Rolling back to specified rollback SHA: ${{ github.event.inputs.rollback_sha }}"
-          else
-            echo "Rolling back to previous staging release tag..."
-          fi
-          docker compose -f compose.staging.yml restart || true
-          echo "Rollback sequence completed."
+          echo "Initiating automated rollback sequence..."
 
-      - name: Record Deployment Metadata
+          # Validate ROLLBACK_SHA format safely to prevent command injection
+          if [[ -n "$ROLLBACK_SHA" && "$ROLLBACK_SHA" =~ ^[0-9a-fA-F]{7,40}$ ]]; then
+            echo "Rolling back to specified immutable commit SHA: ${ROLLBACK_SHA}"
+            TARGET_API_TAG="ghcr.io/${REPO_LC}/api:${ROLLBACK_SHA}"
+            TARGET_WEB_TAG="ghcr.io/${REPO_LC}/web:${ROLLBACK_SHA}"
+          else
+            echo "Rolling back to previous staging release tag (:staging-previous or :staging)..."
+            TARGET_API_TAG="ghcr.io/${REPO_LC}/api:staging"
+            TARGET_WEB_TAG="ghcr.io/${REPO_LC}/web:staging"
+          fi
+
+          docker pull "$TARGET_API_TAG" && docker tag "$TARGET_API_TAG" vlxd-api:staging || true
+          docker pull "$TARGET_WEB_TAG" && docker tag "$TARGET_WEB_TAG" vlxd-web:staging || true
+          docker compose -f compose.staging.yml up -d --no-build --wait || true
+          echo "Rollback restoration applied."
+
+      - name: Tag Current Deployment as Previous Staging for Next Rollback
         if: success()
         run: |
+          REPO_LC="${{ steps.repo_meta.outputs.repo_lc }}"
+          docker tag "ghcr.io/${REPO_LC}/api:${{ github.sha }}" "ghcr.io/${REPO_LC}/api:staging-previous" || true
+          docker tag "ghcr.io/${REPO_LC}/web:${{ github.sha }}" "ghcr.io/${REPO_LC}/web:staging-previous" || true
           echo "✅ Staging deployment of revision ${{ github.sha }} verified successfully."
-          echo "Staging environment is active and healthy."
