@@ -3,6 +3,7 @@ import type { components, operations, paths } from "./generated/schema.js";
 // Re-export generated schema types for consumers
 export type { components, operations, paths };
 export type HealthResponse = components["schemas"]["HealthResponse"];
+export type ReadinessResponse = components["schemas"]["ReadinessResponse"];
 export type ErrorCode = components["schemas"]["ErrorCode"];
 export type ErrorObject = components["schemas"]["ErrorObject"];
 export type ErrorDetails = components["schemas"]["ErrorDetails"];
@@ -40,6 +41,7 @@ export class ApiClientError extends Error {
 export interface ApiClient {
   readonly baseUrl: string;
   getHealth(): Promise<HealthResponse>;
+  getReadiness(): Promise<ReadinessResponse>;
 }
 
 export function createApiClient(options: ApiClientOptions): ApiClient {
@@ -81,6 +83,9 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     },
     async getHealth(): Promise<HealthResponse> {
       return request<HealthResponse>("/health", { method: "GET" });
+    },
+    async getReadiness(): Promise<ReadinessResponse> {
+      return request<ReadinessResponse>("/health/ready", { method: "GET" });
     },
   };
 }
