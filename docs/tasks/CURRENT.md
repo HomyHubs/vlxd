@@ -2,27 +2,27 @@
 
 > Theo mô hình milestone + lane trong `docs/tasks/MVP-BACKLOG.md`. Mỗi lane tối đa **1 task `active`**; nhiều lane có thể active đồng thời sau khi nền tảng (LANE-CORE) mở khóa. Giai đoạn M0–M1 (LANE-CORE) là **tuần tự nghiêm ngặt**.
 
-- Milestone hiện tại: **M0 — Foundation guardrails**
+- Milestone hiện tại: **M1 — Platform core**
 - Base branch: `dev`
-- Last updated: 2026-08-22
+- Last updated: 2026-08-23
 
 ## Bảng lane
 
-| Lane              | Task active | Tiêu đề              | Status                                  | PR                                              | Reviewer |
-| ----------------- | ----------- | -------------------- | --------------------------------------- | ----------------------------------------------- | -------- |
-| `LANE-CORE`       | `TASK-006b` | Staging smoke deploy | `ready_for_review`                      | [#15](https://github.com/HomyHubs/vlxd/pull/15) | chưa gán |
-| `LANE-CATALOG`    | —           | —                    | `blocked` (chờ M1)                      | —                                               | —        |
-| `LANE-CRM`        | —           | —                    | `blocked` (chờ TASK-013)                | —                                               | —        |
-| `LANE-COMMERCE`   | —           | —                    | `blocked` (chờ M2)                      | —                                               | —        |
-| `LANE-PLATFORMUI` | —           | —                    | `blocked` (chờ TASK-007 + TASK-010b)    | —                                               | —        |
-| `LANE-QUALITY`    | —           | —                    | `blocked` (chạy tăng dần theo UI slice) | —                                               | —        |
+| Lane              | Task active | Tiêu đề                                | Status                                  | PR                                              | Reviewer |
+| ----------------- | ----------- | -------------------------------------- | --------------------------------------- | ----------------------------------------------- | -------- |
+| `LANE-CORE`       | `TASK-007`  | OpenAPI foundation và generated client | `ready_for_review`                      | [#16](https://github.com/HomyHubs/vlxd/pull/16) | chưa gán |
+| `LANE-CATALOG`    | —           | —                                      | `blocked` (chờ M1)                      | —                                               | —        |
+| `LANE-CRM`        | —           | —                                      | `blocked` (chờ TASK-013)                | —                                               | —        |
+| `LANE-COMMERCE`   | —           | —                                      | `blocked` (chờ M2)                      | —                                               | —        |
+| `LANE-PLATFORMUI` | —           | —                                      | `blocked` (chờ TASK-007 + TASK-010b)    | —                                               | —        |
+| `LANE-QUALITY`    | —           | —                                      | `blocked` (chạy tăng dần theo UI slice) | —                                               | —        |
 
 ### Chi tiết task active
 
-- **`TASK-006b` · `LANE-CORE`**
-  - Task packet: `docs/tasks/MVP-BACKLOG.md#task-006b--staging-smoke-deploy-mới`
-  - Prerequisite: `TASK-005` (accepted & merged via [#13](https://github.com/HomyHubs/vlxd/pull/13)), `TASK-006` (accepted & merged via [#14](https://github.com/HomyHubs/vlxd/pull/14))
-  - Implementer PR: [#15](https://github.com/HomyHubs/vlxd/pull/15)
+- **`TASK-007` · `LANE-CORE`**
+  - Task packet: `docs/tasks/MVP-BACKLOG.md#task-007--openapi-foundation-và-generated-client--lane-core`
+  - Prerequisite: `TASK-005` (accepted & merged via [#13](https://github.com/HomyHubs/vlxd/pull/13))
+  - Implementer PR: [#16](https://github.com/HomyHubs/vlxd/pull/16)
   - Reviewer: chưa gán
 
 ## Quy tắc cập nhật

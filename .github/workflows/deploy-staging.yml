@@ -48,6 +48,9 @@ jobs:
       - name: Verify Prettier formatting
         run: pnpm run format:check
 
+      - name: Verify OpenAPI contract drift
+        run: pnpm run check:drift
+
       - name: Lint codebase
         run: pnpm lint
 

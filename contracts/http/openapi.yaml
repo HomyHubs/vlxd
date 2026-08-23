@@ -3,11 +3,12 @@ info:
   title: VLXD Management API
   version: 0.1.0
   description: OpenAPI 3.1 contract specification for vlxd backend service.
+
 paths:
   /health:
     get:
       summary: Health check endpoint
-      description: Returns backend service health status, version, and timestamp.
+      description: Returns backend service health status, version, and server timestamp.
       operationId: getHealth
       responses:
         "200":
@@ -15,23 +16,118 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - status
-                  - timestamp
-                  - version
-                properties:
-                  status:
-                    type: string
-                    example: ok
-                  timestamp:
-                    type: string
-                    format: date-time
-                  version:
-                    type: string
-                    example: 0.1.0
+                $ref: "#/components/schemas/HealthResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
 components:
+  headers:
+    X-Request-Id:
+      description: Unique request trace identifier
+      schema:
+        type: string
+        example: req-123e4567-e89b-12d3-a456-426614174000
+
+  parameters:
+    PageQueryParam:
+      name: page
+      in: query
+      description: Page number (1-indexed)
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    LimitQueryParam:
+      name: limit
+      in: query
+      description: Number of items per page
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    SortByQueryParam:
+      name: sortBy
+      in: query
+      description: Field name to sort by
+      required: false
+      schema:
+        type: string
+    SortOrderQueryParam:
+      name: sortOrder
+      in: query
+      description: Sort direction
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        default: desc
+    RequestIdHeader:
+      name: x-request-id
+      in: header
+      description: Request trace identifier
+      required: false
+      schema:
+        type: string
+
   schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - version
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+          example: ok
+        version:
+          type: string
+          example: 0.1.0
+        timestamp:
+          $ref: "#/components/schemas/DateTime"
+
+    ErrorCode:
+      type: string
+      enum:
+        - VALIDATION_ERROR
+        - UNAUTHORIZED
+        - FORBIDDEN
+        - NOT_FOUND
+        - CONFLICT
+        - PLAN_LIMIT_REACHED
+        - TENANT_NOT_FOUND
+        - INTERNAL_SERVER_ERROR
+        - BAD_REQUEST
+      example: VALIDATION_ERROR
+
+    ErrorDetails:
+      type: object
+      additionalProperties: true
+      description: Structured contextual error details or field-level validation errors
+
+    ErrorObject:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          $ref: "#/components/schemas/ErrorCode"
+        message:
+          type: string
+          example: Invalid input parameters
+        details:
+          $ref: "#/components/schemas/ErrorDetails"
+        requestId:
+          $ref: "#/components/schemas/RequestId"
+
     ErrorEnvelope:
       type: object
       required:
@@ -40,22 +136,115 @@ components:
       properties:
         success:
           type: boolean
+          enum:
+            - false
           example: false
         error:
-          type: object
-          required:
-            - code
-            - message
-          properties:
-            code:
-              type: string
-              example: VALIDATION_ERROR
-            message:
-              type: string
-              example: Invalid input parameters
-            details:
-              type: object
-              additionalProperties: true
-            requestId:
-              type: string
-              example: req-12345
+          $ref: "#/components/schemas/ErrorObject"
+
+    PaginationQuery:
+      type: object
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          default: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        sortBy:
+          type: string
+        sortOrder:
+          type: string
+          enum:
+            - asc
+            - desc
+          default: desc
+
+    PaginationMeta:
+      type: object
+      required:
+        - page
+        - limit
+        - totalItems
+        - totalPages
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          example: 1
+        limit:
+          type: integer
+          minimum: 1
+          example: 20
+        totalItems:
+          type: integer
+          minimum: 0
+          example: 100
+        totalPages:
+          type: integer
+          minimum: 0
+          example: 5
+
+    Money:
+      type: integer
+      minimum: 0
+      description: Monetary amount represented as an integer in VND (Vietnamese Dong)
+      example: 250000
+
+    DateTime:
+      type: string
+      format: date-time
+      description: ISO 8601 UTC timestamp format
+      example: 2026-08-23T03:00:00.000Z
+
+    RequestId:
+      type: string
+      description: Unique request trace identifier
+      example: req-550e8400-e29b-41d4-a716-446655440000
+
+    OptimisticVersion:
+      type: integer
+      minimum: 1
+      description: Monotonically increasing version counter for optimistic concurrency control (OCC)
+      example: 1
+
+  responses:
+    BadRequestError:
+      description: Bad Request / Validation Failure
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    UnauthorizedError:
+      description: Authentication credentials missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    ForbiddenError:
+      description: Insufficient permissions or role capabilities
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    NotFoundError:
+      description: Requested resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    ConflictError:
+      description: Resource conflict or optimistic locking conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    InternalServerError:
+      description: Unexpected internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
