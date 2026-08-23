@@ -1,0 +1,9 @@
+[allowlist]
+description = "Allow mock secrets in automated test files"
+paths = [
+  '''apps/api/src/features/auth/__tests__/.*''',
+  '''apps/api/src/__tests__/.*''',
+  '''packages/api-client/src/__tests__/.*''',
+  '''packages/shared/src/__tests__/.*''',
+  '''db/seeds/.*'''
+]
