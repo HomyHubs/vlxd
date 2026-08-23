@@ -1,3 +1,4 @@
+import React from "react";
 import { useTranslation } from "react-i18next";
 import {
   AppBar,
@@ -9,16 +10,39 @@ import {
   Button,
   ButtonGroup,
   Chip,
+  CircularProgress,
 } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ConstructionIcon from "@mui/icons-material/Construction";
+import { LoginPage, UserProfileCard, useAuth } from "./features/auth/index.js";
 
-export function App() {
+export function AppContent() {
   const { t, i18n } = useTranslation();
+  const { isAuthenticated, isLoading } = useAuth();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
   };
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: "background.default",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
 
   return (
     <Box sx={{ flexGrow: 1, minHeight: "100vh", bgcolor: "background.default" }}>
@@ -45,8 +69,8 @@ export function App() {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="md" sx={{ mt: 6 }}>
-        <Paper elevation={2} sx={{ p: 4, textAlign: "center" }}>
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Paper elevation={2} sx={{ p: 4, textAlign: "center", mb: 3 }}>
           <Typography variant="h4" component="h1" gutterBottom color="primary.main">
             {t("app.title")}
           </Typography>
@@ -54,7 +78,7 @@ export function App() {
             {t("app.tagline")}
           </Typography>
 
-          <Box sx={{ mt: 4, display: "flex", justifyContent: "center", gap: 2 }}>
+          <Box sx={{ mt: 2, display: "flex", justifyContent: "center", gap: 2 }}>
             <Chip
               icon={<CheckCircleOutlineIcon />}
               label={`${t("app.status")} ${t("app.baseline_badge")}`}
@@ -64,9 +88,15 @@ export function App() {
             <Chip label={`${t("app.version")}: 0.1.0`} variant="outlined" />
           </Box>
         </Paper>
+
+        <UserProfileCard />
       </Container>
     </Box>
   );
+}
+
+export function App() {
+  return <AppContent />;
 }
 
 export default App;
