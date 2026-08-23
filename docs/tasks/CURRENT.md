@@ -8,21 +8,21 @@
 
 ## Bảng lane
 
-| Lane              | Task active | Tiêu đề                                | Status                                  | PR      | Reviewer |
-| ----------------- | ----------- | -------------------------------------- | --------------------------------------- | ------- | -------- |
-| `LANE-CORE`       | `TASK-007`  | OpenAPI foundation và generated client | `in_progress`                           | chưa có | chưa gán |
-| `LANE-CATALOG`    | —           | —                                      | `blocked` (chờ M1)                      | —       | —        |
-| `LANE-CRM`        | —           | —                                      | `blocked` (chờ TASK-013)                | —       | —        |
-| `LANE-COMMERCE`   | —           | —                                      | `blocked` (chờ M2)                      | —       | —        |
-| `LANE-PLATFORMUI` | —           | —                                      | `blocked` (chờ TASK-007 + TASK-010b)    | —       | —        |
-| `LANE-QUALITY`    | —           | —                                      | `blocked` (chạy tăng dần theo UI slice) | —       | —        |
+| Lane              | Task active | Tiêu đề                                | Status             | PR                                              | Reviewer |
+| ----------------- | ----------- | -------------------------------------- | ------------------ | ----------------------------------------------- | -------- |
+| `LANE-CORE`       | `TASK-007`  | OpenAPI foundation và generated client | `ready_for_review` | [#16](https://github.com/HomyHubs/vlxd/pull/16) | chưa gán |
+| `LANE-CATALOG`    | —           | —                                      | `blocked` (chờ M1) | —                                               | —        |
+| `LANE-CRM`        | —           | —                                      | `blocked` (chờ TASK-013) | —                                               | —        |
+| `LANE-COMMERCE`   | —           | —                                      | `blocked` (chờ M2) | —                                               | —        |
+| `LANE-PLATFORMUI` | —           | —                                      | `blocked` (chờ TASK-007 + TASK-010b) | —                                               | —        |
+| `LANE-QUALITY`    | —           | —                                      | `blocked` (chạy tăng dần theo UI slice) | —                                               | —        |
 
 ### Chi tiết task active
 
 - **`TASK-007` · `LANE-CORE`**
   - Task packet: `docs/tasks/MVP-BACKLOG.md#task-007--openapi-foundation-và-generated-client--lane-core`
   - Prerequisite: `TASK-005` (accepted & merged via [#13](https://github.com/HomyHubs/vlxd/pull/13))
-  - Implementer PR: đang thực hiện trên branch `task/TASK-007-openapi-foundation-and-client-generator`
+  - Implementer PR: [#16](https://github.com/HomyHubs/vlxd/pull/16)
   - Reviewer: chưa gán
 
 ## Quy tắc cập nhật
