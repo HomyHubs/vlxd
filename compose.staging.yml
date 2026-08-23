@@ -1,5 +1,6 @@
 services:
   api:
+    image: ${API_IMAGE:-vlxd-api:staging}
     build:
       context: .
       dockerfile: apps/api/Dockerfile
@@ -27,6 +28,7 @@ services:
       start_period: 3s
 
   web:
+    image: ${WEB_IMAGE:-vlxd-web:staging}
     build:
       context: .
       dockerfile: apps/web/Dockerfile

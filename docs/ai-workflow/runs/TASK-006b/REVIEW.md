@@ -8,17 +8,18 @@
   - Round 1 (PR #15): `9d3bb7f33c6b53b60d4cd0b2f2871da6344c2d8d`
   - Round 2 (PR #15): `004ec0d665b9e7a0bd7a6d0b4a478c9ee2e6e977`
   - Round 3 (PR #15): `b5746417cabf71c61c88ef5807cb84a28e9d925b`
-- Reviewed at (UTC): 2026-08-23T00:58:00Z
-- Review round: 3
-- Verdict: changes_required (Round 3) -> pending re-review (Round 4)
+  - Round 4 (PR #15): `0024f45191105df59eee1eb691756193633d1910`
+- Reviewed at (UTC): 2026-08-23T01:05:00Z
+- Review round: 4
+- Verdict: changes_required (Round 4) -> pending re-review (Round 5)
 
 ## Phạm vi đã kiểm tra
 
 - [x] Task packet và acceptance criteria (`MVP-BACKLOG.md#task-006b--staging-smoke-deploy-mới`)
 - [x] Dockerfile cho `apps/api` và `apps/web` (multi-stage build, unprivileged user, lean Alpine image)
-- [x] Cấu hình `compose.staging.yml` & `nginx/staging.conf`
-- [x] Script automated smoke test `scripts/smoke-test.mjs` (timeout, retry delay, concurrent status assertions qua Promise.allSettled)
-- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image publishing theo commit SHA, pull-based staging deploy, safe rollback guard)
+- [x] Cấu hình `compose.staging.yml` (parameterized `image: ${API_IMAGE}` / `${WEB_IMAGE}`) & `nginx/staging.conf`
+- [x] Script automated smoke test `scripts/smoke-test.mjs` (timeout, retry delay, concurrent status assertions qua `Promise.allSettled`)
+- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image candidate publishing, explicit image passing to Compose, verified rollback không nuốt lỗi, và promotion sau kiểm thử)
 - [x] Workflow `.github/workflows/ci.yml` (PR staging smoke container integration job)
 - [x] Execution log (`docs/ai-workflow/runs/TASK-006b/EXECUTION.md`)
 - [x] Toàn bộ diff (`git diff dev...HEAD`)
@@ -60,20 +61,16 @@
 - Cách xử lý: Đã nâng cấp `deploy-staging.yml` publish ảnh bất biến lên GHCR (`ghcr.io/.../api:${{ github.sha }}` và `web:${{ github.sha }}`), pull ảnh chính xác trong job deploy, và hỗ trợ rollback an toàn bằng commit SHA hoặc previous staging release tag.
 - Trạng thái: resolved
 
-### FINDING-004 — [ROUND 3] An toàn shell injection với input `rollback_sha`
+### FINDING-004 — [ROUND 4] Cấu hình `image:` trong `compose.staging.yml` và tag promotion an toàn
 
 - Severity: BLOCKER
-- File/dòng: `.github/workflows/deploy-staging.yml`
-- Tác động: Interpolation trực tiếp input vào bash script có nguy cơ injection.
-- Cách xử lý: Đã chuyển sang truyền qua `env: ROLLBACK_SHA` và kiểm tra định dạng an toàn bằng regex `^[0-9a-fA-F]{7,40}$`.
-- Trạng thái: resolved
-
-### FINDING-005 — [ROUND 3] Smoke test concurrent bằng Promise.allSettled
-
-- Severity: LOW
-- File/dòng: `scripts/smoke-test.mjs`
-- Tác động: Kiểm tra tuần tự tốn thời gian hơn.
-- Cách xử lý: Dùng `Promise.allSettled` kiểm tra đồng thời cả API `/health` và Web shell HTML.
+- File/dòng: `compose.staging.yml:1-32`, `.github/workflows/deploy-staging.yml`
+- Tác động: `compose.staging.yml` thiếu `image:`, Compose mặc định tìm `:latest` khi chạy `--no-build`. Tag `:staging` bị ghi đè trước khi kiểm thử khiến không thể rollback.
+- Cách xử lý:
+  1. Thêm `image: ${API_IMAGE:-vlxd-api:staging}` và `image: ${WEB_IMAGE:-vlxd-web:staging}` vào `compose.staging.yml`.
+  2. Gắn tag candidate `:staging-candidate` khi build.
+  3. Chỉ promote `:staging` và `:staging-previous` sau khi smoke test đạt.
+  4. Loại bỏ `|| true` trong bước rollback và thực hiện tái kiểm tra smoke test để đảm bảo phục hồi thành công.
 - Trạng thái: resolved
 
 ## Acceptance criteria
@@ -82,8 +79,8 @@
 | ----------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | Pipeline deploy staging cho `apps/api` và `apps/web`        | Pass                   | `apps/api/Dockerfile`, `apps/web/Dockerfile`, `compose.staging.yml`, `.github/workflows/deploy-staging.yml`              |
 | Cấu hình quản trị qua env/secrets, không hard-code          | Pass                   | Cấu hình qua environment variables (`NODE_ENV=production`, `DEPLOY_ENV=staging`, `PORT`, `HOST`), không hard-code secret |
-| Tự động chạy smoke test sau deploy (`/health` và shell web) | Pass                   | Script `scripts/smoke-test.mjs` kiểm tra đồng thời API `/health` và Web shell HTML                                       |
-| Cơ chế rollback/thông báo lỗi khi smoke test fail           | Pass                   | `deploy-staging.yml` tự động capture diagnostic logs và thực thi rollback sequence khi failure                           |
+| Tự động chạy smoke test sau deploy (`/health` và shell web) | Pass                   | Script `scripts/smoke-test.mjs` kiểm tra đồng thời API `/health` và Web shell HTML qua `Promise.allSettled`              |
+| Cơ chế rollback/thông báo lỗi khi smoke test fail           | Pass                   | `deploy-staging.yml` tự động rollback về `:staging` hoặc 40-char SHA và tái kiểm tra sức khỏe                            |
 | Không có secret trong log/artifact                          | Pass                   | Gitleaks scan và `pnpm audit` chạy sạch sẽ 100%                                                                          |
 | PR CI kiểm tra staging smoke test                           | Pass                   | Job `staging-smoke` trong `.github/workflows/ci.yml` kiểm thử toàn bộ container stack trên PR                            |
 
@@ -97,4 +94,4 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với GHCR publishing, pull-based deploy, an toàn shell injection và concurrent smoke tests, sẵn sàng cho Round 4 re-review.
+- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với Compose image parameterization, candidate tag lifecycle, verified rollback không nuốt lỗi, và promotion sau kiểm thử, sẵn sàng cho Round 5 re-review.
