@@ -20,6 +20,9 @@
     "generate:api-client": "pnpm --filter @vlxd/api-client generate",
     "check:drift": "node scripts/check-openapi-drift.mjs",
     "check": "pnpm run check:drift && turbo run lint typecheck test build && pnpm run format:check",
+    "db:migrate": "dbmate --migrations-dir db/migrations up",
+    "db:rollback": "dbmate --migrations-dir db/migrations rollback",
+    "db:status": "dbmate --migrations-dir db/migrations status",
     "test:smoke": "node scripts/smoke-test.mjs",
     "staging:build": "docker compose -f compose.staging.yml build",
     "staging:up": "docker compose -f compose.staging.yml up -d",
@@ -29,6 +32,7 @@
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@vlxd/config-prettier": "workspace:*",
+    "dbmate": "^2.35.0",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.2",
     "globals": "^16.0.0",
