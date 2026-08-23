@@ -37,15 +37,15 @@ Không có finding nào (0 BLOCKER, 0 HIGH, 0 MEDIUM, 0 LOW).
 
 ## Acceptance criteria
 
-| Criterion                                                                    | Pass/Fail/Not verified | Evidence                                                                                |
-| ---------------------------------------------------------------------------- | ---------------------- | --------------------------------------------------------------------------------------- |
+| Criterion                                                                    | Pass/Fail/Not verified | Evidence                                                                                 |
+| ---------------------------------------------------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------- |
 | Startup fail-fast khi config sai hoặc không hợp lệ                           | PASS                   | `config.test.ts` kiểm tra `ConfigValidationError` trên thiếu `NODE_ENV` / `DATABASE_URL` |
-| Không lộ stack trace, SQL query, hoặc secret cho client                      | PASS                   | `error-handler.test.ts` kiểm chứng 500 error trả về `ErrorEnvelope` sanitized          |
-| Shutdown đóng Fastify server và database connection pool an toàn             | PASS                   | `main.ts` xử lý `SIGINT`, `SIGTERM`, `uncaughtException`, `unhandledRejection`          |
-| Log có correlation request-id và PII được redact                             | PASS                   | `logger.ts` cấu hình redact PII/secrets và gắn request-id                               |
-| Endpoint `/health` và `/health/ready` hoạt động đúng contract                | PASS                   | `health.test.ts` kiểm thử 200 OK và 503 unready DB disconnected                         |
+| Không lộ stack trace, SQL query, hoặc secret cho client                      | PASS                   | `error-handler.test.ts` kiểm chứng 500 error trả về `ErrorEnvelope` sanitized            |
+| Shutdown đóng Fastify server và database connection pool an toàn             | PASS                   | `main.ts` xử lý `SIGINT`, `SIGTERM`, `uncaughtException`, `unhandledRejection`           |
+| Log có correlation request-id và PII được redact                             | PASS                   | `logger.ts` cấu hình redact PII/secrets và gắn request-id                                |
+| Endpoint `/health` và `/health/ready` hoạt động đúng contract                | PASS                   | `health.test.ts` kiểm thử 200 OK và 503 unready DB disconnected                          |
 | Error envelope khớp 100% với schema OpenAPI                                  | PASS                   | `error-handler.ts` bọc Zod 400, 404, AppError và 500 thành `ErrorEnvelope`               |
-| Tất cả quality gates (`pnpm check`, `pnpm test`, `pnpm audit`) đều pass 100% | PASS                   | 18 turbo tasks + Prettier + CI GitHub Actions passed 100%                               |
+| Tất cả quality gates (`pnpm check`, `pnpm test`, `pnpm audit`) đều pass 100% | PASS                   | 18 turbo tasks + Prettier + CI GitHub Actions passed 100%                                |
 
 ## Kiểm tra regression
 
