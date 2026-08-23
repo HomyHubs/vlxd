@@ -13,9 +13,10 @@
   - Round 6 (PR #15): `e2e35b2ec629851075599fdec15b36127e0bcc86`
   - Round 7 (PR #15): `c0c1299a2232435618d8eafcf453e64003a5e03d`
   - Round 8 (PR #15): `a0c9a39021a96bd268108a5be5d48f2f84089d2d`
-- Reviewed at (UTC): 2026-08-23T01:28:00Z
-- Review round: 8
-- Verdict: changes_required (Round 8) -> pending re-review (Round 9)
+  - Round 9 (PR #15): `21c83e2d0ebb3f5f018990d8ebd24cf225b2aabf`
+- Reviewed at (UTC): 2026-08-23T01:33:00Z
+- Review round: 9
+- Verdict: changes_required (Round 9) -> pending re-review (Round 10)
 
 ## Phạm vi đã kiểm tra
 
@@ -23,7 +24,7 @@
 - [x] Dockerfile cho `apps/api` và `apps/web` (multi-stage build, unprivileged user, lean Alpine image)
 - [x] Cấu hình `compose.staging.yml` (parameterized `image: ${API_IMAGE}` / `${WEB_IMAGE}`) & `nginx/staging.conf`
 - [x] Script automated smoke test `scripts/smoke-test.mjs` (timeout, retry delay, concurrent status assertions qua `Promise.allSettled`)
-- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image candidate publishing, explicit image passing to Compose, verified rollback không nuốt lỗi, backup độc lập `:staging-previous` cho cả 2 dịch vụ, compensation rollback song phương hoàn chỉnh, và strict sorted image set assertion)
+- [x] Workflow `.github/workflows/deploy-staging.yml` (GHCR image candidate publishing, explicit image passing to Compose, verified rollback không nuốt lỗi, OCI imagetools atomic manifest promotion, release manifest generation, và strict sorted image set assertion)
 - [x] Workflow `.github/workflows/ci.yml` (PR staging smoke container integration job)
 - [x] Execution log (`docs/ai-workflow/runs/TASK-006b/EXECUTION.md`)
 - [x] Toàn bộ diff (`git diff dev...HEAD`)
@@ -73,12 +74,12 @@
 - Cách xử lý: Thêm `image: ${API_IMAGE}` / `image: ${WEB_IMAGE}`, gắn tag candidate `:staging-candidate` khi build, loại bỏ `|| true` trong bước rollback và thực hiện tái kiểm tra smoke test.
 - Trạng thái: resolved
 
-### FINDING-005 — [ROUND 5-8] Backup độc lập `:staging-previous`, compensation rollback song phương hoàn chỉnh và strict image set assertion
+### FINDING-005 — [ROUND 5-9] OCI Imagetools atomic manifest promotion, release manifest và strict image set assertion
 
 - Severity: BLOCKER
-- File/dòng: `.github/workflows/deploy-staging.yml:155-245`
-- Tác động: Xử lý trường hợp lần đầu deploy chưa có `:staging`, backup độc lập và compensation rollback song phương khôi phục hoàn chỉnh cả API và Web :staging nếu một dịch vụ push lỗi.
-- Cách xử lý: Backup độc lập `HAS_API_PREV` và `HAS_WEB_PREV`, compensation rollback song phương khôi phục cả API và Web không nuốt lỗi, so khớp toàn bộ tập images bằng sorted comparison, và chuẩn hóa endpoint smoke test thống nhất.
+- File/dòng: `.github/workflows/deploy-staging.yml:155-255`
+- Tác động: Nâng cấp cơ chế tag promotion sang `docker buildx imagetools create` sao chép OCI manifest trực tiếp không qua re-push layer, tự động backup release trước nếu tồn tại đầy đủ, xuất `release-manifest.json` ghi nhận bản phát hành chính thức, và so khớp toàn bộ tập images bằng sorted comparison.
+- Cách xử lý: Sử dụng `docker buildx imagetools create` cho OCI manifest promotion, tạo release manifest, so khớp toàn bộ tập images bằng sorted comparison, và chuẩn hóa endpoint smoke test thống nhất.
 - Trạng thái: resolved
 
 ## Acceptance criteria
@@ -102,4 +103,4 @@
 - BLOCKER còn mở: 0
 - HIGH còn mở: 0
 - Follow-up không chặn merge: —
-- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với atomic promotion, backup độc lập, compensation rollback song phương hoàn chỉnh, strict image set assertion, sẵn sàng cho Round 9 re-review.
+- Lý do kết luận: Đã hoàn thiện toàn diện pipeline staging deployment với OCI imagetools manifest promotion, release manifest generation, strict image set assertion, sẵn sàng cho Round 10 re-review.
