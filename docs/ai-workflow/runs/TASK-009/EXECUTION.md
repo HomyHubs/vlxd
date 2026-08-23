@@ -91,11 +91,11 @@
 
 ## Kiểm tra đã chạy
 
-| Command                         | Kết quả/exit code                     | Ghi chú                                                                                                                                                                             |
-| ------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm test`                     | Exit code 0 (6/6 turbo tasks passed)  | Vitest chạy 32 tests trong `apps/api` (bao gồm `config`, `db`, `request-id`, `health`, `error-handler`, `migrations`, `tenant-isolation`), 6 tests `api-client`, 6 `shared`, 2 `web` |
-| `pnpm run check`                | Exit code 0                           | Quality gate đầy đủ: check drift, lint, typecheck, test, build (18/18 turbo tasks), prettier check                                                                                 |
-| `pnpm audit --audit-level=high` | Exit code 0                           | 0 lỗ hổng bảo mật                                                                                                                                                                   |
+| Command                         | Kết quả/exit code                    | Ghi chú                                                                                                                                                                              |
+| ------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm test`                     | Exit code 0 (6/6 turbo tasks passed) | Vitest chạy 32 tests trong `apps/api` (bao gồm `config`, `db`, `request-id`, `health`, `error-handler`, `migrations`, `tenant-isolation`), 6 tests `api-client`, 6 `shared`, 2 `web` |
+| `pnpm run check`                | Exit code 0                          | Quality gate đầy đủ: check drift, lint, typecheck, test, build (18/18 turbo tasks), prettier check                                                                                   |
+| `pnpm audit --audit-level=high` | Exit code 0                          | 0 lỗ hổng bảo mật                                                                                                                                                                    |
 
 ## Self-review
 
