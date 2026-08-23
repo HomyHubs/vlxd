@@ -8,22 +8,22 @@
 
 ## Bảng lane
 
-| Lane              | Task active | Tiêu đề                                            | Status                                  | PR      | Reviewer |
-| ----------------- | ----------- | -------------------------------------------------- | --------------------------------------- | ------- | -------- |
-| `LANE-CORE`       | `TASK-010a` | Backend auth, password hashing, and session tokens | `in_progress`                           | chưa có | chưa gán |
-| `LANE-CATALOG`    | —           | —                                                  | `blocked` (chờ M1)                      | —       | —        |
-| `LANE-CRM`        | —           | —                                                  | `blocked` (chờ TASK-013)                | —       | —        |
-| `LANE-COMMERCE`   | —           | —                                                  | `blocked` (chờ M2)                      | —       | —        |
-| `LANE-PLATFORMUI` | —           | —                                                  | `blocked` (chờ TASK-007 + TASK-010b)    | —       | —        |
-| `LANE-QUALITY`    | —           | —                                                  | `blocked` (chạy tăng dần theo UI slice) | —       | —        |
+| Lane              | Task active | Tiêu đề                                            | Status                                  | PR                                            | Reviewer             |
+| ----------------- | ----------- | -------------------------------------------------- | --------------------------------------- | --------------------------------------------- | -------------------- |
+| `LANE-CORE`       | `TASK-010a` | Backend auth, password hashing, and session tokens | `ready_for_review`                      | [#21](https://github.com/HomyHubs/vlxd/pull/21) | AI Bot 2 (Reviewer) |
+| `LANE-CATALOG`    | —           | —                                                  | `blocked` (chờ M1)                      | —                                             | —                    |
+| `LANE-CRM`        | —           | —                                                  | `blocked` (chờ TASK-013)                | —                                             | —                    |
+| `LANE-COMMERCE`   | —           | —                                                  | `blocked` (chờ M2)                      | —                                             | —                    |
+| `LANE-PLATFORMUI` | —           | —                                                  | `blocked` (chờ TASK-007 + TASK-010b)    | —                                             | —                    |
+| `LANE-QUALITY`    | —           | —                                                  | `blocked` (chạy tăng dần theo UI slice) | —                                             | —                    |
 
 ### Chi tiết task active
 
 - **`TASK-010a` · `LANE-CORE`**
   - Task packet: `docs/tasks/MVP-BACKLOG.md#task-010--authentication-v%C3%A0-session--lane-core-ch%E1%BA%BB-2-pr`
   - Prerequisite: `TASK-009` (merged via [#20](https://github.com/HomyHubs/vlxd/pull/20))
-  - Implementer PR: đang thực hiện trên branch `task/TASK-010a-backend-auth-session`
-  - Reviewer: chưa gán
+  - Implementer PR: [#21](https://github.com/HomyHubs/vlxd/pull/21) (`task/TASK-010a-backend-auth-session`)
+  - Reviewer: AI Bot 2 (Reviewer)
 
 ## Quy tắc cập nhật
 
