@@ -9,6 +9,7 @@
 - Branch: `task/TASK-011a-authorization-engine`
 - Base: `dev`
 - Status: ready_for_review
+- Pull request: https://github.com/HomyHubs/vlxd/pull/23
 
 ## Scope
 
@@ -20,12 +21,12 @@
 
 ## Validation
 
-| Command | Result |
-| --- | --- |
-| `pnpm --filter @vlxd/api test -- --pool=threads` | Pass — 64 tests |
-| `pnpm --filter @vlxd/api lint` | Pass |
-| `pnpm --filter @vlxd/api typecheck` | Pass |
-| `pnpm --filter @vlxd/api build` | Pass |
-| `pnpm exec prettier --write ...` | Applied to changed files |
+| Command                                          | Result                   |
+| ------------------------------------------------ | ------------------------ |
+| `pnpm --filter @vlxd/api test -- --pool=threads` | Pass — 64 tests          |
+| `pnpm --filter @vlxd/api lint`                   | Pass                     |
+| `pnpm --filter @vlxd/api typecheck`              | Pass                     |
+| `pnpm --filter @vlxd/api build`                  | Pass                     |
+| `pnpm exec prettier --write ...`                 | Applied to changed files |
 
 The local runtime is Node `22.22.3` while the repository requires Node `>=24`; the engine warning is recorded and must be rechecked in CI's Node 24 environment.

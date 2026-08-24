@@ -23,11 +23,11 @@
 
 ## Commands reviewer đã chạy
 
-| Command                         | Kết quả/exit code                    | Ghi chú                                                                                     |
-| ------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------- |
-| `pnpm test`                     | Exit code 0 (6/6 turbo tasks passed) | 16 tests in `apps/web`, 58 tests in `apps/api`, 9 in `api-client`, 6 in `shared` (100% pass)  |
-| `pnpm run check`                | Exit code 0                          | 18/18 turbo tasks passed, OpenAPI drift 0%, Prettier formatting clean                       |
-| `pnpm audit --audit-level=high` | Exit code 0                          | 0 known vulnerabilities                                                                     |
+| Command                         | Kết quả/exit code                    | Ghi chú                                                                                      |
+| ------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------- |
+| `pnpm test`                     | Exit code 0 (6/6 turbo tasks passed) | 16 tests in `apps/web`, 58 tests in `apps/api`, 9 in `api-client`, 6 in `shared` (100% pass) |
+| `pnpm run check`                | Exit code 0                          | 18/18 turbo tasks passed, OpenAPI drift 0%, Prettier formatting clean                        |
+| `pnpm audit --audit-level=high` | Exit code 0                          | 0 known vulnerabilities                                                                      |
 
 ## Findings
 
@@ -35,15 +35,15 @@ Không có findings dạng BLOCKER hay HIGH. Toàn bộ code tuân thủ nghiêm
 
 ## Acceptance criteria
 
-| Criterion                                                                      | Pass/Fail/Not verified | Evidence                                                                     |
-| ------------------------------------------------------------------------------ | ---------------------- | ---------------------------------------------------------------------------- |
-| Giao diện login hoàn chỉnh, hiện đại, responsive bằng MUI v6                   | Pass                   | `LoginPage.tsx` và `LoginForm.tsx` với MUI v6 components                     |
-| Reactive session state với TanStack Query và AuthProvider                      | Pass                   | `apps/web/src/features/auth/context/auth-context.tsx`                         |
-| Tuyệt đối không lưu token nhạy cảm ở `localStorage`/`sessionStorage`           | Pass                   | Toàn bộ code frontend không gọi `localStorage.setItem` cho auth token        |
-| Hiển thị thông báo lỗi thân thiện được bản dịch theo ErrorCode backend          | Pass                   | `LoginForm.tsx` dịch `ErrorCode` qua `i18n` namespace `auth`                 |
-| Đăng xuất gọi API thu hồi session và reset UI state                            | Pass                   | `UserProfileCard.tsx` + `useLogoutMutation` gọi `apiClient.logout()`         |
-| Toàn bộ text đi qua translation key i18next (mặc định `vi`)                     | Pass                   | `locales/vi/auth.json`, `locales/en/auth.json`, 100% text qua `useTranslation`|
-| Tất cả quality gates (`pnpm check`, `pnpm test`, `pnpm audit`) đều pass 100%   | Pass                   | 18/18 turbo tasks + drift check + Prettier + security audit xanh             |
+| Criterion                                                                    | Pass/Fail/Not verified | Evidence                                                                       |
+| ---------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------ |
+| Giao diện login hoàn chỉnh, hiện đại, responsive bằng MUI v6                 | Pass                   | `LoginPage.tsx` và `LoginForm.tsx` với MUI v6 components                       |
+| Reactive session state với TanStack Query và AuthProvider                    | Pass                   | `apps/web/src/features/auth/context/auth-context.tsx`                          |
+| Tuyệt đối không lưu token nhạy cảm ở `localStorage`/`sessionStorage`         | Pass                   | Toàn bộ code frontend không gọi `localStorage.setItem` cho auth token          |
+| Hiển thị thông báo lỗi thân thiện được bản dịch theo ErrorCode backend       | Pass                   | `LoginForm.tsx` dịch `ErrorCode` qua `i18n` namespace `auth`                   |
+| Đăng xuất gọi API thu hồi session và reset UI state                          | Pass                   | `UserProfileCard.tsx` + `useLogoutMutation` gọi `apiClient.logout()`           |
+| Toàn bộ text đi qua translation key i18next (mặc định `vi`)                  | Pass                   | `locales/vi/auth.json`, `locales/en/auth.json`, 100% text qua `useTranslation` |
+| Tất cả quality gates (`pnpm check`, `pnpm test`, `pnpm audit`) đều pass 100% | Pass                   | 18/18 turbo tasks + drift check + Prettier + security audit xanh               |
 
 ## Kiểm tra regression
 

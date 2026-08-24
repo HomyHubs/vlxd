@@ -8,14 +8,14 @@
 
 ## Bảng lane
 
-| Lane | Task active | Tiêu đề | Status | PR | Reviewer |
-| --- | --- | --- | --- | --- | --- |
-| `LANE-CORE` | `TASK-011a` | Capability authorization engine | `ready_for_review` | — | Codex / Agent B |
-| `LANE-CATALOG` | — | — | `blocked` (chờ M1) | — | — |
-| `LANE-CRM` | — | — | `blocked` (chờ TASK-013) | — | — |
-| `LANE-COMMERCE` | — | — | `blocked` (chờ M2) | — | — |
-| `LANE-PLATFORMUI` | — | — | `idle` (TASK-010b accepted và merged) | [#22](https://github.com/HomyHubs/vlxd/pull/22) | AI Bot 2 (Reviewer) |
-| `LANE-QUALITY` | — | — | `blocked` (chạy tăng dần theo UI slice) | — | — |
+| Lane              | Task active | Tiêu đề                         | Status                                  | PR                                              | Reviewer            |
+| ----------------- | ----------- | ------------------------------- | --------------------------------------- | ----------------------------------------------- | ------------------- |
+| `LANE-CORE`       | `TASK-011a` | Capability authorization engine | `ready_for_review`                      | [#23](https://github.com/HomyHubs/vlxd/pull/23) | Codex / Agent B     |
+| `LANE-CATALOG`    | —           | —                               | `blocked` (chờ M1)                      | —                                               | —                   |
+| `LANE-CRM`        | —           | —                               | `blocked` (chờ TASK-013)                | —                                               | —                   |
+| `LANE-COMMERCE`   | —           | —                               | `blocked` (chờ M2)                      | —                                               | —                   |
+| `LANE-PLATFORMUI` | —           | —                               | `idle` (TASK-010b accepted và merged)   | [#22](https://github.com/HomyHubs/vlxd/pull/22) | AI Bot 2 (Reviewer) |
+| `LANE-QUALITY`    | —           | —                               | `blocked` (chạy tăng dần theo UI slice) | —                                               | —                   |
 
 ### Chi tiết task active
 
@@ -23,6 +23,7 @@
   - Task packet: `docs/tasks/MVP-BACKLOG.md` — TASK-011, Authorization engine.
   - Prerequisite: TASK-010 accepted (`TASK-010a` và `TASK-010b` đã merge).
   - Implementer branch: `task/TASK-011a-authorization-engine`.
+  - Pull request: [#23](https://github.com/HomyHubs/vlxd/pull/23).
   - Status: `ready_for_review`.
 
 ## Quy tắc cập nhật
