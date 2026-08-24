@@ -7,6 +7,11 @@ import {
   type ZodTypeProvider,
 } from "fastify-type-provider-zod";
 import type { Kysely } from "kysely";
+import {
+  authorizationPlugin,
+  AuthorizationService,
+  KyselyAuthorizationRepository,
+} from "./features/authorization/index.js";
 import { authPlugin, AuthRepository, authRoutes, AuthService } from "./features/auth/index.js";
 import type { Config } from "./platform/config.js";
 import { checkDatabaseHealth, type Database } from "./platform/db/index.js";
@@ -51,8 +56,11 @@ export function buildApp(optionsOrConfig: Config | AppOptions) {
   if (db) {
     const authRepository = new AuthRepository(db);
     const authService = new AuthService(authRepository);
+    const authorizationRepository = new KyselyAuthorizationRepository(db);
+    const authorizationService = new AuthorizationService(authorizationRepository);
 
     app.register(authPlugin, { authService });
+    app.register(authorizationPlugin, { authorizationService });
     app.register(authRoutes, { config, authService });
   }
 

@@ -10,7 +10,7 @@
 
 | Lane | Task active | Tiêu đề | Status | PR | Reviewer |
 | --- | --- | --- | --- | --- | --- |
-| `LANE-CORE` | `TASK-011a` | Capability authorization engine | `in_progress` | — | Codex / Agent B |
+| `LANE-CORE` | `TASK-011a` | Capability authorization engine | `ready_for_review` | — | Codex / Agent B |
 | `LANE-CATALOG` | — | — | `blocked` (chờ M1) | — | — |
 | `LANE-CRM` | — | — | `blocked` (chờ TASK-013) | — | — |
 | `LANE-COMMERCE` | — | — | `blocked` (chờ M2) | — | — |
@@ -23,7 +23,7 @@
   - Task packet: `docs/tasks/MVP-BACKLOG.md` — TASK-011, Authorization engine.
   - Prerequisite: TASK-010 accepted (`TASK-010a` và `TASK-010b` đã merge).
   - Implementer branch: `task/TASK-011a-authorization-engine`.
-  - Status: `in_progress`.
+  - Status: `ready_for_review`.
 
 ## Quy tắc cập nhật
 
