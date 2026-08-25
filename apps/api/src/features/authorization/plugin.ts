@@ -21,13 +21,16 @@ const authorizationPluginCallback: FastifyPluginAsync<AuthorizationPluginOptions
 ) => {
   fastify.decorate("requirePermission", (permissionCode: string) => {
     const code = permissionCode.trim();
-    return async (request: FastifyRequest, _reply: FastifyReply): Promise<void> => {
-      if (!request.user || !request.tenant) {
+    return async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+      await fastify.authenticate(request, reply);
+      const user = request.user;
+      const tenant = request.tenant;
+      if (!user || !tenant) {
         throw new AppError("Authentication credentials missing", ErrorCode.UNAUTHORIZED, 401);
       }
 
       await authorizationService.require(
-        { userId: request.user.id, tenantId: request.tenant.id },
+        { userId: user.id, tenantId: tenant.id },
         code,
       );
     };
@@ -36,4 +39,5 @@ const authorizationPluginCallback: FastifyPluginAsync<AuthorizationPluginOptions
 
 export const authorizationPlugin = fp(authorizationPluginCallback, {
   name: "authorization-plugin",
+  dependencies: ["auth-plugin"],
 });

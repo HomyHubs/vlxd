@@ -24,6 +24,7 @@ export class KyselyAuthorizationRepository implements AuthorizationRepository {
         "role_group_permissions.role_group_id",
         "titles.role_group_id",
       )
+      .innerJoin("role_groups", "role_groups.id", "role_group_permissions.role_group_id")
       .innerJoin("permissions", "permissions.id", "role_group_permissions.permission_id")
       .select("permissions.code")
       .where("tenant_users.user_id", "=", userId)
@@ -31,6 +32,7 @@ export class KyselyAuthorizationRepository implements AuthorizationRepository {
       .where("tenant_users.status", "=", "ACTIVE")
       .where("tenant_users.archived_at", "is", null)
       .where("titles.archived_at", "is", null)
+      .where("role_groups.archived_at", "is", null)
       .where((eb) =>
         eb.or([eb("titles.tenant_id", "is", null), eb("titles.tenant_id", "=", tenantId)]),
       )

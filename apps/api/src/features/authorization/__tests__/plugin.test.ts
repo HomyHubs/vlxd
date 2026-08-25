@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import { authPlugin, type AuthService } from "../../auth/index.js";
 import { registerErrorHandlers } from "../../../platform/http/error-handler.js";
 import { describe, expect, it } from "vitest";
 import {
@@ -9,6 +10,26 @@ import {
 
 function buildApp(service: AuthorizationService) {
   const app = Fastify();
+  const authService = {
+    validateSession: async () => ({
+      session: { id: "session-1", expires_at: new Date("2030-01-01T00:00:00.000Z") },
+      user: {
+        id: "user-1",
+        email: "user@example.com",
+        full_name: "User",
+        status: "ACTIVE",
+      },
+      tenant: {
+        id: "tenant-1",
+        code: "TENANT",
+        name: "Tenant",
+        status: "ACTIVE",
+      },
+      tenantUser: { id: "tenant-user-1" },
+    }),
+  } as unknown as AuthService;
+
+  app.register(authPlugin, { authService });
   app.register(authorizationPlugin, { authorizationService: service });
   registerErrorHandlers(app);
   app.register(async (scopedApp) => {
@@ -41,21 +62,31 @@ describe("authorization Fastify plugin", () => {
       findTenantPermissionOverrides: async () => [],
     };
     const app = buildApp(new AuthorizationService(repository));
-    app.decorateRequest("user", undefined);
-    app.decorateRequest("tenant", undefined);
-    app.addHook("onRequest", async (request) => {
-      request.user = {
-        id: "user-1",
-        email: "user@example.com",
-        fullName: "User",
-        status: "ACTIVE",
-      };
-      request.tenant = { id: "tenant-1", code: "TENANT", name: "Tenant", status: "ACTIVE" };
-    });
 
-    const response = await app.inject({ method: "GET", url: "/protected" });
+    const response = await app.inject({
+      method: "GET",
+      url: "/protected",
+      headers: { authorization: "Bearer valid-token" },
+    });
 
     expect(response.statusCode).toBe(403);
     expect(response.json().error.code).toBe("FORBIDDEN");
+  });
+
+  it("authenticates a valid credential before allowing a capability", async () => {
+    const repository: AuthorizationRepository = {
+      findRolePermissionCodes: async () => ["product.item.read"],
+      findTenantPermissionOverrides: async () => [],
+    };
+    const app = buildApp(new AuthorizationService(repository));
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/protected",
+      headers: { authorization: "Bearer valid-token" },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ ok: true });
   });
 });
