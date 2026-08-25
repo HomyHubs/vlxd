@@ -10,7 +10,7 @@ import { KyselyAuthorizationRepository } from "../index.js";
 
 const migrationsDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  "../../../../../db/migrations",
+  "../../../../../../db/migrations",
 );
 
 describe("KyselyAuthorizationRepository PostgreSQL integration", () => {
@@ -64,7 +64,6 @@ describe("KyselyAuthorizationRepository PostgreSQL integration", () => {
 
   afterAll(async () => {
     await db?.destroy();
-    await pool?.end();
     await container?.stop();
   });
 
