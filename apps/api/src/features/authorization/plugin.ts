@@ -29,10 +29,7 @@ const authorizationPluginCallback: FastifyPluginAsync<AuthorizationPluginOptions
         throw new AppError("Authentication credentials missing", ErrorCode.UNAUTHORIZED, 401);
       }
 
-      await authorizationService.require(
-        { userId: user.id, tenantId: tenant.id },
-        code,
-      );
+      await authorizationService.require({ userId: user.id, tenantId: tenant.id }, code);
     };
   });
 };
