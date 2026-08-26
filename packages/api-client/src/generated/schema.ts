@@ -607,6 +607,7 @@ export interface operations {
             400: components["responses"]["BadRequestError"];
             401: components["responses"]["UnauthorizedError"];
             403: components["responses"]["ForbiddenError"];
+            404: components["responses"]["NotFoundError"];
             409: components["responses"]["ConflictError"];
         };
     };

@@ -24,7 +24,7 @@ export const tenantUserRoutes: FastifyPluginAsync<TenantUserRoutesOptions> = asy
   typedFastify.post(
     "/api/v1/tenant-users",
     {
-      preHandler: [fastify.authenticate, fastify.requirePermission("user.account.create")],
+      preHandler: [fastify.requirePermission("user.account.create")],
       schema: { body: inviteSchema },
     },
     async (request, reply) => {
@@ -36,7 +36,7 @@ export const tenantUserRoutes: FastifyPluginAsync<TenantUserRoutesOptions> = asy
   typedFastify.patch(
     "/api/v1/tenant-users/:tenantUserId/status",
     {
-      preHandler: [fastify.authenticate, fastify.requirePermission("user.account.update")],
+      preHandler: [fastify.requirePermission("user.account.update")],
       schema: { params: idParams, body: statusSchema },
     },
     async (request, reply) => {
@@ -52,7 +52,7 @@ export const tenantUserRoutes: FastifyPluginAsync<TenantUserRoutesOptions> = asy
   typedFastify.put(
     "/api/v1/tenant-users/:tenantUserId/titles",
     {
-      preHandler: [fastify.authenticate, fastify.requirePermission("user.role.assign")],
+      preHandler: [fastify.requirePermission("user.role.assign")],
       schema: { params: idParams, body: titlesSchema },
     },
     async (request, reply) => {

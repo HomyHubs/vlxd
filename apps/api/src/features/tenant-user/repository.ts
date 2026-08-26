@@ -1,3 +1,4 @@
+import { AppError, ErrorCode } from "@vlxd/shared";
 import type { Kysely } from "kysely";
 import type { Database } from "../../platform/db/index.js";
 
@@ -89,27 +90,45 @@ export class KyselyTenantUserRepository implements TenantUserRepository {
   }
 
   async createTenantUser(input: { tenantId: string; userId: string; titleIds: string[] }) {
-    return this.db.transaction().execute(async (trx) => {
-      const membership = await trx
-        .insertInto("tenant_users")
-        .values({
-          tenant_id: input.tenantId,
-          user_id: input.userId,
-          status: "ACTIVE",
-          is_owner: false,
-        })
-        .returning(["id", "tenant_id", "user_id", "status"])
-        .executeTakeFirstOrThrow();
+    try {
+      return await this.db.transaction().execute(async (trx) => {
+        const membership = await trx
+          .insertInto("tenant_users")
+          .values({
+            tenant_id: input.tenantId,
+            user_id: input.userId,
+            status: "ACTIVE",
+            is_owner: false,
+          })
+          .returning(["id", "tenant_id", "user_id", "status"])
+          .executeTakeFirstOrThrow();
 
-      await trx
-        .insertInto("tenant_user_titles")
-        .values(
-          input.titleIds.map((titleId) => ({ tenant_user_id: membership.id, title_id: titleId })),
-        )
-        .execute();
+        const uniqueTitleIds = Array.from(new Set(input.titleIds));
+        if (uniqueTitleIds.length > 0) {
+          await trx
+            .insertInto("tenant_user_titles")
+            .values(
+              uniqueTitleIds.map((titleId) => ({
+                tenant_user_id: membership.id,
+                title_id: titleId,
+              })),
+            )
+            .execute();
+        }
 
-      return this.getRecord(trx, input.tenantId, membership.id);
-    });
+        return this.getRecord(trx, input.tenantId, membership.id);
+      });
+    } catch (err: unknown) {
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "code" in err &&
+        (err as { code: string }).code === "23505"
+      ) {
+        throw new AppError("User is already a member of this tenant", ErrorCode.CONFLICT, 409);
+      }
+      throw err;
+    }
   }
 
   async updateStatus(tenantId: string, tenantUserId: string, status: TenantUserRecord["status"]) {
@@ -125,17 +144,36 @@ export class KyselyTenantUserRepository implements TenantUserRepository {
   }
 
   async replaceTitles(tenantId: string, tenantUserId: string, titleIds: string[]) {
-    const membership = await this.findTenantUserById(tenantId, tenantUserId);
-    if (!membership) return null;
     return this.db.transaction().execute(async (trx) => {
+      const membership = await trx
+        .selectFrom("tenant_users")
+        .select(["id", "status"])
+        .where("id", "=", tenantUserId)
+        .where("tenant_id", "=", tenantId)
+        .where("archived_at", "is", null)
+        .forUpdate()
+        .executeTakeFirst();
+
+      if (!membership) return null;
+
       await trx
         .deleteFrom("tenant_user_titles")
         .where("tenant_user_id", "=", tenantUserId)
         .execute();
-      await trx
-        .insertInto("tenant_user_titles")
-        .values(titleIds.map((titleId) => ({ tenant_user_id: tenantUserId, title_id: titleId })))
-        .execute();
+
+      const uniqueTitleIds = Array.from(new Set(titleIds));
+      if (uniqueTitleIds.length > 0) {
+        await trx
+          .insertInto("tenant_user_titles")
+          .values(
+            uniqueTitleIds.map((titleId) => ({
+              tenant_user_id: tenantUserId,
+              title_id: titleId,
+            })),
+          )
+          .execute();
+      }
+
       return this.getRecord(trx, tenantId, tenantUserId);
     });
   }

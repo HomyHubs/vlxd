@@ -185,6 +185,50 @@ describe("Tenant User Routes HTTP Integration", () => {
       expect(response.statusCode).toBe(400);
       expect(response.json().error.code).toBe("VALIDATION_ERROR");
     });
+
+    it("returns 404 when user or title does not exist", async () => {
+      const app = buildTestApp(mockAuthService, mockAuthorizationService, mockTenantUserService);
+      vi.mocked(mockAuthService.validateSession).mockResolvedValue(validSession);
+      vi.mocked(mockAuthorizationService.require).mockResolvedValue();
+      vi.mocked(mockTenantUserService.invite).mockRejectedValue(
+        new AppError("User account not found", ErrorCode.NOT_FOUND, 404),
+      );
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/tenant-users",
+        cookies: { vlxd_session: "valid-token" },
+        payload: {
+          email: "missing@example.com",
+          titleIds: ["00000000-0000-4000-a000-000000000010"],
+        },
+      });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.json().error.code).toBe("NOT_FOUND");
+    });
+
+    it("returns 409 on duplicate tenant membership", async () => {
+      const app = buildTestApp(mockAuthService, mockAuthorizationService, mockTenantUserService);
+      vi.mocked(mockAuthService.validateSession).mockResolvedValue(validSession);
+      vi.mocked(mockAuthorizationService.require).mockResolvedValue();
+      vi.mocked(mockTenantUserService.invite).mockRejectedValue(
+        new AppError("User is already a member of this tenant", ErrorCode.CONFLICT, 409),
+      );
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/tenant-users",
+        cookies: { vlxd_session: "valid-token" },
+        payload: {
+          email: "existing@example.com",
+          titleIds: ["00000000-0000-4000-a000-000000000010"],
+        },
+      });
+
+      expect(response.statusCode).toBe(409);
+      expect(response.json().error.code).toBe("CONFLICT");
+    });
   });
 
   describe("PATCH /api/v1/tenant-users/:tenantUserId/status", () => {
@@ -234,6 +278,27 @@ describe("Tenant User Routes HTTP Integration", () => {
       expect(response.statusCode).toBe(400);
       expect(response.json().error.code).toBe("VALIDATION_ERROR");
     });
+
+    it("returns 404 when tenant user is not found", async () => {
+      const app = buildTestApp(mockAuthService, mockAuthorizationService, mockTenantUserService);
+      vi.mocked(mockAuthService.validateSession).mockResolvedValue(validSession);
+      vi.mocked(mockAuthorizationService.require).mockResolvedValue();
+      vi.mocked(mockTenantUserService.updateStatus).mockRejectedValue(
+        new AppError("Tenant user not found", ErrorCode.NOT_FOUND, 404),
+      );
+
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/tenant-users/00000000-0000-4000-a000-000000000099/status",
+        cookies: { vlxd_session: "valid-token" },
+        payload: {
+          status: "ACTIVE",
+        },
+      });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.json().error.code).toBe("NOT_FOUND");
+    });
   });
 
   describe("PUT /api/v1/tenant-users/:tenantUserId/titles", () => {
@@ -264,6 +329,27 @@ describe("Tenant User Routes HTTP Integration", () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json()).toEqual(updatedRecord);
+    });
+
+    it("returns 404 when tenant user or title is not found", async () => {
+      const app = buildTestApp(mockAuthService, mockAuthorizationService, mockTenantUserService);
+      vi.mocked(mockAuthService.validateSession).mockResolvedValue(validSession);
+      vi.mocked(mockAuthorizationService.require).mockResolvedValue();
+      vi.mocked(mockTenantUserService.replaceTitles).mockRejectedValue(
+        new AppError("Tenant user not found", ErrorCode.NOT_FOUND, 404),
+      );
+
+      const response = await app.inject({
+        method: "PUT",
+        url: "/api/v1/tenant-users/00000000-0000-4000-a000-000000000099/titles",
+        cookies: { vlxd_session: "valid-token" },
+        payload: {
+          titleIds: ["00000000-0000-4000-a000-000000000020"],
+        },
+      });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.json().error.code).toBe("NOT_FOUND");
     });
   });
 });
