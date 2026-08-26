@@ -10,7 +10,7 @@
 
 | Lane              | Task active | Tiêu đề                                  | Status                                  | PR                                              | Reviewer            |
 | ----------------- | ----------- | ---------------------------------------- | --------------------------------------- | ----------------------------------------------- | ------------------- |
-| `LANE-CORE`       | `TASK-011b` | Tenant user lifecycle & title assignment | `ready_for_review`                      | —                                               | AI Bot 2 (Reviewer) |
+| `LANE-CORE`       | `TASK-011b` | Tenant user lifecycle & title assignment | `ready_for_review`                      | [#24](https://github.com/HomyHubs/vlxd/pull/24) | AI Bot 2 (Reviewer) |
 | `LANE-CATALOG`    | —           | —                                        | `blocked` (chờ M1)                      | —                                               | —                   |
 | `LANE-CRM`        | —           | —                                        | `blocked` (chờ TASK-013)                | —                                               | —                   |
 | `LANE-COMMERCE`   | —           | —                                        | `blocked` (chờ M2)                      | —                                               | —                   |
@@ -22,6 +22,7 @@
 - **`TASK-011b` · `LANE-CORE`**
   - Task packet: `docs/tasks/MVP-BACKLOG.md` — TASK-011, tenant user lifecycle.
   - Implementer branch: `task/TASK-011b-tenant-user-lifecycle`.
+  - Pull request: [#24](https://github.com/HomyHubs/vlxd/pull/24).
   - Scope: invite existing account, suspend/activate/revoke membership, replace titles.
   - Contract: `contracts/http/openapi.yaml` and generated `packages/api-client` types.
   - Status: `ready_for_review`.

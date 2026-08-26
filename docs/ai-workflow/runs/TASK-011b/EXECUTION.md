@@ -100,7 +100,7 @@
 
 ## Kết quả bàn giao
 
-- PR: Branch `task/TASK-011b-tenant-user-lifecycle`
+- PR: [#24](https://github.com/HomyHubs/vlxd/pull/24)
 - Final status: ready_for_review
 - Output chính: Endpoints tenant user lifecycle với capability authorization và client SDK hoàn chỉnh.
 - Reviewer cần tập trung: Kiểm tra logic phân quyền capability, validation title IDs theo tenant isolation, và error responses.

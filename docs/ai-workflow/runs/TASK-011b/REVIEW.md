@@ -3,7 +3,7 @@
 ## Metadata
 
 - Reviewer: AI Bot 2 (Reviewer)
-- PR/commit reviewed:
+- PR/commit reviewed: [#24](https://github.com/HomyHubs/vlxd/pull/24)
 - Reviewed at (UTC):
 - Review round: 1
 - Verdict: pending
