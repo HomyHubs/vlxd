@@ -12,6 +12,11 @@ export type AuthUser = components["schemas"]["AuthUser"];
 export type AuthTenant = components["schemas"]["AuthTenant"];
 export type AuthSession = components["schemas"]["AuthSession"];
 export type AuthTitle = components["schemas"]["AuthTitle"];
+export type InviteTenantUserRequest = components["schemas"]["InviteTenantUserRequest"];
+export type UpdateTenantUserStatusRequest = components["schemas"]["UpdateTenantUserStatusRequest"];
+export type ReplaceTenantUserTitlesRequest =
+  components["schemas"]["ReplaceTenantUserTitlesRequest"];
+export type TenantUserResponse = components["schemas"]["TenantUserResponse"];
 export type ErrorCode = components["schemas"]["ErrorCode"];
 export type ErrorObject = components["schemas"]["ErrorObject"];
 export type ErrorDetails = components["schemas"]["ErrorDetails"];
@@ -53,6 +58,17 @@ export interface ApiClient {
   login(body: LoginRequest): Promise<LoginResponse>;
   logout(token?: string): Promise<LogoutResponse>;
   getAuthMe(token?: string): Promise<AuthMeResponse>;
+  inviteTenantUser(body: InviteTenantUserRequest, token?: string): Promise<TenantUserResponse>;
+  updateTenantUserStatus(
+    tenantUserId: string,
+    body: UpdateTenantUserStatusRequest,
+    token?: string,
+  ): Promise<TenantUserResponse>;
+  replaceTenantUserTitles(
+    tenantUserId: string,
+    body: ReplaceTenantUserTitlesRequest,
+    token?: string,
+  ): Promise<TenantUserResponse>;
 }
 
 export function createApiClient(options: ApiClientOptions): ApiClient {
@@ -125,6 +141,36 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       return request<AuthMeResponse>("/api/v1/auth/me", {
         method: "GET",
         headers,
+      });
+    },
+    async inviteTenantUser(body, token) {
+      return request<TenantUserResponse>("/api/v1/tenant-users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
+      });
+    },
+    async updateTenantUserStatus(tenantUserId, body, token) {
+      return request<TenantUserResponse>(`/api/v1/tenant-users/${tenantUserId}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
+      });
+    },
+    async replaceTenantUserTitles(tenantUserId, body, token) {
+      return request<TenantUserResponse>(`/api/v1/tenant-users/${tenantUserId}/titles`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
       });
     },
   };

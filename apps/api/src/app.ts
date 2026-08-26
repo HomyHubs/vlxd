@@ -13,6 +13,11 @@ import {
   KyselyAuthorizationRepository,
 } from "./features/authorization/index.js";
 import { authPlugin, AuthRepository, authRoutes, AuthService } from "./features/auth/index.js";
+import {
+  KyselyTenantUserRepository,
+  tenantUserRoutes,
+  TenantUserService,
+} from "./features/tenant-user/index.js";
 import type { Config } from "./platform/config.js";
 import { checkDatabaseHealth, type Database } from "./platform/db/index.js";
 import { registerErrorHandlers } from "./platform/http/error-handler.js";
@@ -58,10 +63,13 @@ export function buildApp(optionsOrConfig: Config | AppOptions) {
     const authService = new AuthService(authRepository);
     const authorizationRepository = new KyselyAuthorizationRepository(db);
     const authorizationService = new AuthorizationService(authorizationRepository);
+    const tenantUserRepository = new KyselyTenantUserRepository(db);
+    const tenantUserService = new TenantUserService(tenantUserRepository);
 
     app.register(authPlugin, { authService });
     app.register(authorizationPlugin, { authorizationService });
     app.register(authRoutes, { config, authService });
+    app.register(tenantUserRoutes, { tenantUserService });
   }
 
   // Liveness Health Check Route (/health)

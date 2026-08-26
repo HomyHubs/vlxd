@@ -104,6 +104,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tenant-users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Invite a user to the current tenant */
+        post: operations["inviteTenantUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenant-users/{tenantUserId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change a tenant user's membership status */
+        patch: operations["updateTenantUserStatus"];
+        trace?: never;
+    };
+    "/api/v1/tenant-users/{tenantUserId}/titles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace a tenant user's assigned titles */
+        put: operations["replaceTenantUserTitles"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -236,6 +287,32 @@ export interface components {
             /** @example true */
             isOwner: boolean;
             titles: components["schemas"]["AuthTitle"][];
+        };
+        InviteTenantUserRequest: {
+            /** Format: email */
+            email: string;
+            titleIds: string[];
+        };
+        UpdateTenantUserStatusRequest: {
+            /** @enum {string} */
+            status: "ACTIVE" | "SUSPENDED" | "REVOKED";
+        };
+        ReplaceTenantUserTitlesRequest: {
+            titleIds: string[];
+        };
+        TenantUserResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenantId: string;
+            /** Format: uuid */
+            userId: string;
+            /** Format: email */
+            email: string;
+            fullName: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "SUSPENDED" | "REVOKED";
+            titleIds: string[];
         };
         /**
          * @example VALIDATION_ERROR
@@ -503,6 +580,94 @@ export interface operations {
             };
             401: components["responses"]["UnauthorizedError"];
             500: components["responses"]["InternalServerError"];
+        };
+    };
+    inviteTenantUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InviteTenantUserRequest"];
+            };
+        };
+        responses: {
+            /** @description Tenant user invited */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantUserResponse"];
+                };
+            };
+            400: components["responses"]["BadRequestError"];
+            401: components["responses"]["UnauthorizedError"];
+            403: components["responses"]["ForbiddenError"];
+            409: components["responses"]["ConflictError"];
+        };
+    };
+    updateTenantUserStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenantUserId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTenantUserStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description Tenant user status updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantUserResponse"];
+                };
+            };
+            400: components["responses"]["BadRequestError"];
+            401: components["responses"]["UnauthorizedError"];
+            403: components["responses"]["ForbiddenError"];
+            404: components["responses"]["NotFoundError"];
+        };
+    };
+    replaceTenantUserTitles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenantUserId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplaceTenantUserTitlesRequest"];
+            };
+        };
+        responses: {
+            /** @description Tenant user titles replaced */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantUserResponse"];
+                };
+            };
+            400: components["responses"]["BadRequestError"];
+            401: components["responses"]["UnauthorizedError"];
+            403: components["responses"]["ForbiddenError"];
+            404: components["responses"]["NotFoundError"];
         };
     };
 }

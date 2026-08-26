@@ -261,4 +261,125 @@ describe("@vlxd/api-client", () => {
       },
     });
   });
+
+  it("calls POST /api/v1/tenant-users to invite tenant user", async () => {
+    const mockResponse = {
+      id: "550e8400-e29b-41d4-a716-446655440099",
+      tenantId: "550e8400-e29b-41d4-a716-446655440001",
+      userId: "550e8400-e29b-41d4-a716-446655440002",
+      email: "staff@example.com",
+      fullName: "Staff",
+      status: "ACTIVE" as const,
+      titleIds: ["550e8400-e29b-41d4-a716-446655440003"],
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockResponse,
+    });
+
+    const client = createApiClient({
+      baseUrl: "http://localhost:3001",
+      fetchFn: mockFetch as unknown as typeof fetch,
+    });
+
+    const payload = {
+      email: "staff@example.com",
+      titleIds: ["550e8400-e29b-41d4-a716-446655440003"],
+    };
+
+    const result = await client.inviteTenantUser(payload, "bearer-token");
+    expect(result).toEqual(mockResponse);
+    expect(mockFetch).toHaveBeenCalledWith("http://localhost:3001/api/v1/tenant-users", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer bearer-token",
+      },
+      body: JSON.stringify(payload),
+    });
+  });
+
+  it("calls PATCH /api/v1/tenant-users/:id/status to update membership status", async () => {
+    const mockResponse = {
+      id: "550e8400-e29b-41d4-a716-446655440099",
+      tenantId: "550e8400-e29b-41d4-a716-446655440001",
+      userId: "550e8400-e29b-41d4-a716-446655440002",
+      email: "staff@example.com",
+      fullName: "Staff",
+      status: "SUSPENDED" as const,
+      titleIds: ["550e8400-e29b-41d4-a716-446655440003"],
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockResponse,
+    });
+
+    const client = createApiClient({
+      baseUrl: "http://localhost:3001",
+      fetchFn: mockFetch as unknown as typeof fetch,
+    });
+
+    const result = await client.updateTenantUserStatus(
+      "550e8400-e29b-41d4-a716-446655440099",
+      { status: "SUSPENDED" },
+      "bearer-token",
+    );
+    expect(result).toEqual(mockResponse);
+    expect(mockFetch).toHaveBeenCalledWith(
+      "http://localhost:3001/api/v1/tenant-users/550e8400-e29b-41d4-a716-446655440099/status",
+      {
+        method: "PATCH",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer bearer-token",
+        },
+        body: JSON.stringify({ status: "SUSPENDED" }),
+      },
+    );
+  });
+
+  it("calls PUT /api/v1/tenant-users/:id/titles to replace titles", async () => {
+    const mockResponse = {
+      id: "550e8400-e29b-41d4-a716-446655440099",
+      tenantId: "550e8400-e29b-41d4-a716-446655440001",
+      userId: "550e8400-e29b-41d4-a716-446655440002",
+      email: "staff@example.com",
+      fullName: "Staff",
+      status: "ACTIVE" as const,
+      titleIds: ["550e8400-e29b-41d4-a716-446655440010"],
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockResponse,
+    });
+
+    const client = createApiClient({
+      baseUrl: "http://localhost:3001",
+      fetchFn: mockFetch as unknown as typeof fetch,
+    });
+
+    const result = await client.replaceTenantUserTitles(
+      "550e8400-e29b-41d4-a716-446655440099",
+      { titleIds: ["550e8400-e29b-41d4-a716-446655440010"] },
+      "bearer-token",
+    );
+    expect(result).toEqual(mockResponse);
+    expect(mockFetch).toHaveBeenCalledWith(
+      "http://localhost:3001/api/v1/tenant-users/550e8400-e29b-41d4-a716-446655440099/titles",
+      {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer bearer-token",
+        },
+        body: JSON.stringify({ titleIds: ["550e8400-e29b-41d4-a716-446655440010"] }),
+      },
+    );
+  });
 });
