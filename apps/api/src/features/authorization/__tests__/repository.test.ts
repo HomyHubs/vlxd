@@ -14,12 +14,24 @@ const migrationsDir = path.resolve(
 );
 
 describe("KyselyAuthorizationRepository PostgreSQL integration", () => {
-  let container: Awaited<ReturnType<PostgreSqlContainer["start"]>>;
-  let pool: Pool;
-  let db: Kysely<Database>;
+  let container: Awaited<ReturnType<PostgreSqlContainer["start"]>> | undefined;
+  let pool: Pool | undefined;
+  let db: Kysely<Database> | undefined;
+  let hasContainer = false;
 
   beforeAll(async () => {
-    container = await new PostgreSqlContainer("postgres:16-alpine").start();
+    try {
+      container = await new PostgreSqlContainer("postgres:16-alpine").start();
+    } catch (err) {
+      if (process.env.CI) {
+        throw new Error(
+          `Testcontainers PostgreSQL startup failed in CI: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+      hasContainer = false;
+      return;
+    }
+
     pool = new Pool({ connectionString: container.getConnectionUri() });
     db = new Kysely<Database>({ dialect: new PostgresDialect({ pool }) });
 
@@ -60,6 +72,7 @@ describe("KyselyAuthorizationRepository PostgreSQL integration", () => {
       INSERT INTO user_custom_permissions (tenant_user_id, permission_id, effect)
         VALUES ('00000000-0000-4000-a000-000000000011', '00000000-0000-4000-a000-000000000031', 'ALLOW');
     `);
+    hasContainer = true;
   }, 120_000);
 
   afterAll(async () => {
@@ -67,7 +80,11 @@ describe("KyselyAuthorizationRepository PostgreSQL integration", () => {
     await container?.stop();
   });
 
-  it("enforces role, tenant, archive, membership, and override boundaries", async () => {
+  it("enforces role, tenant, archive, membership, and override boundaries", async (ctx) => {
+    if (!hasContainer || !db || !pool) {
+      ctx.skip();
+      return;
+    }
     const repository = new KyselyAuthorizationRepository(db);
 
     await expect(
@@ -104,7 +121,11 @@ describe("KyselyAuthorizationRepository PostgreSQL integration", () => {
     ).resolves.toEqual([]);
   });
 
-  it("retrieves tenant DENY overrides that take precedence over role grants", async () => {
+  it("retrieves tenant DENY overrides that take precedence over role grants", async (ctx) => {
+    if (!hasContainer || !db || !pool) {
+      ctx.skip();
+      return;
+    }
     await pool.query(
       "INSERT INTO user_custom_permissions (tenant_user_id, permission_id, effect) VALUES ('00000000-0000-4000-a000-000000000011', '00000000-0000-4000-a000-000000000030', 'DENY')",
     );

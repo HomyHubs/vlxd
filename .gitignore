@@ -13,5 +13,6 @@ test-results/
 .DS_Store
 Thumbs.db
 .agents/
+.playwright-mcp/
 tsconfig.tsbuildinfo
 repo.md

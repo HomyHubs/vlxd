@@ -428,6 +428,7 @@ Một UI feature chỉ được coi là xong khi:
 - [x] TASK-009 — Backend platform foundation, Kysely lifecycle, error envelope, and observability (PR #20).
 - [x] TASK-010a — Backend auth, password hashing, opaque server-side session, secure cookie, login/logout (PR #21).
 - [x] TASK-010b — Frontend login shell với TanStack React Query và reactive session state (PR #22).
+- [x] TASK-011a — Capability authorization engine (PR #23).
 - [x] Làm rõ cấu trúc repo tách `apps/web` và `apps/api`, mỗi bên chia `features/<feature>`.
 - [x] Thêm định hướng Role Management cho cửa hàng vật liệu xây dựng (`docs/requirements/role-management.md`).
 - [x] Chuẩn hóa yêu cầu gói dịch vụ ở mức root AGENTS và `docs/requirements/service-plans.md`.
@@ -437,8 +438,8 @@ Một UI feature chỉ được coi là xong khi:
 
 ### Đang làm
 
-- [ ] `TASK-011a` (M1 · `LANE-CORE`): Capability authorization engine.
+- [ ] `TASK-011b` (M1 · `LANE-CORE`): Tenant user lifecycle & title assignment.
 
 ### Bước tiếp theo
 
-- [ ] `TASK-011b` (M1 · `LANE-CORE`): Tenant user lifecycle & title assignment.
+- [ ] `TASK-011c` (M1 · `LANE-CORE`): Permission override & scope enforcement.
